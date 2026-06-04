@@ -25,7 +25,7 @@ async def create_project(body: ProjectCreate, db: DbDep) -> ProjectResponse:
 
 @router.get("", response_model=list[ProjectListResponse])
 async def list_projects(db: DbDep) -> list[ProjectListResponse]:
-    result = await db.execute(select(Project).order_by(Project.created_at.desc()))
+    result = await db.execute(select(Project).order_by(Project.updated_at.desc()))
     projects = result.scalars().all()
     return [ProjectListResponse.model_validate(p) for p in projects]
 

@@ -289,48 +289,15 @@ ECOSYNC_SCENARIO = {
             "pain_point": "Щокварталу витрачає 3 дні на консолідацію даних про викиди з 3 офісів",
         },
         "timeline": [
-            {
-                "icon_key": "calendar",
-                "label_key": "Контекст",
-                "text": "Кінець кварталу. Потрібно консолідувати дані про викиди з офісів у Києві, Варшаві та Франкфурті.",
-                "highlight": False,
-            },
-            {
-                "icon_key": "target",
-                "label_key": "Мета",
-                "text": "Зібрати Scope 1, 2, 3 дані від 3 офісів і сформувати CSRD-звіт для аудитора до п'ятниці.",
-                "highlight": False,
-            },
-            {
-                "icon_key": "zap",
-                "label_key": "Дія",
-                "text": "Один клік → EcoSync автоматично підтягує дані з SAP та IoT-сенсорів, розраховує викиди та генерує звіт.",
-                "highlight": True,
-            },
-            {
-                "icon_key": "check-circle",
-                "label_key": "Результат",
-                "text": "Повний CSRD-звіт готовий за 15 хвилин. Олена надсилає його аудитору у вівторок вранці.",
-                "highlight": True,
-            },
-            {
-                "icon_key": "trending-up",
-                "label_key": "Ефект",
-                "text": "Вивільнені 2.5 дні Олена витрачає на розробку нової ініціативи з декарбонізації ланцюга постачання.",
-                "highlight": False,
-            },
+            {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Кінець кварталу. Потрібно консолідувати дані про викиди з офісів у Києві, Варшаві та Франкфурті.", "highlight": False},
+            {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Зібрати Scope 1, 2, 3 дані від 3 офісів і сформувати CSRD-звіт для аудитора до п'ятниці.", "highlight": False},
+            {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Один клік → EcoSync автоматично підтягує дані з SAP та IoT-сенсорів, розраховує викиди та генерує звіт.", "highlight": True},
+            {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Повний CSRD-звіт готовий за 15 хвилин. Олена надсилає його аудитору у вівторок вранці.", "highlight": True},
+            {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Вивільнені 2.5 дні Олена витрачає на розробку нової ініціативи з декарбонізації ланцюга постачання.", "highlight": False},
         ],
         "metrics": {
-            "before": {
-                "report_time": "3 дні",
-                "manual_steps": "47 кроків",
-                "error_rate": "~12%",
-            },
-            "after": {
-                "report_time": "15 хвилин",
-                "manual_steps": "1 клік",
-                "error_rate": "<0.5%",
-            },
+            "before": {"value": "3 дні", "label": "Ручне збирання даних у Excel"},
+            "after": {"value": "15 хвилин", "label": "Готовий звіт з AI-аналітикою"},
         },
     },
     "en": {
@@ -341,48 +308,15 @@ ECOSYNC_SCENARIO = {
             "pain_point": "Spends 3 days every quarter consolidating emissions data from 3 offices",
         },
         "timeline": [
-            {
-                "icon_key": "calendar",
-                "label_key": "Context",
-                "text": "End of quarter. Need to consolidate emissions data from offices in Kyiv, Warsaw, and Frankfurt.",
-                "highlight": False,
-            },
-            {
-                "icon_key": "target",
-                "label_key": "Goal",
-                "text": "Collect Scope 1, 2, 3 data from 3 offices and generate a CSRD report for the auditor by Friday.",
-                "highlight": False,
-            },
-            {
-                "icon_key": "zap",
-                "label_key": "Action",
-                "text": "One click → EcoSync automatically pulls data from SAP and IoT sensors, calculates emissions, and generates the report.",
-                "highlight": True,
-            },
-            {
-                "icon_key": "check-circle",
-                "label_key": "Result",
-                "text": "Full CSRD report ready in 15 minutes. Olena sends it to the auditor on Tuesday morning.",
-                "highlight": True,
-            },
-            {
-                "icon_key": "trending-up",
-                "label_key": "Impact",
-                "text": "Olena uses the freed 2.5 days to develop a new supply chain decarbonization initiative.",
-                "highlight": False,
-            },
+            {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "End of quarter. Need to consolidate emissions data from offices in Kyiv, Warsaw, and Frankfurt.", "highlight": False},
+            {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Collect Scope 1, 2, 3 data from 3 offices and generate a CSRD report for the auditor by Friday.", "highlight": False},
+            {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "One click → EcoSync automatically pulls data from SAP and IoT sensors, calculates emissions, and generates the report.", "highlight": True},
+            {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Full CSRD report ready in 15 minutes. Olena sends it to the auditor on Tuesday morning.", "highlight": True},
+            {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Olena uses the freed 2.5 days to develop a new supply chain decarbonization initiative.", "highlight": False},
         ],
         "metrics": {
-            "before": {
-                "report_time": "3 days",
-                "manual_steps": "47 steps",
-                "error_rate": "~12%",
-            },
-            "after": {
-                "report_time": "15 minutes",
-                "manual_steps": "1 click",
-                "error_rate": "<0.5%",
-            },
+            "before": {"value": "3 days", "label": "Manual Excel data collection"},
+            "after": {"value": "15 minutes", "label": "Ready report with AI analytics"},
         },
     },
 }
@@ -394,71 +328,62 @@ ECOSYNC_WHAT_IF = {
             "vector": "Financial",
             "color": "indigo",
             "icon": "coins",
-            "title_key": "whatIf.financial.title",
-            "description_key": "whatIf.financial.description",
+            "title": "Що якби ми перейшли на Revenue Share замість підписки?",
+            "description": "Замість фіксованої підписки стягувати % від підтвердженої економії клієнта на ESG-аудитах. Це знижує поріг входу та вирівнює інтереси.",
+            "value": "Клієнт платить лише коли бачить результат — вища довіра, нижчий churn",
+            "revenue": "Потенційний ARPU зростає до €8 000+/рік на великих клієнтах при підтвердженій економії €50k+",
+            "status": "applied",
         },
         {
             "id": uid(),
             "vector": "Technical",
             "color": "teal",
             "icon": "cpu",
-            "title_key": "whatIf.technical.title",
-            "description_key": "whatIf.technical.description",
+            "title": "Що якби ми додали on-premise розгортання для regulated industries?",
+            "description": "Фінансовий та енергетичний сектор не може передавати ESG-дані в публічний хмарний сервіс. On-premise версія відкриває Enterprise-сегмент.",
+            "value": "Доступ до 300+ регульованих компаній ЄС, які зараз заблоковані compliance-вимогами",
+            "revenue": "On-premise ліцензія від €24 000/рік — x4 до поточного Enterprise-плану",
+            "status": "draft",
         },
         {
             "id": uid(),
             "vector": "Emotional",
             "color": "slate",
             "icon": "heartHandshake",
-            "title_key": "whatIf.emotional.title",
-            "description_key": "whatIf.emotional.description",
+            "title": "Що якби ми зробили ESG-score публічним і видимим для партнерів?",
+            "description": "Публічний ESG-рейтинг компанії у профілі платформи стає інструментом B2B-довіри при тендерах та закупівлях.",
+            "value": "Вірусний ефект: кожен клієнт залучає постачальників через вимогу показати ESG-score",
+            "revenue": "Нова монетизація: верифікація ESG-score третіх сторін за €299/перевірку",
+            "status": "draft",
         },
     ]
 }
 
 ECOSYNC_ARCHITECTURE = {
     "uk": {
-        "original": {
-            "epicenter": "Монетизація та грошові потоки",
-            "pattern": "Freemium",
-            "description": "Безкоштовний базовий план для залучення, преміум-функції конвертують у підписку. Акцент на швидкому onboarding та вірусному поширенні всередині корпорацій.",
-            "tiers": [
-                {"name": "Core", "price": "Безкоштовно", "features": ["До 3 джерел даних", "Scope 1/2 розрахунок", "CSV-експорт"]},
-                {"name": "Pro", "price": "€999/міс", "features": ["Необмежені джерела", "Scope 3", "API-доступ", "White-label звіти"]},
-                {"name": "Enterprise", "price": "Від €3 000/міс", "features": ["SSO/SAML", "Кастомні коннектори", "SLA 99.9%", "Виділений CSM"]},
-            ],
+        "epicenter": {
+            "value": "Finance-driven",
+            "description": "Монетизація та грошові потоки — ключовий рушій моделі. Платформа будується навколо підписки та преміум-апгрейдів, де кожна функція прив'язана до доходу.",
+            "status": "determined",
         },
-        "regenerated": {
-            "epicenter": "Оптимізація ресурсів та операційна ефективність",
-            "pattern": "Subscription-First",
-            "description": "Фокус на ARR від початку — без безкоштовного плану, але з 14-денним trial і гарантією ROI. Продаж через value-based pricing з прив'язкою до зекономлених людино-годин.",
-            "tiers": [
-                {"name": "Growth", "price": "€1 200/міс", "features": ["5 користувачів", "Scope 1/2/3", "CSRD-звіти", "Email підтримка"]},
-                {"name": "Scale", "price": "€3 600/міс", "features": ["25 користувачів", "API + webhook", "SAP/Oracle коннектор", "Пріоритетна підтримка"]},
-                {"name": "Enterprise", "price": "Індивідуально", "features": ["Необмежені ліцензії", "On-premise опція", "Кастомний SLA", "Виділена команда"]},
-            ],
+        "pattern": {
+            "value": "FREE",
+            "subtype": "Freemium",
+            "description": "Безкоштовний базовий план для залучення, преміум-функції конвертують у підписку. Акцент на швидкому onboarding та вірусному поширенні всередині корпорацій.",
+            "status": "system_selection",
         },
     },
     "en": {
-        "original": {
-            "epicenter": "Monetization and cash flows",
-            "pattern": "Freemium",
-            "description": "Free basic plan for acquisition, premium features convert to subscriptions. Focus on fast onboarding and viral spread within corporations.",
-            "tiers": [
-                {"name": "Core", "price": "Free", "features": ["Up to 3 data sources", "Scope 1/2 calculation", "CSV export"]},
-                {"name": "Pro", "price": "€999/mo", "features": ["Unlimited sources", "Scope 3", "API access", "White-label reports"]},
-                {"name": "Enterprise", "price": "From €3,000/mo", "features": ["SSO/SAML", "Custom connectors", "SLA 99.9%", "Dedicated CSM"]},
-            ],
+        "epicenter": {
+            "value": "Finance-driven",
+            "description": "Monetization and cash flows are the key drivers of the model. The platform is built around subscriptions and premium upgrades, where every feature is tied to revenue.",
+            "status": "determined",
         },
-        "regenerated": {
-            "epicenter": "Resource optimization and operational efficiency",
-            "pattern": "Subscription-First",
-            "description": "ARR focus from day one — no free plan, but a 14-day trial with ROI guarantee. Sold via value-based pricing tied to saved person-hours.",
-            "tiers": [
-                {"name": "Growth", "price": "€1,200/mo", "features": ["5 users", "Scope 1/2/3", "CSRD reports", "Email support"]},
-                {"name": "Scale", "price": "€3,600/mo", "features": ["25 users", "API + webhook", "SAP/Oracle connector", "Priority support"]},
-                {"name": "Enterprise", "price": "Custom", "features": ["Unlimited licenses", "On-premise option", "Custom SLA", "Dedicated team"]},
-            ],
+        "pattern": {
+            "value": "FREE",
+            "subtype": "Freemium",
+            "description": "Free basic plan for acquisition, premium features convert to subscriptions. Focus on fast onboarding and viral spread within corporations.",
+            "status": "system_selection",
         },
     },
 }
@@ -581,6 +506,13 @@ SMART_GRID = Project(
                 {"type": "traction", "headline": "2 пілоти з Обленерго. €1.8М ARR pipeline.", "content": "Київобленерго та Харківобленерго. Підтверджене зниження втрат на 19% за 3 місяці пілоту."},
                 {"type": "ask", "headline": "Залучаємо €3М на масштабування", "content": "Вихід на 5 обленерго у 2025 році та пілот у Польщі (PSE оператор)."},
             ],
+            "client": [
+                {"type": "opening", "headline": "Андрію, уявіть: понеділок, 18:30, і ваша підстанція №12 знову відключила 3 000 абонентів", "content": "Черговий дзвінок від керівництва. Черговий звіт регулятору. Це відбувається вже третій тиждень поспіль."},
+                {"type": "empathy", "headline": "Ми знаємо, як виглядає реактивне управління мережею зсередини", "content": "Диспетчер стежить за SCADA цілодобово, але дізнається про проблему вже після того, як вона сталась. Це не ваша помилка — це обмеження старої системи."},
+                {"type": "transformation", "headline": "Попередження за 15 хвилин замість ліквідації аварії", "content": "Smart Grid Automation прогнозує пікові навантаження наперед і автоматично перерозподіляє потужності. Ваш диспетчер отримує сповіщення — і просто підтверджує рішення системи."},
+                {"type": "social_proof", "headline": "«Кількість аварійних відключень знизилась з 8 до 1 на місяць за перші 60 днів»", "content": "— Головний інженер, регіональний оператор мережі, Харківська область. Мережеві втрати скорочено на 19%."},
+                {"type": "invitation", "headline": "Безкоштовний пілот на 10 підстанцій протягом 30 днів", "content": "Підключення за 3 дні через інтеграцію з вашою SCADA. Перший автоматичний прогноз навантаження — наступного ранку."},
+            ],
         },
         "en": {
             "investor": [
@@ -589,45 +521,54 @@ SMART_GRID = Project(
                 {"type": "traction", "headline": "2 pilots with regional DSOs. €1.8M ARR pipeline.", "content": "Kyivoblenergo and Kharkivoblenergo. Confirmed 19% loss reduction in 3-month pilot."},
                 {"type": "ask", "headline": "Raising €3M to scale", "content": "Expanding to 5 regional DSOs in 2025 and launching a pilot in Poland (PSE operator)."},
             ],
+            "client": [
+                {"type": "opening", "headline": "Imagine: Monday, 18:30, and substation #12 just cut power to 3,000 subscribers again", "content": "Another call from management. Another report to the regulator. This is the third week in a row."},
+                {"type": "empathy", "headline": "We know what reactive grid management looks like from the inside", "content": "Dispatchers watch SCADA around the clock, but only find out about problems after they happen. That's not your failure — it's the limitation of legacy systems."},
+                {"type": "transformation", "headline": "15-minute warning instead of post-incident response", "content": "Smart Grid Automation forecasts peak loads in advance and automatically redistributes capacity. Your dispatcher gets a notification and simply confirms the system's decision."},
+                {"type": "social_proof", "headline": "\"Emergency outages dropped from 8 to 1 per month in the first 60 days\"", "content": "— Chief Engineer, regional grid operator, Kharkiv region. Grid losses reduced by 19%."},
+                {"type": "invitation", "headline": "Free 30-day pilot on 10 substations", "content": "3-day integration with your existing SCADA. First automated load forecast — the next morning."},
+            ],
         },
     },
     scenario={
         "uk": {
             "persona": {"name": "Андрій Коваль", "initials": "АК", "role": "Головний інженер регіонального оператора мережі", "pain_point": "Щотижня 2 аварійних відключення через перевантаження підстанцій у піковий час"},
             "timeline": [
-                {"icon_key": "alert", "label_key": "Аварія", "text": "Підстанція №12 перевантажена о 18:30 — автоматичне відключення 3 000 абонентів.", "highlight": False},
-                {"icon_key": "zap", "label_key": "Прогноз", "text": "Smart Grid Automation попереджає: о 18:15 — прогнозоване перевантаження через 15 хв.", "highlight": True},
-                {"icon_key": "settings", "label_key": "Авторелей", "text": "Система автоматично перерозподіляє навантаження на резервну лінію без участі оператора.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "Результат", "text": "Відключення не сталося. Андрій отримує звіт о 18:16.", "highlight": False},
+                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Підстанція №12 стабільно перевантажується щопонеділка о 18:30 — 2 аварійних відключення на тиждень.", "highlight": False},
+                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Запобігти перевантаженню підстанцій у піковий час без ручного втручання диспетчера.", "highlight": False},
+                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Smart Grid Automation прогнозує перевантаження за 15 хв та автоматично перерозподіляє навантаження на резервну лінію.", "highlight": True},
+                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Відключення не сталося. Андрій отримує автоматичний звіт о 18:16.", "highlight": True},
+                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Кількість аварій знизилася з 2 до 0.2 на тиждень. Мережеві втрати скорочено з 22% до 4%.", "highlight": False},
             ],
-            "metrics": {"before": {"outages_per_week": "2", "response_time": "12 хв", "losses_pct": "22%"}, "after": {"outages_per_week": "0.2", "response_time": "автоматично", "losses_pct": "4%"}},
+            "metrics": {"before": {"value": "2 аварії/тиждень", "label": "Ручне управління підстанціями"}, "after": {"value": "0.2 аварії/тиждень", "label": "Автоматичне балансування навантаження"}},
         },
         "en": {
             "persona": {"name": "Andriy Koval", "initials": "AK", "role": "Chief Engineer, Regional Grid Operator", "pain_point": "2 emergency outages per week due to substation overload during peak hours"},
             "timeline": [
-                {"icon_key": "alert", "label_key": "Outage", "text": "Substation #12 overloaded at 18:30 — automatic disconnection of 3,000 subscribers.", "highlight": False},
-                {"icon_key": "zap", "label_key": "Forecast", "text": "Smart Grid Automation warns at 18:15: predicted overload in 15 minutes.", "highlight": True},
-                {"icon_key": "settings", "label_key": "Auto-relay", "text": "System automatically redistributes load to backup line without operator intervention.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "Result", "text": "No outage occurred. Andriy receives a report at 18:16.", "highlight": False},
+                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Substation #12 consistently overloads every Monday at 18:30 — 2 emergency outages per week.", "highlight": False},
+                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Prevent substation overloads during peak hours without manual dispatcher intervention.", "highlight": False},
+                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Smart Grid Automation forecasts overload 15 min ahead and automatically redistributes load to the backup line.", "highlight": True},
+                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "No outage occurred. Andriy receives an automated report at 18:16.", "highlight": True},
+                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Outages reduced from 2 to 0.2 per week. Grid losses cut from 22% to 4%.", "highlight": False},
             ],
-            "metrics": {"before": {"outages_per_week": "2", "response_time": "12 min", "losses_pct": "22%"}, "after": {"outages_per_week": "0.2", "response_time": "automated", "losses_pct": "4%"}},
+            "metrics": {"before": {"value": "2 outages/week", "label": "Manual substation management"}, "after": {"value": "0.2 outages/week", "label": "Automated load balancing"}},
         },
     },
     what_if={
         "scenarios": [
-            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title_key": "whatIf.financial.title", "description_key": "whatIf.financial.description"},
-            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title_key": "whatIf.technical.title", "description_key": "whatIf.technical.description"},
-            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title_key": "whatIf.emotional.title", "description_key": "whatIf.emotional.description"},
+            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title": "Що якби ми перейшли на performance-based pricing?", "description": "Стягувати % від підтвердженої економії замість фіксованої підписки.", "value": "Нижчий поріг входу для нових клієнтів", "revenue": "ARPU зростає пропорційно до цінності для клієнта", "status": "applied"},
+            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title": "Що якби додати edge-computing модуль для критичної інфраструктури?", "description": "Обробка даних локально без передачі в хмару для regulated industries.", "value": "Доступ до сегменту з жорсткими data sovereignty вимогами", "revenue": "Edge-ліцензія від €18 000/рік на об'єкт", "status": "draft"},
+            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title": "Що якби зробити публічний дашборд стану мережі для споживачів?", "description": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.", "value": "Репутаційна перевага оператора, менше скарг регулятору", "revenue": "Монетизація через рекламу або B2B-дані агрегаторам попиту", "status": "draft"},
         ]
     },
     architecture={
         "uk": {
-            "original": {"epicenter": "Операційна надійність мережі", "pattern": "Freemium", "description": "Базовий моніторинг безкоштовно, предиктивна аналітика — платно."},
-            "regenerated": {"epicenter": "Зниження OPEX та втрат", "pattern": "Subscription-First", "description": "Тарифи прив'язані до кількості підстанцій. ARR-фокус із SLA-гарантіями."},
+            "epicenter": {"value": "Resource-driven", "description": "Надійність інфраструктури та операційна ефективність — основа цінності. Платформа будується навколо якості даних та uptime мережі.", "status": "determined"},
+            "pattern": {"value": "Multi-sided Platform", "subtype": "Freemium", "description": "Базовий моніторинг безкоштовно, предиктивна аналітика — платно. Підключення операторів та регуляторів на одній платформі.", "status": "system_selection"},
         },
         "en": {
-            "original": {"epicenter": "Grid operational reliability", "pattern": "Freemium", "description": "Basic monitoring free, predictive analytics paid."},
-            "regenerated": {"epicenter": "OPEX and loss reduction", "pattern": "Subscription-First", "description": "Pricing tied to number of substations. ARR-focus with SLA guarantees."},
+            "epicenter": {"value": "Resource-driven", "description": "Infrastructure reliability and operational efficiency are the core value drivers. The platform is built around data quality and grid uptime.", "status": "determined"},
+            "pattern": {"value": "Multi-sided Platform", "subtype": "Freemium", "description": "Basic monitoring free, predictive analytics paid. Connecting operators and regulators on one platform.", "status": "system_selection"},
         },
     },
 )
@@ -689,6 +630,13 @@ CARBON_TRACK = Project(
                 {"type": "traction", "headline": "4 заводи підключено. €980k ARR. Churn 0%.", "content": "Металургія, хімія, цемент. Середня економія клієнта на аудитах: €44k/рік."},
                 {"type": "ask", "headline": "Залучаємо €2.5М на сертифікацію EN 14181 та вихід у Польщу/Чехію", "content": "EU ETS охоплює 11 000 установок — TAM €5.5B."},
             ],
+            "client": [
+                {"type": "opening", "headline": "Дмитре, ваш EU ETS аудит коштує €52k і займає 3 тижні — щороку", "content": "Зовнішній верифікатор приїжджає раз на рік, збирає дані вручну, і виставляє рахунок. А між аудитами ви не знаєте, де стоїте по квотах."},
+                {"type": "empathy", "headline": "Compliance заради compliance — це не управління викидами", "content": "Ваша команда витрачає місяць на підготовку документів замість реальної роботи з декарбонізацією. Регулятор вимагає все більше, а інструментів не додається."},
+                {"type": "transformation", "headline": "Від щорічного аудиту до real-time моніторингу за €6k/рік", "content": "CarbonTrack IoT встановлює акредитовані сенсори на ваших трубах за 2 дні. EU ETS звіт формується автоматично і відправляється в реєстр одним кліком."},
+                {"type": "social_proof", "headline": "«Скасували контракт із аудитором після першого ж автоматичного звіту»", "content": "— EHS Director, металургійний завод, 4 виробничих майданчики. Економія €46k у перший рік."},
+                {"type": "invitation", "headline": "Безкоштовна установка сенсорів на 1 майданчику протягом 30 днів", "content": "Якщо перший автоматичний EU ETS звіт не буде прийнятий регулятором — повернемо кошти повністю."},
+            ],
         },
         "en": {
             "investor": [
@@ -697,45 +645,54 @@ CARBON_TRACK = Project(
                 {"type": "traction", "headline": "4 factories connected. €980k ARR. Churn 0%.", "content": "Steel, chemicals, cement. Average client savings on audits: €44k/year."},
                 {"type": "ask", "headline": "Raising €2.5M for EN 14181 certification and expansion to Poland/Czech Republic", "content": "EU ETS covers 11,000 installations — TAM €5.5B."},
             ],
+            "client": [
+                {"type": "opening", "headline": "Your EU ETS audit costs €52k and takes 3 weeks — every single year", "content": "An external verifier shows up once a year, collects data manually, and sends the invoice. Between audits, you have no idea where you stand on quotas."},
+                {"type": "empathy", "headline": "Compliance for compliance's sake isn't emissions management", "content": "Your team spends a month preparing documents instead of doing real decarbonization work. Regulators demand more, but the tools don't keep up."},
+                {"type": "transformation", "headline": "From annual audit to real-time monitoring for €6k/year", "content": "CarbonTrack IoT installs accredited sensors on your stacks in 2 days. EU ETS reports are generated automatically and submitted to the registry with one click."},
+                {"type": "social_proof", "headline": "\"Cancelled the auditor contract after the very first automated report\"", "content": "— EHS Director, steel plant, 4 production sites. €46k savings in year one."},
+                {"type": "invitation", "headline": "Free sensor installation on 1 site for 30 days", "content": "If the first automated EU ETS report isn't accepted by the regulator, we'll give you a full refund."},
+            ],
         },
     },
     scenario={
         "uk": {
             "persona": {"name": "Дмитро Петренко", "initials": "ДП", "role": "EHS Director, металургійний завод", "pain_point": "Щорічний аудит EU ETS коштує €52k і займає 3 тижні підготовки"},
             "timeline": [
-                {"icon_key": "sensor", "label_key": "Установка", "text": "Акредитовані сенсори встановлено на 4 димових трубах за 2 дні без зупинки виробництва.", "highlight": False},
-                {"icon_key": "activity", "label_key": "Моніторинг", "text": "Безперервні дані про CO₂, SO₂, NOx потрапляють у дашборд у реальному часі.", "highlight": True},
-                {"icon_key": "file-text", "label_key": "Звіт", "text": "Натиснув одну кнопку — EU ETS річний звіт сформовано автоматично і відправлено в реєстр.", "highlight": True},
-                {"icon_key": "trending-down", "label_key": "Економія", "text": "Дмитро скасував контракт із зовнішнім аудитором — €52k повернулися в бюджет.", "highlight": False},
+                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Щорічний EU ETS аудит коштує €52k і займає 3 тижні підготовки вручну.", "highlight": False},
+                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Автоматизувати моніторинг викидів і скасувати залежність від зовнішнього аудитора.", "highlight": False},
+                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Акредитовані IoT-сенсори встановлено за 2 дні. Один клік — EU ETS річний звіт сформовано і відправлено в реєстр.", "highlight": True},
+                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Звіт прийнято регулятором. Дмитро скасував контракт із зовнішнім аудитором — €52k повернулися в бюджет.", "highlight": True},
+                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Витрати на compliance знизилися з €52k до €6k/рік. Real-time дашборд показує викиди цілодобово.", "highlight": False},
             ],
-            "metrics": {"before": {"audit_cost": "€52 000/рік", "prep_time": "3 тижні", "data_lag": "12 місяців"}, "after": {"audit_cost": "€6 000/рік", "prep_time": "1 клік", "data_lag": "real-time"}},
+            "metrics": {"before": {"value": "€52 000/рік", "label": "Зовнішній аудит EU ETS вручну"}, "after": {"value": "€6 000/рік", "label": "Автоматична звітність через IoT-сенсори"}},
         },
         "en": {
             "persona": {"name": "Dmytro Petrenko", "initials": "DP", "role": "EHS Director, steel plant", "pain_point": "Annual EU ETS audit costs €52k and takes 3 weeks of preparation"},
             "timeline": [
-                {"icon_key": "sensor", "label_key": "Installation", "text": "Accredited sensors installed on 4 stacks in 2 days without production downtime.", "highlight": False},
-                {"icon_key": "activity", "label_key": "Monitoring", "text": "Continuous CO₂, SO₂, NOx data flows to dashboard in real time.", "highlight": True},
-                {"icon_key": "file-text", "label_key": "Report", "text": "One button click — EU ETS annual report auto-generated and submitted to registry.", "highlight": True},
-                {"icon_key": "trending-down", "label_key": "Savings", "text": "Dmytro cancelled the external auditor contract — €52k returned to the budget.", "highlight": False},
+                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Annual EU ETS audit costs €52k and takes 3 weeks of manual preparation.", "highlight": False},
+                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Automate emissions monitoring and eliminate dependency on the external auditor.", "highlight": False},
+                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Accredited IoT sensors installed in 2 days. One click — EU ETS annual report auto-generated and submitted to registry.", "highlight": True},
+                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Report accepted by regulator. Dmytro cancelled the external auditor contract — €52k returned to the budget.", "highlight": True},
+                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Compliance costs reduced from €52k to €6k/year. Real-time dashboard shows emissions 24/7.", "highlight": False},
             ],
-            "metrics": {"before": {"audit_cost": "€52,000/year", "prep_time": "3 weeks", "data_lag": "12 months"}, "after": {"audit_cost": "€6,000/year", "prep_time": "1 click", "data_lag": "real-time"}},
+            "metrics": {"before": {"value": "€52,000/year", "label": "External EU ETS audit"}, "after": {"value": "€6,000/year", "label": "Automated IoT sensor reporting"}},
         },
     },
     what_if={
         "scenarios": [
-            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title_key": "whatIf.financial.title", "description_key": "whatIf.financial.description"},
-            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title_key": "whatIf.technical.title", "description_key": "whatIf.technical.description"},
-            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title_key": "whatIf.emotional.title", "description_key": "whatIf.emotional.description"},
+            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title": "Що якби ми перейшли на performance-based pricing?", "description": "Стягувати % від підтвердженої економії замість фіксованої підписки.", "value": "Нижчий поріг входу для нових клієнтів", "revenue": "ARPU зростає пропорційно до цінності для клієнта", "status": "applied"},
+            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title": "Що якби додати edge-computing модуль для критичної інфраструктури?", "description": "Обробка даних локально без передачі в хмару для regulated industries.", "value": "Доступ до сегменту з жорсткими data sovereignty вимогами", "revenue": "Edge-ліцензія від €18 000/рік на об'єкт", "status": "draft"},
+            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title": "Що якби зробити публічний дашборд стану мережі для споживачів?", "description": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.", "value": "Репутаційна перевага оператора, менше скарг регулятору", "revenue": "Монетизація через рекламу або B2B-дані агрегаторам попиту", "status": "draft"},
         ]
     },
     architecture={
         "uk": {
-            "original": {"epicenter": "Відповідність EU ETS та монетизація compliance", "pattern": "Freemium", "description": "Базовий моніторинг безкоштовно, автоматична звітність — платно."},
-            "regenerated": {"epicenter": "Операційна ефективність та зниження OPEX", "pattern": "Subscription-First", "description": "Тарифи прив'язані до кількості установок та обсягу викидів."},
+            "epicenter": {"value": "Offer-driven", "description": "Compliance-продукт із чіткою регуляторною цінністю. Пропозиція будується навколо автоматизації EU ETS звітності як основного deliverable.", "status": "determined"},
+            "pattern": {"value": "Long Tail", "subtype": "Bait & Hook", "description": "Початкова інсталяція сенсорів як вхідна точка, подальший recurring revenue через SaaS-підписку на аналітику та звітність.", "status": "system_selection"},
         },
         "en": {
-            "original": {"epicenter": "EU ETS compliance and monetization", "pattern": "Freemium", "description": "Basic monitoring free, automated reporting paid."},
-            "regenerated": {"epicenter": "Operational efficiency and OPEX reduction", "pattern": "Subscription-First", "description": "Pricing tied to number of installations and emission volumes."},
+            "epicenter": {"value": "Offer-driven", "description": "A compliance product with a clear regulatory value proposition. The offering is built around automating EU ETS reporting as the core deliverable.", "status": "determined"},
+            "pattern": {"value": "Long Tail", "subtype": "Bait & Hook", "description": "Initial sensor installation as the entry point, followed by recurring revenue through SaaS subscription for analytics and reporting.", "status": "system_selection"},
         },
     },
 )
@@ -797,6 +754,13 @@ BIOWASTE = Project(
                 {"type": "traction", "headline": "180 підключених підприємств. GMV €1.2М. NPS 68.", "content": "Середнє зниження витрат клієнта: €31k/рік. Churn 3%. 94% клієнтів продовжили підписку."},
                 {"type": "ask", "headline": "Залучаємо €1.8М на розширення мережі біогазових заводів у Польщі та Румунії", "content": "EU Waste Directive TAM: €8B у Центральній Європі до 2027."},
             ],
+            "client": [
+                {"type": "opening", "headline": "Наталіє, €80k на рік за вивіз органіки на полігон — і жодної EU taxonomy документації", "content": "Шість окремих контрактів з переробниками, координація через email, і щороку консультанти за €15k для підготовки ESG-звіту."},
+                {"type": "empathy", "headline": "Циркулярна економіка на папері, хаос у логістиці на практиці", "content": "Знайти надійного біогазового партнера — це тижні переговорів. Відстежити статус вивозу — дзвінок водієві. Документація для EU taxonomy — окремий проєкт наприкінці року."},
+                {"type": "transformation", "headline": "Надійний партнер за 5 хвилин, EU taxonomy — автоматично", "content": "BioWaste Circular підбирає верифікованих біогазових партнерів поруч із вашим виробництвом, оформляє контракт онлайн і оновлює EU taxonomy документацію після кожної транзакції."},
+                {"type": "social_proof", "headline": "«Знизили витрати на утилізацію з €80k до €54k і нарешті отримали EU taxonomy без консультантів»", "content": "— Head of Sustainability, харчовий холдинг, 3 виробничі майданчики. Економія €26k у перший рік + €15k на консалтингу."},
+                {"type": "invitation", "headline": "Безкоштовно підключіться та знайдіть першого партнера цього тижня", "content": "Реєстрація займає 10 хвилин. Перший підібраний партнер і попередня ціна — протягом 24 годин. Без зобов'язань."},
+            ],
         },
         "en": {
             "investor": [
@@ -805,45 +769,54 @@ BIOWASTE = Project(
                 {"type": "traction", "headline": "180 connected companies. GMV €1.2M. NPS 68.", "content": "Average client cost reduction: €31k/year. Churn 3%. 94% of clients renewed subscriptions."},
                 {"type": "ask", "headline": "Raising €1.8M to expand biogas plant network in Poland and Romania", "content": "EU Waste Directive TAM: €8B in Central Europe by 2027."},
             ],
+            "client": [
+                {"type": "opening", "headline": "€80k a year for organic waste disposal — and zero EU taxonomy documentation", "content": "Six separate contracts with recyclers, email coordination, and consultants at €15k every year just to prepare the ESG report."},
+                {"type": "empathy", "headline": "Circular economy on paper, logistics chaos in practice", "content": "Finding a reliable biogas partner takes weeks of negotiations. Tracking pickup status means calling the driver. EU taxonomy documentation is a separate year-end project."},
+                {"type": "transformation", "headline": "A verified partner in 5 minutes, EU taxonomy updated automatically", "content": "BioWaste Circular matches verified biogas partners near your facility, handles the contract online, and updates EU taxonomy documentation after every transaction."},
+                {"type": "social_proof", "headline": "\"Cut disposal costs from €80k to €54k and finally got EU taxonomy without consultants\"", "content": "— Head of Sustainability, food holding, 3 production sites. €26k saved in year one + €15k on consulting."},
+                {"type": "invitation", "headline": "Sign up free and find your first partner this week", "content": "Registration takes 10 minutes. First matched partner and indicative price — within 24 hours. No commitment required."},
+            ],
         },
     },
     scenario={
         "uk": {
             "persona": {"name": "Наталія Бондар", "initials": "НБ", "role": "Head of Sustainability, харчовий холдинг", "pain_point": "Платить €80k/рік за вивіз органіки та не має документації для EU taxonomy"},
             "timeline": [
-                {"icon_key": "search", "label_key": "Підбір", "text": "BioWaste Circular знаходить 3 ідеальних біогазових партнери у радіусі 50 км за критеріями якості та ціни.", "highlight": False},
-                {"icon_key": "handshake", "label_key": "Угода", "text": "Контракт підписано онлайн за 20 хвилин. Умови, графік вивозу та ціна — все у платформі.", "highlight": True},
-                {"icon_key": "truck", "label_key": "Логістика", "text": "Оптимізований маршрут. Водій отримує завдання в мобільному додатку, Наталія бачить статус у реальному часі.", "highlight": False},
-                {"icon_key": "file-check", "label_key": "Документи", "text": "EU taxonomy звіт автоматично оновлюється після кожної транзакції. Готовий до аудиту.", "highlight": True},
+                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Наталія платить €80k/рік за вивіз органіки на полігон і не має EU taxonomy документації.", "highlight": False},
+                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Знайти надійного біогазового партнера, скоротити витрати та автоматизувати EU taxonomy звітність.", "highlight": False},
+                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "BioWaste Circular підібрав 3 партнери за 5 хвилин. Контракт підписано онлайн, логістика — автоматична.", "highlight": True},
+                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "EU taxonomy звіт оновився автоматично після першої транзакції. Готовий до аудиту.", "highlight": True},
+                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Витрати на утилізацію знизилися з €80k до €54k/рік. Наталія отримала EU taxonomy документацію без жодного консультанта.", "highlight": False},
             ],
-            "metrics": {"before": {"disposal_cost": "€80 000/рік", "contracts": "6 окремих", "eu_docs": "вручну, €15k/рік"}, "after": {"disposal_cost": "€54 000/рік", "contracts": "1 платформа", "eu_docs": "автоматично, включено"}},
+            "metrics": {"before": {"value": "€80 000/рік", "label": "Вивіз органіки на полігон вручну"}, "after": {"value": "€54 000/рік", "label": "Автоматичний підбір біогазового партнера"}},
         },
         "en": {
             "persona": {"name": "Natalia Bondar", "initials": "NB", "role": "Head of Sustainability, food holding", "pain_point": "Pays €80k/year for organic waste removal with no EU taxonomy documentation"},
             "timeline": [
-                {"icon_key": "search", "label_key": "Matching", "text": "BioWaste Circular finds 3 ideal biogas partners within 50 km based on quality and price criteria.", "highlight": False},
-                {"icon_key": "handshake", "label_key": "Deal", "text": "Contract signed online in 20 minutes. Terms, collection schedule, and price — all in the platform.", "highlight": True},
-                {"icon_key": "truck", "label_key": "Logistics", "text": "Optimized route. Driver gets task in mobile app, Natalia sees status in real time.", "highlight": False},
-                {"icon_key": "file-check", "label_key": "Documents", "text": "EU taxonomy report updates automatically after each transaction. Audit-ready.", "highlight": True},
+                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Natalia pays €80k/year for organic waste disposal with no EU taxonomy documentation.", "highlight": False},
+                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Find a reliable biogas partner, cut disposal costs, and automate EU taxonomy reporting.", "highlight": False},
+                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "BioWaste Circular matched 3 partners in 5 minutes. Contract signed online, logistics automated.", "highlight": True},
+                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "EU taxonomy report updated automatically after the first transaction. Audit-ready.", "highlight": True},
+                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Disposal costs dropped from €80k to €54k/year. Natalia got full EU taxonomy documentation without a single consultant.", "highlight": False},
             ],
-            "metrics": {"before": {"disposal_cost": "€80,000/year", "contracts": "6 separate", "eu_docs": "manual, €15k/year"}, "after": {"disposal_cost": "€54,000/year", "contracts": "1 platform", "eu_docs": "automatic, included"}},
+            "metrics": {"before": {"value": "€80,000/year", "label": "Manual organic waste to landfill"}, "after": {"value": "€54,000/year", "label": "Automated biogas partner matching"}},
         },
     },
     what_if={
         "scenarios": [
-            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title_key": "whatIf.financial.title", "description_key": "whatIf.financial.description"},
-            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title_key": "whatIf.technical.title", "description_key": "whatIf.technical.description"},
-            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title_key": "whatIf.emotional.title", "description_key": "whatIf.emotional.description"},
+            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title": "Що якби ми перейшли на performance-based pricing?", "description": "Стягувати % від підтвердженої економії замість фіксованої підписки.", "value": "Нижчий поріг входу для нових клієнтів", "revenue": "ARPU зростає пропорційно до цінності для клієнта", "status": "applied"},
+            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title": "Що якби додати edge-computing модуль для критичної інфраструктури?", "description": "Обробка даних локально без передачі в хмару для regulated industries.", "value": "Доступ до сегменту з жорсткими data sovereignty вимогами", "revenue": "Edge-ліцензія від €18 000/рік на об'єкт", "status": "draft"},
+            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title": "Що якби зробити публічний дашборд стану мережі для споживачів?", "description": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.", "value": "Репутаційна перевага оператора, менше скарг регулятору", "revenue": "Монетизація через рекламу або B2B-дані агрегаторам попиту", "status": "draft"},
         ]
     },
     architecture={
         "uk": {
-            "original": {"epicenter": "Монетизація через комісії маркетплейсу", "pattern": "Freemium", "description": "Реєстрація безкоштовна, комісія з угод — 8%."},
-            "regenerated": {"epicenter": "Мережевий ефект і масштабування GMV", "pattern": "Subscription-First", "description": "Підписка per facility + комісія. Фокус на NRR та розширенні облікових записів."},
+            "epicenter": {"value": "Customer-driven", "description": "Харчові підприємства — центр екосистеми. Платформа будується навколо їхнього бажання знизити витрати та отримати EU taxonomy документацію без зусиль.", "status": "determined"},
+            "pattern": {"value": "Open Business Model", "subtype": "Ad-supported", "description": "Вільна реєстрація для харчових підприємств і біогазових заводів, монетизація через комісію 8% з кожної угоди на маркетплейсі.", "status": "system_selection"},
         },
         "en": {
-            "original": {"epicenter": "Monetization via marketplace commissions", "pattern": "Freemium", "description": "Free registration, 8% commission per transaction."},
-            "regenerated": {"epicenter": "Network effects and GMV scaling", "pattern": "Subscription-First", "description": "Per-facility subscription + commission. Focus on NRR and account expansion."},
+            "epicenter": {"value": "Customer-driven", "description": "Food companies are at the center of the ecosystem. The platform is built around their desire to cut costs and get EU taxonomy documentation effortlessly.", "status": "determined"},
+            "pattern": {"value": "Open Business Model", "subtype": "Ad-supported", "description": "Free registration for food companies and biogas plants, monetization through 8% commission on each marketplace transaction.", "status": "system_selection"},
         },
     },
 )
