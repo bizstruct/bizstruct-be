@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import blocks, generation, projects
+from app.routers import blocks, generation, internal, projects
 
 app = FastAPI(
     title="BizStruct API",
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(projects.router)
 app.include_router(blocks.router)
 app.include_router(generation.router)
+app.include_router(internal.router)
 
 
 @app.get("/health", tags=["system"])

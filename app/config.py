@@ -22,5 +22,16 @@ class Settings(BaseSettings):
     debug: bool = False
     allowed_origins: list[str] = ["*"]
 
+    # Internal API key — used by ML service to authenticate internal endpoints
+    internal_api_key: str = "change-me-in-production"
+
+    # Azure Service Bus — enqueues ML generation tasks
+    service_bus_connection_string: str | None = None
+    service_bus_queue_name: str = "generation-tasks"
+
+    # Azure Web PubSub
+    azure_web_pubsub_connection_string: str = ""
+    azure_web_pubsub_hub: str = "bizstruct"
+
 
 settings = Settings()

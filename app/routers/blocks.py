@@ -200,6 +200,21 @@ async def update_hypotheses(
     return _block_response(project_id, "hypotheses", project.hypotheses)
 
 
+@router.patch("/hypotheses/{project_id}")
+async def patch_hypotheses(
+    project_id: uuid.UUID,
+    db: DbDep,
+    body: list[Any] | dict[str, Any] = Body(...),
+) -> dict:
+    project = await _get_project_or_404(project_id, db)
+    items = body.get("hypotheses", body) if isinstance(body, dict) else body
+    project.hypotheses = items
+    flag_modified(project, "hypotheses")
+    await db.commit()
+    await db.refresh(project)
+    return _block_response(project_id, "hypotheses", project.hypotheses)
+
+
 # ── Pitch ─────────────────────────────────────────────────────────────────────
 
 @router.get("/pitch/{project_id}")
