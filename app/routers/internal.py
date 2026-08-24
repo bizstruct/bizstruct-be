@@ -2,15 +2,16 @@ import logging
 import uuid
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
 from app.models import Project
-from app.pubsub import send_block_ready, send_generation_complete, get_negotiate_url
+from app.pubsub import send_block_ready, send_generation_complete, send_validate_result
 from app.schemas import CamelModel, ProjectResponse
+from app.servicebus import enqueue_block
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ router = APIRouter(prefix="/api/internal", tags=["internal"])
 
 DbDep = Annotated[AsyncSession, Depends(get_db)]
 
-BLOCK_FIELDS: frozenset[str] = frozenset({
+BLOCK_CHAIN: list[str] = [
     "models_options",
     "canvas_data",
     "empathy_map",
@@ -27,7 +28,9 @@ BLOCK_FIELDS: frozenset[str] = frozenset({
     "scenario",
     "what_if",
     "architecture",
-})
+]
+
+BLOCK_FIELDS: frozenset[str] = frozenset(BLOCK_CHAIN) | {"validate_model"}
 
 
 async def verify_internal_key(x_api_key: Annotated[str, Header()]) -> None:
@@ -46,21 +49,6 @@ class HookRequest(CamelModel):
     error: str | None = None
 
 
-class NegotiateResponse(CamelModel):
-    url: str
-
-
-@router.get("/negotiate", response_model=NegotiateResponse, tags=["pubsub"])
-async def negotiate(project_id: uuid.UUID = Query(...)) -> NegotiateResponse:
-    """Return Azure Web PubSub client access URL for the given project group."""
-    if not settings.azure_web_pubsub_connection_string:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="PubSub not configured",
-        )
-    url = get_negotiate_url(str(project_id))
-    return NegotiateResponse(url=url)
-
 
 @router.get("/projects/{project_id}", response_model=ProjectResponse)
 async def get_project_internal(
@@ -77,6 +65,7 @@ async def get_project_internal(
 @router.post("/hook", status_code=status.HTTP_200_OK)
 async def ml_hook(
     body: HookRequest,
+    background_tasks: BackgroundTasks,
     _: InternalAuth,
     db: DbDep,
 ) -> dict[str, str]:
@@ -92,6 +81,12 @@ async def ml_hook(
 
     project_id_str = str(body.project_id)
 
+    if body.block == "validate_model":
+        if body.status == "success" and body.data:
+            model_id = str(body.data.get("model_id", ""))
+            send_validate_result(project_id_str, model_id, body.data)
+        return {"ok": "1"}
+
     if body.status == "success":
         setattr(project, body.block, body.data)
         flag_modified(project, body.block)
@@ -105,6 +100,9 @@ async def ml_hook(
         send_block_ready(project_id_str, body.block, "success")
         if all_filled:
             send_generation_complete(project_id_str, "completed")
+        else:
+            next_idx = BLOCK_CHAIN.index(body.block) + 1
+            background_tasks.add_task(enqueue_block, project_id_str, BLOCK_CHAIN[next_idx])
 
     else:
         project.status = "failed"

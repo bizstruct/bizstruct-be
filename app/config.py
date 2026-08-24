@@ -33,5 +33,4 @@ class Settings(BaseSettings):
     azure_web_pubsub_connection_string: str = ""
     azure_web_pubsub_hub: str = "bizstruct"
 
-
 settings = Settings()

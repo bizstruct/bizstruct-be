@@ -1,7 +1,9 @@
 import logging
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -41,5 +43,25 @@ async def generate_project(
     project_id = str(project.id)
     background_tasks.add_task(enqueue_block, project_id, "models_options")
 
-    logger.info("Project %s created, enqueuing models_options", project_id)
+    logger.info("Project %s created, enqueuing first block", project_id)
     return ProjectResponse.model_validate(project)
+
+
+@router.post("/{project_id}/regenerate", status_code=status.HTTP_202_ACCEPTED)
+async def regenerate_models(
+    project_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    db: DbDep,
+) -> dict[str, str]:
+    project = await db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    project.models_options = None
+    project.status = "generating"
+    flag_modified(project, "models_options")
+    await db.commit()
+
+    background_tasks.add_task(enqueue_block, str(project_id), "models_options")
+    logger.info("Project %s: regenerating models_options", project_id)
+    return {"ok": "1"}
