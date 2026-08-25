@@ -4,6 +4,7 @@ from typing import Annotated, Any
 
 from bizstruct_domain.blocks.architecture import Architecture
 from bizstruct_domain.blocks.empathy_map import EmpathyMap
+from bizstruct_domain.blocks.scenario import Scenario
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -292,15 +293,30 @@ async def update_pitch_slide(
 
 
 # ── Scenario ──────────────────────────────────────────────────────────────────
+#
+# Scenario (bizstruct_domain.blocks.scenario.Scenario) stores both languages
+# inline per field (text_uk/text_en etc.) — like architecture and
+# empathy_map, unlike pitch/hypotheses below. So these endpoints don't take
+# a `locale` query param and always validate writes against the domain
+# model before saving.
+
+def _validate_scenario(data: dict) -> Scenario:
+    try:
+        return Scenario.model_validate(data)
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+
 
 @router.get("/scenario/{project_id}")
 async def get_scenario(
     project_id: uuid.UUID,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    return _block_response(project_id, "scenario", _resolve_locale(project.scenario, locale))
+    return _block_response(project_id, "scenario", project.scenario)
 
 
 @router.put("/scenario/{project_id}")
@@ -308,14 +324,14 @@ async def update_scenario(
     project_id: uuid.UUID,
     body: dict,
     db: DbDep,
-    locale: str = Query(default=None),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.scenario = _merge_locale(project.scenario, locale, body)
+    validated = _validate_scenario(body)
+    project.scenario = validated.model_dump(mode="json")
     flag_modified(project, "scenario")
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "scenario", _resolve_locale(project.scenario, locale or "uk"))
+    return _block_response(project_id, "scenario", project.scenario)
 
 
 # ── What-If ───────────────────────────────────────────────────────────────────

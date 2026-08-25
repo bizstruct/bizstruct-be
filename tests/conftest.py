@@ -96,6 +96,34 @@ def _minimal_valid_empathy_map() -> dict:
     return {s: section for s in ("says", "thinks", "does", "feels", "pains", "gains")}
 
 
+def _minimal_valid_scenario() -> dict:
+    """A placeholder Scenario satisfying the domain model's constraints
+    (exactly 5 timeline steps, in step_type/icon_key order)."""
+    steps = [
+        ("context", "calendar"), ("goal", "target"), ("action", "zap"),
+        ("result", "check-circle"), ("impact", "trending-up"),
+    ]
+    return {
+        "persona": {
+            "name_uk": "Заповнювач", "name_en": "Placeholder",
+            "role_uk": "Заповнювач", "role_en": "Placeholder",
+            "pain_point_uk": "Заповнювач болю персони довжиною понад 10 символів",
+            "pain_point_en": "Placeholder persona pain point over 10 characters",
+        },
+        "timeline": [
+            {
+                "step_type": step_type, "icon_key": icon_key,
+                "text_uk": f"Заповнювач кроку {step_type}", "text_en": f"Placeholder step {step_type}",
+            }
+            for step_type, icon_key in steps
+        ],
+        "metrics": {
+            "before": {"value_uk": "X", "value_en": "X", "label_uk": "Заповнювач", "label_en": "Placeholder"},
+            "after": {"value_uk": "Y", "value_en": "Y", "label_uk": "Заповнювач", "label_en": "Placeholder"},
+        },
+    }
+
+
 @pytest_asyncio.fixture
 async def project_ready_for_architecture(db_session):
     """A project with every other block already filled, waiting on architecture."""
@@ -113,7 +141,7 @@ async def project_ready_for_architecture(db_session):
         # fixture doesn't trip it.
         hypotheses={},
         pitch={"uk": {}},
-        scenario={"uk": {}},
+        scenario=_minimal_valid_scenario(),
         what_if={"scenarios": []},
     )
     db_session.add(p)

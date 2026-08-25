@@ -247,42 +247,58 @@ ECOSYNC_PITCH = {
 }
 
 ECOSYNC_SCENARIO = {
-    "uk": {
-        "persona": {
-            "name": "Олена Морозова",
-            "initials": "ОМ",
-            "role": "Corporate Sustainability Manager",
-            "pain_point": "Щокварталу витрачає 3 дні на консолідацію даних про викиди з 3 офісів",
-        },
-        "timeline": [
-            {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Кінець кварталу. Потрібно консолідувати дані про викиди з офісів у Києві, Варшаві та Франкфурті.", "highlight": False},
-            {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Зібрати Scope 1, 2, 3 дані від 3 офісів і сформувати CSRD-звіт для аудитора до п'ятниці.", "highlight": False},
-            {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Один клік → EcoSync автоматично підтягує дані з SAP та IoT-сенсорів, розраховує викиди та генерує звіт.", "highlight": True},
-            {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Повний CSRD-звіт готовий за 15 хвилин. Олена надсилає його аудитору у вівторок вранці.", "highlight": True},
-            {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Вивільнені 2.5 дні Олена витрачає на розробку нової ініціативи з декарбонізації ланцюга постачання.", "highlight": False},
-        ],
-        "metrics": {
-            "before": {"value": "3 дні", "label": "Ручне збирання даних у Excel"},
-            "after": {"value": "15 хвилин", "label": "Готовий звіт з AI-аналітикою"},
-        },
+    "persona": {
+        "name_uk": 'Олена Морозова',
+        "name_en": 'Olena Morozova',
+        "role_uk": 'Corporate Sustainability Manager',
+        "role_en": 'Corporate Sustainability Manager',
+        "pain_point_uk": 'Щокварталу витрачає 3 дні на консолідацію даних про викиди з 3 офісів',
+        "pain_point_en": 'Spends 3 days every quarter consolidating emissions data from 3 offices',
     },
-    "en": {
-        "persona": {
-            "name": "Olena Morozova",
-            "initials": "OM",
-            "role": "Corporate Sustainability Manager",
-            "pain_point": "Spends 3 days every quarter consolidating emissions data from 3 offices",
+    "timeline": [
+        {
+            "step_type": 'context',
+            "icon_key": 'calendar',
+            "text_uk": 'Кінець кварталу. Потрібно консолідувати дані про викиди з офісів у Києві, Варшаві та Франкфурті.',
+            "text_en": 'End of quarter. Need to consolidate emissions data from offices in Kyiv, Warsaw, and Frankfurt.',
         },
-        "timeline": [
-            {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "End of quarter. Need to consolidate emissions data from offices in Kyiv, Warsaw, and Frankfurt.", "highlight": False},
-            {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Collect Scope 1, 2, 3 data from 3 offices and generate a CSRD report for the auditor by Friday.", "highlight": False},
-            {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "One click → EcoSync automatically pulls data from SAP and IoT sensors, calculates emissions, and generates the report.", "highlight": True},
-            {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Full CSRD report ready in 15 minutes. Olena sends it to the auditor on Tuesday morning.", "highlight": True},
-            {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Olena uses the freed 2.5 days to develop a new supply chain decarbonization initiative.", "highlight": False},
-        ],
-        "metrics": {
-            "before": {"value": "3 days", "label": "Manual Excel data collection"},
-            "after": {"value": "15 minutes", "label": "Ready report with AI analytics"},
+        {
+            "step_type": 'goal',
+            "icon_key": 'target',
+            "text_uk": "Зібрати Scope 1, 2, 3 дані від 3 офісів і сформувати CSRD-звіт для аудитора до п'ятниці.",
+            "text_en": 'Collect Scope 1, 2, 3 data from 3 offices and generate a CSRD report for the auditor by Friday.',
+        },
+        {
+            "step_type": 'action',
+            "icon_key": 'zap',
+            "text_uk": 'Один клік → EcoSync автоматично підтягує дані з SAP та IoT-сенсорів, розраховує викиди та генерує звіт.',
+            "text_en": 'One click → EcoSync automatically pulls data from SAP and IoT sensors, calculates emissions, and generates the report.',
+        },
+        {
+            "step_type": 'result',
+            "icon_key": 'check-circle',
+            "text_uk": 'Повний CSRD-звіт готовий за 15 хвилин. Олена надсилає його аудитору у вівторок вранці.',
+            "text_en": 'Full CSRD report ready in 15 minutes. Olena sends it to the auditor on Tuesday morning.',
+        },
+        {
+            "step_type": 'impact',
+            "icon_key": 'trending-up',
+            "text_uk": 'Вивільнені 2.5 дні Олена витрачає на розробку нової ініціативи з декарбонізації ланцюга постачання.',
+            "text_en": 'Olena uses the freed 2.5 days to develop a new supply chain decarbonization initiative.',
+        },
+    ],
+    "metrics": {
+        "before": {
+            "value_uk": '3 дні',
+            "value_en": '3 days',
+            "label_uk": 'Ручне збирання даних у Excel',
+            "label_en": 'Manual Excel data collection',
+        },
+        "after": {
+            "value_uk": '15 хвилин',
+            "value_en": '15 minutes',
+            "label_uk": 'Готовий звіт з AI-аналітикою',
+            "label_en": 'Ready report with AI analytics',
         },
     },
 }
@@ -492,27 +508,59 @@ SMART_GRID = Project(
         },
     },
     scenario={
-        "uk": {
-            "persona": {"name": "Андрій Коваль", "initials": "АК", "role": "Головний інженер регіонального оператора мережі", "pain_point": "Щотижня 2 аварійних відключення через перевантаження підстанцій у піковий час"},
-            "timeline": [
-                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Підстанція №12 стабільно перевантажується щопонеділка о 18:30 — 2 аварійних відключення на тиждень.", "highlight": False},
-                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Запобігти перевантаженню підстанцій у піковий час без ручного втручання диспетчера.", "highlight": False},
-                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Smart Grid Automation прогнозує перевантаження за 15 хв та автоматично перерозподіляє навантаження на резервну лінію.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Відключення не сталося. Андрій отримує автоматичний звіт о 18:16.", "highlight": True},
-                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Кількість аварій знизилася з 2 до 0.2 на тиждень. Мережеві втрати скорочено з 22% до 4%.", "highlight": False},
-            ],
-            "metrics": {"before": {"value": "2 аварії/тиждень", "label": "Ручне управління підстанціями"}, "after": {"value": "0.2 аварії/тиждень", "label": "Автоматичне балансування навантаження"}},
+        "persona": {
+            "name_uk": 'Андрій Коваль',
+            "name_en": 'Andriy Koval',
+            "role_uk": 'Головний інженер регіонального оператора мережі',
+            "role_en": 'Chief Engineer, Regional Grid Operator',
+            "pain_point_uk": 'Щотижня 2 аварійних відключення через перевантаження підстанцій у піковий час',
+            "pain_point_en": '2 emergency outages per week due to substation overload during peak hours',
         },
-        "en": {
-            "persona": {"name": "Andriy Koval", "initials": "AK", "role": "Chief Engineer, Regional Grid Operator", "pain_point": "2 emergency outages per week due to substation overload during peak hours"},
-            "timeline": [
-                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Substation #12 consistently overloads every Monday at 18:30 — 2 emergency outages per week.", "highlight": False},
-                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Prevent substation overloads during peak hours without manual dispatcher intervention.", "highlight": False},
-                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Smart Grid Automation forecasts overload 15 min ahead and automatically redistributes load to the backup line.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "No outage occurred. Andriy receives an automated report at 18:16.", "highlight": True},
-                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Outages reduced from 2 to 0.2 per week. Grid losses cut from 22% to 4%.", "highlight": False},
-            ],
-            "metrics": {"before": {"value": "2 outages/week", "label": "Manual substation management"}, "after": {"value": "0.2 outages/week", "label": "Automated load balancing"}},
+        "timeline": [
+            {
+                "step_type": 'context',
+                "icon_key": 'calendar',
+                "text_uk": 'Підстанція №12 стабільно перевантажується щопонеділка о 18:30 — 2 аварійних відключення на тиждень.',
+                "text_en": 'Substation #12 consistently overloads every Monday at 18:30 — 2 emergency outages per week.',
+            },
+            {
+                "step_type": 'goal',
+                "icon_key": 'target',
+                "text_uk": 'Запобігти перевантаженню підстанцій у піковий час без ручного втручання диспетчера.',
+                "text_en": 'Prevent substation overloads during peak hours without manual dispatcher intervention.',
+            },
+            {
+                "step_type": 'action',
+                "icon_key": 'zap',
+                "text_uk": 'Smart Grid Automation прогнозує перевантаження за 15 хв та автоматично перерозподіляє навантаження на резервну лінію.',
+                "text_en": 'Smart Grid Automation forecasts overload 15 min ahead and automatically redistributes load to the backup line.',
+            },
+            {
+                "step_type": 'result',
+                "icon_key": 'check-circle',
+                "text_uk": 'Відключення не сталося. Андрій отримує автоматичний звіт о 18:16.',
+                "text_en": 'No outage occurred. Andriy receives an automated report at 18:16.',
+            },
+            {
+                "step_type": 'impact',
+                "icon_key": 'trending-up',
+                "text_uk": 'Кількість аварій знизилася з 2 до 0.2 на тиждень. Мережеві втрати скорочено з 22% до 4%.',
+                "text_en": 'Outages reduced from 2 to 0.2 per week. Grid losses cut from 22% to 4%.',
+            },
+        ],
+        "metrics": {
+            "before": {
+                "value_uk": '2 аварії/тиждень',
+                "value_en": '2 outages/week',
+                "label_uk": 'Ручне управління підстанціями',
+                "label_en": 'Manual substation management',
+            },
+            "after": {
+                "value_uk": '0.2 аварії/тиждень',
+                "value_en": '0.2 outages/week',
+                "label_uk": 'Автоматичне балансування навантаження',
+                "label_en": 'Automated load balancing',
+            },
         },
     },
     what_if={
@@ -633,27 +681,59 @@ CARBON_TRACK = Project(
         },
     },
     scenario={
-        "uk": {
-            "persona": {"name": "Дмитро Петренко", "initials": "ДП", "role": "EHS Director, металургійний завод", "pain_point": "Щорічний аудит EU ETS коштує €52k і займає 3 тижні підготовки"},
-            "timeline": [
-                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Щорічний EU ETS аудит коштує €52k і займає 3 тижні підготовки вручну.", "highlight": False},
-                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Автоматизувати моніторинг викидів і скасувати залежність від зовнішнього аудитора.", "highlight": False},
-                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Акредитовані IoT-сенсори встановлено за 2 дні. Один клік — EU ETS річний звіт сформовано і відправлено в реєстр.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Звіт прийнято регулятором. Дмитро скасував контракт із зовнішнім аудитором — €52k повернулися в бюджет.", "highlight": True},
-                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Витрати на compliance знизилися з €52k до €6k/рік. Real-time дашборд показує викиди цілодобово.", "highlight": False},
-            ],
-            "metrics": {"before": {"value": "€52 000/рік", "label": "Зовнішній аудит EU ETS вручну"}, "after": {"value": "€6 000/рік", "label": "Автоматична звітність через IoT-сенсори"}},
+        "persona": {
+            "name_uk": 'Дмитро Петренко',
+            "name_en": 'Dmytro Petrenko',
+            "role_uk": 'EHS Director, металургійний завод',
+            "role_en": 'EHS Director, steel plant',
+            "pain_point_uk": 'Щорічний аудит EU ETS коштує €52k і займає 3 тижні підготовки',
+            "pain_point_en": 'Annual EU ETS audit costs €52k and takes 3 weeks of preparation',
         },
-        "en": {
-            "persona": {"name": "Dmytro Petrenko", "initials": "DP", "role": "EHS Director, steel plant", "pain_point": "Annual EU ETS audit costs €52k and takes 3 weeks of preparation"},
-            "timeline": [
-                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Annual EU ETS audit costs €52k and takes 3 weeks of manual preparation.", "highlight": False},
-                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Automate emissions monitoring and eliminate dependency on the external auditor.", "highlight": False},
-                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "Accredited IoT sensors installed in 2 days. One click — EU ETS annual report auto-generated and submitted to registry.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "Report accepted by regulator. Dmytro cancelled the external auditor contract — €52k returned to the budget.", "highlight": True},
-                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Compliance costs reduced from €52k to €6k/year. Real-time dashboard shows emissions 24/7.", "highlight": False},
-            ],
-            "metrics": {"before": {"value": "€52,000/year", "label": "External EU ETS audit"}, "after": {"value": "€6,000/year", "label": "Automated IoT sensor reporting"}},
+        "timeline": [
+            {
+                "step_type": 'context',
+                "icon_key": 'calendar',
+                "text_uk": 'Щорічний EU ETS аудит коштує €52k і займає 3 тижні підготовки вручну.',
+                "text_en": 'Annual EU ETS audit costs €52k and takes 3 weeks of manual preparation.',
+            },
+            {
+                "step_type": 'goal',
+                "icon_key": 'target',
+                "text_uk": 'Автоматизувати моніторинг викидів і скасувати залежність від зовнішнього аудитора.',
+                "text_en": 'Automate emissions monitoring and eliminate dependency on the external auditor.',
+            },
+            {
+                "step_type": 'action',
+                "icon_key": 'zap',
+                "text_uk": 'Акредитовані IoT-сенсори встановлено за 2 дні. Один клік — EU ETS річний звіт сформовано і відправлено в реєстр.',
+                "text_en": 'Accredited IoT sensors installed in 2 days. One click — EU ETS annual report auto-generated and submitted to registry.',
+            },
+            {
+                "step_type": 'result',
+                "icon_key": 'check-circle',
+                "text_uk": 'Звіт прийнято регулятором. Дмитро скасував контракт із зовнішнім аудитором — €52k повернулися в бюджет.',
+                "text_en": 'Report accepted by regulator. Dmytro cancelled the external auditor contract — €52k returned to the budget.',
+            },
+            {
+                "step_type": 'impact',
+                "icon_key": 'trending-up',
+                "text_uk": 'Витрати на compliance знизилися з €52k до €6k/рік. Real-time дашборд показує викиди цілодобово.',
+                "text_en": 'Compliance costs reduced from €52k to €6k/year. Real-time dashboard shows emissions 24/7.',
+            },
+        ],
+        "metrics": {
+            "before": {
+                "value_uk": '€52 000/рік',
+                "value_en": '€52,000/year',
+                "label_uk": 'Зовнішній аудит EU ETS вручну',
+                "label_en": 'External EU ETS audit',
+            },
+            "after": {
+                "value_uk": '€6 000/рік',
+                "value_en": '€6,000/year',
+                "label_uk": 'Автоматична звітність через IoT-сенсори',
+                "label_en": 'Automated IoT sensor reporting',
+            },
         },
     },
     what_if={
@@ -774,27 +854,59 @@ BIOWASTE = Project(
         },
     },
     scenario={
-        "uk": {
-            "persona": {"name": "Наталія Бондар", "initials": "НБ", "role": "Head of Sustainability, харчовий холдинг", "pain_point": "Платить €80k/рік за вивіз органіки та не має документації для EU taxonomy"},
-            "timeline": [
-                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Наталія платить €80k/рік за вивіз органіки на полігон і не має EU taxonomy документації.", "highlight": False},
-                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Знайти надійного біогазового партнера, скоротити витрати та автоматизувати EU taxonomy звітність.", "highlight": False},
-                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "BioWaste Circular підібрав 3 партнери за 5 хвилин. Контракт підписано онлайн, логістика — автоматична.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "EU taxonomy звіт оновився автоматично після першої транзакції. Готовий до аудиту.", "highlight": True},
-                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Витрати на утилізацію знизилися з €80k до €54k/рік. Наталія отримала EU taxonomy документацію без жодного консультанта.", "highlight": False},
-            ],
-            "metrics": {"before": {"value": "€80 000/рік", "label": "Вивіз органіки на полігон вручну"}, "after": {"value": "€54 000/рік", "label": "Автоматичний підбір біогазового партнера"}},
+        "persona": {
+            "name_uk": 'Наталія Бондар',
+            "name_en": 'Natalia Bondar',
+            "role_uk": 'Head of Sustainability, харчовий холдинг',
+            "role_en": 'Head of Sustainability, food holding',
+            "pain_point_uk": 'Платить €80k/рік за вивіз органіки та не має документації для EU taxonomy',
+            "pain_point_en": 'Pays €80k/year for organic waste removal with no EU taxonomy documentation',
         },
-        "en": {
-            "persona": {"name": "Natalia Bondar", "initials": "NB", "role": "Head of Sustainability, food holding", "pain_point": "Pays €80k/year for organic waste removal with no EU taxonomy documentation"},
-            "timeline": [
-                {"icon_key": "calendar",     "label_key": "scenario.step.context", "text": "Natalia pays €80k/year for organic waste disposal with no EU taxonomy documentation.", "highlight": False},
-                {"icon_key": "target",       "label_key": "scenario.step.goal",    "text": "Find a reliable biogas partner, cut disposal costs, and automate EU taxonomy reporting.", "highlight": False},
-                {"icon_key": "zap",          "label_key": "scenario.step.action",  "text": "BioWaste Circular matched 3 partners in 5 minutes. Contract signed online, logistics automated.", "highlight": True},
-                {"icon_key": "check-circle", "label_key": "scenario.step.result",  "text": "EU taxonomy report updated automatically after the first transaction. Audit-ready.", "highlight": True},
-                {"icon_key": "trending-up",  "label_key": "scenario.step.impact",  "text": "Disposal costs dropped from €80k to €54k/year. Natalia got full EU taxonomy documentation without a single consultant.", "highlight": False},
-            ],
-            "metrics": {"before": {"value": "€80,000/year", "label": "Manual organic waste to landfill"}, "after": {"value": "€54,000/year", "label": "Automated biogas partner matching"}},
+        "timeline": [
+            {
+                "step_type": 'context',
+                "icon_key": 'calendar',
+                "text_uk": 'Наталія платить €80k/рік за вивіз органіки на полігон і не має EU taxonomy документації.',
+                "text_en": 'Natalia pays €80k/year for organic waste disposal with no EU taxonomy documentation.',
+            },
+            {
+                "step_type": 'goal',
+                "icon_key": 'target',
+                "text_uk": 'Знайти надійного біогазового партнера, скоротити витрати та автоматизувати EU taxonomy звітність.',
+                "text_en": 'Find a reliable biogas partner, cut disposal costs, and automate EU taxonomy reporting.',
+            },
+            {
+                "step_type": 'action',
+                "icon_key": 'zap',
+                "text_uk": 'BioWaste Circular підібрав 3 партнери за 5 хвилин. Контракт підписано онлайн, логістика — автоматична.',
+                "text_en": 'BioWaste Circular matched 3 partners in 5 minutes. Contract signed online, logistics automated.',
+            },
+            {
+                "step_type": 'result',
+                "icon_key": 'check-circle',
+                "text_uk": 'EU taxonomy звіт оновився автоматично після першої транзакції. Готовий до аудиту.',
+                "text_en": 'EU taxonomy report updated automatically after the first transaction. Audit-ready.',
+            },
+            {
+                "step_type": 'impact',
+                "icon_key": 'trending-up',
+                "text_uk": 'Витрати на утилізацію знизилися з €80k до €54k/рік. Наталія отримала EU taxonomy документацію без жодного консультанта.',
+                "text_en": 'Disposal costs dropped from €80k to €54k/year. Natalia got full EU taxonomy documentation without a single consultant.',
+            },
+        ],
+        "metrics": {
+            "before": {
+                "value_uk": '€80 000/рік',
+                "value_en": '€80,000/year',
+                "label_uk": 'Вивіз органіки на полігон вручну',
+                "label_en": 'Manual organic waste to landfill',
+            },
+            "after": {
+                "value_uk": '€54 000/рік',
+                "value_en": '€54,000/year',
+                "label_uk": 'Автоматичний підбір біогазового партнера',
+                "label_en": 'Automated biogas partner matching',
+            },
         },
     },
     what_if={
