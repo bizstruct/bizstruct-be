@@ -380,7 +380,7 @@ ECOSYNC = Project(
     status="completed",
     translation_key="project.ecosync",
     models_options=ECOSYNC_MODELS_OPTIONS,
-    canvas_data=ECOSYNC_CANVAS,
+    canvas=ECOSYNC_CANVAS,
     empathy_map=ECOSYNC_EMPATHY_MAP,
     hypotheses=ECOSYNC_HYPOTHESES,
     pitch=ECOSYNC_PITCH,
@@ -403,7 +403,7 @@ SMART_GRID = Project(
         ],
         "selected_id": None,
     },
-    canvas_data={
+    canvas={
         "key_partners": [ci("Distribution system operators (DSO)"), ci("Smart meter manufacturers"), ci("SCADA vendors")],
         "key_activities": [ci("Real-time grid load forecasting"), ci("Automated demand response"), ci("Fault detection and isolation")],
         "key_resources": [ci("IoT edge computing nodes"), ci("Proprietary ML forecasting models"), ci("Grid topology data")],
@@ -616,7 +616,7 @@ CARBON_TRACK = Project(
         ],
         "selected_id": None,
     },
-    canvas_data={
+    canvas={
         "key_partners": [ci("Industrial IoT sensor manufacturers (Siemens, Honeywell)"), ci("EU ETS registry operators"), ci("MES/SCADA integration partners")],
         "key_activities": [ci("Continuous emissions monitoring from sensor arrays"), ci("EU ETS compliance calculation and reporting"), ci("Carbon credit allocation optimization")],
         "key_resources": [ci("Certified emissions measurement sensors"), ci("EU ETS calculation engine"), ci("Edge computing modules for factories")],
@@ -829,7 +829,7 @@ BIOWASTE = Project(
         ],
         "selected_id": None,
     },
-    canvas_data={
+    canvas={
         "key_partners": [ci("Biogas plant operators"), ci("Food & beverage manufacturers"), ci("Logistics companies with refrigerated transport"), ci("EU Circular Economy certification bodies")],
         "key_activities": [ci("Waste stream matching between food producers and biogas plants"), ci("Route optimization for organic waste logistics"), ci("Compliance tracking for EU Waste Framework Directive")],
         "key_resources": [ci("Waste exchange marketplace algorithm"), ci("Network of 200+ verified biogas plants"), ci("IoT weight sensors for waste tracking")],
@@ -1048,7 +1048,7 @@ def _archived(title: str, idea: str, key: str) -> Project:
             ],
             "selected_id": None,
         },
-        canvas_data={
+        canvas={
             "key_partners": [ci("Technology vendors"), ci("Industry associations")],
             "key_activities": [ci("Platform development"), ci("Customer onboarding")],
             "key_resources": [ci("Engineering team"), ci("Proprietary data")],

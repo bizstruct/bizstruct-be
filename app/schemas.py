@@ -8,6 +8,7 @@ from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
 from bizstruct_domain.blocks.models_options import ModelsOptions
+from bizstruct_domain.blocks.canvas import Canvas
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -35,7 +36,11 @@ class ProjectUpdate(CamelModel):
     status: str | None = None
     translation_key: str | None = None
     models_options: ModelsOptions | None = None
-    canvas_data: dict[str, Any] | None = None
+    # Canvas, not CanvasGenerated — a PATCH here is either a full CRUD
+    # replace or comes from bizstruct-ml's hook (see internal.py), and CRUD
+    # edits aren't bound by the 2-4-cards-per-section generation rule (see
+    # bizstruct_domain.blocks.canvas's module docstring).
+    canvas: Canvas | None = None
     what_if: dict[str, Any] | None = None
     architecture: Architecture | None = None
     empathy_map: EmpathyMap | None = None
@@ -51,7 +56,7 @@ class ProjectResponse(CamelModel):
     status: str
     translation_key: str | None
     models_options: ModelsOptions | None
-    canvas_data: dict[str, Any] | None
+    canvas: Canvas | None
     what_if: dict[str, Any] | None
     # Sourced from bizstruct_domain — pilot slice, other blocks stay dict[str, Any]
     # until they get their own domain models. Note this model has no camelCase
@@ -75,21 +80,3 @@ class ProjectListResponse(CamelModel):
     created_at: datetime
     updated_at: datetime
 
-
-# ── Canvas (example nested block schema) ─────────────────────────────────────
-
-class CanvasBlock(CamelModel):
-    key_partners: list[str] | None = None
-    key_activities: list[str] | None = None
-    key_resources: list[str] | None = None
-    value_propositions: list[str] | None = None
-    customer_relationships: list[str] | None = None
-    channels: list[str] | None = None
-    customer_segments: list[str] | None = None
-    cost_structure: list[str] | None = None
-    revenue_streams: list[str] | None = None
-
-
-class CanvasResponse(CamelModel):
-    project_id: uuid.UUID
-    canvas_data: CanvasBlock | None

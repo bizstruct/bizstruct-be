@@ -7,6 +7,8 @@ from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
+from bizstruct_domain.blocks.canvas import Canvas
+from bizstruct_domain.enums import CanvasSection
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -14,14 +16,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models import Project
+from app.schemas import CamelModel
 
 router = APIRouter(prefix="/api", tags=["blocks"])
 
-CANVAS_SECTIONS = {
-    "key_partners", "key_activities", "key_resources", "value_propositions",
-    "customer_relationships", "channels", "customer_segments",
-    "cost_structure", "revenue_streams",
-}
+CANVAS_SECTIONS = {s.value for s in CanvasSection}
 
 DbDep = Annotated[AsyncSession, Depends(get_db)]
 
@@ -57,21 +56,52 @@ def _merge_locale(existing: Any, locale: str | None, body: Any) -> Any:
 
 
 # ── Canvas ───────────────────────────────────────────────────────────────────
+#
+# Canvas (bizstruct_domain.blocks.canvas.Canvas) is the richest CRUD surface
+# in the system: add/edit/delete a card, reorder within a section, move a
+# card between sections. All five write paths below validate the resulting
+# canvas against `Canvas` (not `CanvasGenerated`) before saving — the 2-4
+# cards-per-section rule is a generation-time quality bar, not a permanent
+# shape restriction on user-edited data (see bizstruct_domain.blocks.canvas's
+# module docstring). A user is entitled to add a 5th card or delete down to
+# zero.
+#
+# Known limitation, not fixed here (see task summary): concurrent edits.
+# There's no version/ETag on canvas — an optimistic frontend update and an
+# in-flight ml hook overwrite can race, and the loser's write is silently
+# lost. Out of scope for this task.
+
+def _validate_canvas(data: dict) -> Canvas:
+    try:
+        return Canvas.model_validate(data)
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+
+
+def _save_canvas(project: Project, canvas: Canvas) -> dict:
+    dumped = canvas.model_dump(mode="json")
+    project.canvas = dumped
+    flag_modified(project, "canvas")
+    return dumped
+
 
 @router.get("/canvas/{project_id}")
 async def get_canvas(project_id: uuid.UUID, db: DbDep) -> dict:
     project = await _get_project_or_404(project_id, db)
-    return _block_response(project_id, "canvasData", project.canvas_data)
+    return _block_response(project_id, "canvas", project.canvas)
 
 
 @router.put("/canvas/{project_id}")
 async def update_canvas(project_id: uuid.UUID, body: dict, db: DbDep) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.canvas_data = body
-    flag_modified(project, "canvas_data")
+    validated = _validate_canvas(body)
+    _save_canvas(project, validated)
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "canvasData", project.canvas_data)
+    return _block_response(project_id, "canvas", project.canvas)
 
 
 @router.put("/canvas/{project_id}/{section}")
@@ -81,15 +111,19 @@ async def reorder_canvas_section(
     db: DbDep,
     body: list[Any] = Body(...),
 ) -> dict:
+    """Replace one section's card list wholesale — the list's order IS the
+    cards' display order (see bizstruct_domain.blocks.canvas: no separate
+    order/position field), so this doubles as both "reorder within a
+    section" and a low-level primitive `move_canvas_card` below builds on."""
     if section not in CANVAS_SECTIONS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown section: {section}")
     project = await _get_project_or_404(project_id, db)
-    canvas = {**(project.canvas_data or {}), section: body}
-    project.canvas_data = canvas
-    flag_modified(project, "canvas_data")
+    canvas_dict = {**(project.canvas or {}), section: body}
+    validated = _validate_canvas(canvas_dict)
+    _save_canvas(project, validated)
     await db.commit()
     await db.refresh(project)
-    return {"projectId": str(project_id), "section": section, "items": body}
+    return {"projectId": str(project_id), "section": section, "items": project.canvas[section]}
 
 
 @router.post("/canvas/{project_id}/{section}", status_code=status.HTTP_201_CREATED)
@@ -102,14 +136,17 @@ async def add_canvas_item(
     if section not in CANVAS_SECTIONS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown section: {section}")
     project = await _get_project_or_404(project_id, db)
-    canvas = project.canvas_data or {}
-    item = {"id": str(uuid.uuid4()), "is_ai_generated": False, **body}
-    canvas[section] = [*canvas.get(section, []), item]
-    project.canvas_data = canvas
-    flag_modified(project, "canvas_data")
+    canvas_dict = project.canvas or {}
+    # A user-added card is never AI-generated, regardless of what the
+    # request body claims — is_ai_generated always False here.
+    item = {**body, "id": str(uuid.uuid4()), "is_ai_generated": False}
+    canvas_dict = {**canvas_dict, section: [*canvas_dict.get(section, []), item]}
+    validated = _validate_canvas(canvas_dict)
+    _save_canvas(project, validated)
     await db.commit()
     await db.refresh(project)
-    return {"projectId": str(project_id), "section": section, "item": item}
+    saved_item = next(it for it in project.canvas[section] if it["id"] == item["id"])
+    return {"projectId": str(project_id), "section": section, "item": saved_item}
 
 
 @router.patch("/canvas/{project_id}/{section}/{item_id}")
@@ -123,18 +160,22 @@ async def update_canvas_item(
     if section not in CANVAS_SECTIONS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown section: {section}")
     project = await _get_project_or_404(project_id, db)
-    canvas = project.canvas_data or {}
-    items = canvas.get(section, [])
+    canvas_dict = project.canvas or {}
+    items = list(canvas_dict.get(section, []))
     idx = next((i for i, it in enumerate(items) if it.get("id") == item_id), None)
     if idx is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
-    items[idx] = {**items[idx], **body}
-    canvas[section] = items
-    project.canvas_data = canvas
-    flag_modified(project, "canvas_data")
+    # Editing a card's content always clears is_ai_generated — the card no
+    # longer reflects exactly what the LLM produced, whether or not the
+    # request body explicitly touches that field.
+    items[idx] = {**items[idx], **body, "is_ai_generated": False}
+    canvas_dict = {**canvas_dict, section: items}
+    validated = _validate_canvas(canvas_dict)
+    _save_canvas(project, validated)
     await db.commit()
     await db.refresh(project)
-    return {"projectId": str(project_id), "section": section, "item": items[idx]}
+    saved_item = next(it for it in project.canvas[section] if it["id"] == item_id)
+    return {"projectId": str(project_id), "section": section, "item": saved_item}
 
 
 @router.delete("/canvas/{project_id}/{section}/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -147,12 +188,64 @@ async def delete_canvas_item(
     if section not in CANVAS_SECTIONS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown section: {section}")
     project = await _get_project_or_404(project_id, db)
-    canvas = project.canvas_data or {}
-    items = canvas.get(section, [])
-    canvas[section] = [it for it in items if it.get("id") != item_id]
-    project.canvas_data = canvas
-    flag_modified(project, "canvas_data")
+    canvas_dict = project.canvas or {}
+    items = canvas_dict.get(section, [])
+    canvas_dict = {**canvas_dict, section: [it for it in items if it.get("id") != item_id]}
+    # Canvas (not CanvasGenerated) has no per-section minimum, so deleting
+    # down to zero cards in a section is valid.
+    validated = _validate_canvas(canvas_dict)
+    _save_canvas(project, validated)
     await db.commit()
+
+
+class MoveCanvasItemRequest(CamelModel):
+    to_section: str
+    to_index: int | None = None
+
+
+@router.patch("/canvas/{project_id}/{section}/{item_id}/move")
+async def move_canvas_item(
+    project_id: uuid.UUID,
+    section: str,
+    item_id: str,
+    body: MoveCanvasItemRequest,
+    db: DbDep,
+) -> dict:
+    """Move a card from `section` into `body.to_section`, at `body.to_index`
+    (appended to the end if omitted) — the drag&drop-between-sections case
+    B3 calls out, which the section-scoped endpoints above can't express
+    atomically on their own."""
+    if section not in CANVAS_SECTIONS:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown section: {section}")
+    if body.to_section not in CANVAS_SECTIONS:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown section: {body.to_section}")
+
+    project = await _get_project_or_404(project_id, db)
+    canvas_dict = project.canvas or {}
+    from_items = list(canvas_dict.get(section, []))
+    idx = next((i for i, it in enumerate(from_items) if it.get("id") == item_id), None)
+    if idx is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    item = from_items.pop(idx)
+
+    if section == body.to_section:
+        to_items = from_items
+    else:
+        to_items = list(canvas_dict.get(body.to_section, []))
+    insert_at = len(to_items) if body.to_index is None else max(0, min(body.to_index, len(to_items)))
+    to_items.insert(insert_at, item)
+
+    canvas_dict = {**canvas_dict, section: from_items, body.to_section: to_items}
+    validated = _validate_canvas(canvas_dict)
+    _save_canvas(project, validated)
+    await db.commit()
+    await db.refresh(project)
+    return {
+        "projectId": str(project_id),
+        "fromSection": section,
+        "toSection": body.to_section,
+        "item": item,
+    }
 
 
 # ── Empathy Map ───────────────────────────────────────────────────────────────

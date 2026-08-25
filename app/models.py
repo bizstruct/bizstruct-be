@@ -21,7 +21,7 @@ class Project(Base):
 
     # AI-generated business model blocks
     models_options: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    canvas_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    canvas: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     empathy_map: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     hypotheses: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     pitch: Mapped[dict | None] = mapped_column(JSONB, nullable=True)

@@ -196,7 +196,7 @@ async def project_ready_for_architecture(db_session):
         idea="A test idea",
         status="generating",
         models_options=_minimal_valid_models_options(),
-        canvas_data={"key_partners": []},
+        canvas={"key_partners": []},
         empathy_map=_minimal_valid_empathy_map(),
         hypotheses=_minimal_valid_hypotheses(),
         pitch=_minimal_valid_pitch(),

@@ -8,7 +8,6 @@ from app.block_chain import (
     BLOCK_CHAIN,
     BLOCK_FIELDS,
     IMPLEMENTED_BLOCKS,
-    _STAGE_ID_OVERRIDES,
     _validate_implemented_blocks_against_stages,
     next_block,
 )
@@ -21,10 +20,8 @@ def test_validation_ran_cleanly_at_import_and_is_idempotent():
 def test_every_implemented_block_resolves_to_a_known_stage():
     known_stage_ids = {s.id for s in STAGES}
     for block_id in IMPLEMENTED_BLOCKS:
-        stage_id = _STAGE_ID_OVERRIDES.get(block_id, block_id)
-        assert stage_id in known_stage_ids, (
-            f"block '{block_id}' resolves to stage '{stage_id}', "
-            "which does not exist in bizstruct_domain.chain.STAGES"
+        assert block_id in known_stage_ids, (
+            f"block '{block_id}' does not exist in bizstruct_domain.chain.STAGES"
         )
 
 

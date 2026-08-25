@@ -15,7 +15,7 @@ from bizstruct_domain.chain import STAGES, topological_order
 # pipeline doesn't run at all.
 IMPLEMENTED_BLOCKS: frozenset[str] = frozenset({
     "models_options",
-    "canvas_data",
+    "canvas",
     "empathy_map",
     "hypotheses",
     "pitch",
@@ -24,32 +24,22 @@ IMPLEMENTED_BLOCKS: frozenset[str] = frozenset({
     "architecture",
 })
 
-# This service's wire-level block ids (queue message `block`, hook payload,
-# Project column names) predate bizstruct_domain and don't all match its
-# stage ids one-for-one. `canvas_data` here is `canvas` in STAGES; everything
-# else lines up. This bridges that one naming drift without renaming the
-# wire protocol (shared with bizstruct-ml and the frontend — out of scope
-# here). Same pattern as bizstruct-ml/generators/registry.py.
-_STAGE_ID_OVERRIDES: dict[str, str] = {
-    "canvas_data": "canvas",
-}
-_BLOCK_ID_BY_STAGE_ID: dict[str, str] = {v: k for k, v in _STAGE_ID_OVERRIDES.items()}
-
 
 def _validate_implemented_blocks_against_stages() -> None:
     """Fail fast on startup if an implemented block has no matching stage.
 
-    Every IMPLEMENTED_BLOCKS entry must resolve (directly, or via
-    `_STAGE_ID_OVERRIDES`) to a stage id in `bizstruct_domain.chain.STAGES`.
+    Every IMPLEMENTED_BLOCKS entry must be a stage id in
+    `bizstruct_domain.chain.STAGES` — no id-mapping layer. (There used to
+    be a `canvas_data` -> `canvas` _STAGE_ID_OVERRIDES bridge here; the
+    wire-level block id was renamed to `canvas` instead of growing that
+    mapping further — see the canvas rename commit.)
     """
     known_stage_ids = {s.id for s in STAGES}
     for block_id in IMPLEMENTED_BLOCKS:
-        stage_id = _STAGE_ID_OVERRIDES.get(block_id, block_id)
-        if stage_id not in known_stage_ids:
+        if block_id not in known_stage_ids:
             raise RuntimeError(
                 f"IMPLEMENTED_BLOCKS configuration error: block '{block_id}' "
-                f"(resolved stage id '{stage_id}') is not a known stage in "
-                "bizstruct_domain.chain.STAGES"
+                "is not a known stage in bizstruct_domain.chain.STAGES"
             )
 
 
@@ -64,12 +54,9 @@ def _implemented_block_order() -> tuple[str, ...]:
     Basic-mode methodological order (see bizstruct-domain's ADR-0001), not a
     locally invented one.
     """
-    order: list[str] = []
-    for stage_id in topological_order(pro=False):
-        block_id = _BLOCK_ID_BY_STAGE_ID.get(stage_id, stage_id)
-        if block_id in IMPLEMENTED_BLOCKS:
-            order.append(block_id)
-    return tuple(order)
+    return tuple(
+        stage_id for stage_id in topological_order(pro=False) if stage_id in IMPLEMENTED_BLOCKS
+    )
 
 
 BLOCK_CHAIN: tuple[str, ...] = _implemented_block_order()

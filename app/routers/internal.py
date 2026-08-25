@@ -9,6 +9,7 @@ from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
 from bizstruct_domain.blocks.models_options import ModelsOptions
+from bizstruct_domain.blocks.canvas import CanvasGenerated
 from bizstruct_domain.validate_model import ValidateModelResult
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from pydantic import ValidationError as DomainValidationError
@@ -39,6 +40,11 @@ _DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
     "pitch": Pitch,
     "hypotheses": Hypotheses,
     "models_options": ModelsOptions,
+    # CanvasGenerated (2-4 cards/section), not Canvas — this validates what
+    # bizstruct-ml just generated, and generation output IS held to that
+    # bound. The looser Canvas (no per-section bound) is what CRUD edits
+    # after generation are validated against instead — see routers/blocks.py.
+    "canvas": CanvasGenerated,
 }
 
 

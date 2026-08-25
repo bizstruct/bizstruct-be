@@ -18,6 +18,7 @@ from tests.test_hook_scenario import _valid_scenario
 from tests.test_hook_pitch import _valid_pitch
 from tests.test_hook_hypotheses import _valid_hypotheses
 from tests.test_hook_models_options import _valid_models_options
+from tests.test_hook_canvas import _valid_canvas
 
 # Some BLOCK_CHAIN blocks are validated against a bizstruct_domain model on
 # hook receipt (see app.routers.internal._DOMAIN_VALIDATED_BLOCKS); a bare
@@ -30,6 +31,7 @@ _STUB_DATA = {
     "pitch": _valid_pitch,
     "hypotheses": _valid_hypotheses,
     "models_options": _valid_models_options,
+    "canvas": _valid_canvas,
 }
 
 
