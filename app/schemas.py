@@ -5,6 +5,7 @@ from typing import Any
 from bizstruct_domain.blocks.architecture import Architecture
 from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
+from bizstruct_domain.blocks.pitch import Pitch
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -33,11 +34,11 @@ class ProjectUpdate(CamelModel):
     models_options: dict[str, Any] | None = None
     canvas_data: dict[str, Any] | None = None
     hypotheses: dict[str, Any] | None = None
-    pitch: dict[str, Any] | None = None
     what_if: dict[str, Any] | None = None
     architecture: Architecture | None = None
     empathy_map: EmpathyMap | None = None
     scenario: Scenario | None = None
+    pitch: Pitch | None = None
 
 
 class ProjectResponse(CamelModel):
@@ -49,7 +50,6 @@ class ProjectResponse(CamelModel):
     models_options: dict[str, Any] | None
     canvas_data: dict[str, Any] | None
     hypotheses: dict[str, Any] | None
-    pitch: dict[str, Any] | None
     what_if: dict[str, Any] | None
     # Sourced from bizstruct_domain — pilot slice, other blocks stay dict[str, Any]
     # until they get their own domain models. Note this model has no camelCase
@@ -58,6 +58,7 @@ class ProjectResponse(CamelModel):
     architecture: Architecture | None
     empathy_map: EmpathyMap | None
     scenario: Scenario | None
+    pitch: Pitch | None
     created_at: datetime
     updated_at: datetime
 

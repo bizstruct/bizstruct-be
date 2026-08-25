@@ -6,6 +6,7 @@ from typing import Annotated, Any, Literal
 from bizstruct_domain.blocks.architecture import Architecture
 from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
+from bizstruct_domain.blocks.pitch import Pitch
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -32,6 +33,7 @@ _DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
     "architecture": Architecture,
     "empathy_map": EmpathyMap,
     "scenario": Scenario,
+    "pitch": Pitch,
 }
 
 

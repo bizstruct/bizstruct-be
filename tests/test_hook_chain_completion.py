@@ -15,6 +15,7 @@ from tests.conftest import INTERNAL_HEADERS
 from tests.test_hook_architecture import _valid_architecture
 from tests.test_hook_empathy_map import _valid_empathy_map
 from tests.test_hook_scenario import _valid_scenario
+from tests.test_hook_pitch import _valid_pitch
 
 # Some BLOCK_CHAIN blocks are validated against a bizstruct_domain model on
 # hook receipt (see app.routers.internal._DOMAIN_VALIDATED_BLOCKS); a bare
@@ -24,6 +25,7 @@ _STUB_DATA = {
     "architecture": _valid_architecture,
     "empathy_map": _valid_empathy_map,
     "scenario": _valid_scenario,
+    "pitch": _valid_pitch,
 }
 
 

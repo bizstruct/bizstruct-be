@@ -5,6 +5,7 @@ from typing import Annotated, Any
 from bizstruct_domain.blocks.architecture import Architecture
 from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
+from bizstruct_domain.blocks.pitch import Pitch
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -236,15 +237,33 @@ async def patch_hypotheses(
 
 
 # ── Pitch ─────────────────────────────────────────────────────────────────────
+#
+# Pitch (bizstruct_domain.blocks.pitch.Pitch) stores both languages inline
+# per slide (headline_uk/headline_en, content_uk/content_en) — like
+# architecture/empathy_map/scenario, unlike hypotheses below. So these
+# endpoints don't take a `locale` query param and always validate writes
+# against the domain model before saving. The audience is `customer`, not
+# `client` (bizstruct-be previously used `client` here while bizstruct-fe
+# already used `customer` — this settles the drift on `customer`, matching
+# bizstruct_domain.enums.PitchAudience).
+
+def _validate_pitch(data: dict) -> Pitch:
+    try:
+        return Pitch.model_validate(data)
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+
 
 @router.get("/pitch/{project_id}")
 async def get_pitch(
     project_id: uuid.UUID,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    return _block_response(project_id, "pitch", _resolve_locale(project.pitch, locale))
+    return _block_response(project_id, "pitch", project.pitch)
 
 
 @router.put("/pitch/{project_id}")
@@ -252,14 +271,14 @@ async def update_pitch(
     project_id: uuid.UUID,
     body: dict,
     db: DbDep,
-    locale: str = Query(default=None),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.pitch = _merge_locale(project.pitch, locale, body)
+    validated = _validate_pitch(body)
+    project.pitch = validated.model_dump(mode="json")
     flag_modified(project, "pitch")
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "pitch", _resolve_locale(project.pitch, locale or "uk"))
+    return _block_response(project_id, "pitch", project.pitch)
 
 
 @router.patch("/pitch/{project_id}/{pitch_type}/{slide_type}")
@@ -269,27 +288,28 @@ async def update_pitch_slide(
     slide_type: str,
     body: dict,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
-    if pitch_type not in ("investor", "client"):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="pitch_type must be 'investor' or 'client'")
+    if pitch_type not in ("investor", "customer"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="pitch_type must be 'investor' or 'customer'")
 
     project = await _get_project_or_404(project_id, db)
     pitch = project.pitch or {}
-    locale_data = pitch.get(locale, {})
-    slides = locale_data.get(pitch_type, [])
+    slides = list(pitch.get(pitch_type, []))
 
     idx = next((i for i, s in enumerate(slides) if s.get("type") == slide_type), None)
     if idx is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Slide '{slide_type}' not found in {pitch_type} pitch")
 
-    slides[idx] = {**slides[idx], **{k: v for k, v in body.items() if k in ("headline", "content")}}
-    locale_data[pitch_type] = slides
-    project.pitch = {**pitch, locale: locale_data}
+    allowed_fields = ("headline_uk", "headline_en", "content_uk", "content_en")
+    slides[idx] = {**slides[idx], **{k: v for k, v in body.items() if k in allowed_fields}}
+    merged = {**pitch, pitch_type: slides}
+    validated = _validate_pitch(merged)
+    project.pitch = validated.model_dump(mode="json")
     flag_modified(project, "pitch")
     await db.commit()
     await db.refresh(project)
-    return {"projectId": str(project_id), "pitchType": pitch_type, "slide": slides[idx]}
+    updated_slide = next(s for s in project.pitch[pitch_type] if s["type"] == slide_type)
+    return {"projectId": str(project_id), "pitchType": pitch_type, "slide": updated_slide}
 
 
 # ── Scenario ──────────────────────────────────────────────────────────────────

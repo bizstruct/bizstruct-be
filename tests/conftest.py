@@ -124,6 +124,23 @@ def _minimal_valid_scenario() -> dict:
     }
 
 
+def _minimal_valid_pitch() -> dict:
+    """A placeholder Pitch satisfying the domain model's constraints
+    (exactly 5 slides per deck, in fixed order, headline <=80 chars)."""
+    def _slide(slide_type: str) -> dict:
+        return {
+            "type": slide_type,
+            "headline_uk": "Заповнювач", "headline_en": "Placeholder",
+            "content_uk": "Заповнювач вмісту слайду довжиною понад 10 символів",
+            "content_en": "Placeholder slide content over 10 characters long",
+        }
+
+    return {
+        "investor": [_slide(t) for t in ("hook", "problem", "solution", "traction", "ask")],
+        "customer": [_slide(t) for t in ("opening", "empathy", "transformation", "social_proof", "invitation")],
+    }
+
+
 @pytest_asyncio.fixture
 async def project_ready_for_architecture(db_session):
     """A project with every other block already filled, waiting on architecture."""
@@ -140,7 +157,7 @@ async def project_ready_for_architecture(db_session):
         # mismatch, not something this task touches. Use a dict here so this
         # fixture doesn't trip it.
         hypotheses={},
-        pitch={"uk": {}},
+        pitch=_minimal_valid_pitch(),
         scenario=_minimal_valid_scenario(),
         what_if={"scenarios": []},
     )

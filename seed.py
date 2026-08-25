@@ -132,118 +132,80 @@ ECOSYNC_HYPOTHESES = [
 ]
 
 ECOSYNC_PITCH = {
-    "uk": {
-        "investor": [
-            {
-                "type": "hook",
-                "headline": "$1.2 трлн штрафів очікує компанії ЄС до 2027 року",
-                "content": "Директива CSRD зобов'язує 50 000+ компаній автоматизувати ESG-звітність. Ті, хто не встигне — заплатять.",
-            },
-            {
-                "type": "problem",
-                "headline": "ESG-звітність досі виглядає як 2005 рік",
-                "content": "Команди витрачають 3+ дні на квартал на ручну агрегацію даних у Excel. Помилки, затримки, ризики аудиту.",
-            },
-            {
-                "type": "solution",
-                "headline": "EcoSync: від 3 днів до 15 хвилин",
-                "content": "Автоматичний збір даних із SAP/Oracle, real-time CO₂ калькулятор та генерація CSRD-звіту одним кліком.",
-            },
-            {
-                "type": "traction",
-                "headline": "3 пілоти. €2.1М ARR pipeline. NPS 72.",
-                "content": "Пілоти в Henkel, Metinvest, DTEK. Середня економія клієнта — 18 людино-днів на квартал. Churn 0%.",
-            },
-            {
-                "type": "ask",
-                "headline": "Залучаємо €4М Series A",
-                "content": "Масштабування команди продажів у Німеччині та Польщі, R&D нових ERP-коннекторів, вихід на Fortune 500.",
-            },
-        ],
-        "client": [
-            {
-                "type": "opening",
-                "headline": "Олено, уявіть: кінець кварталу, і у вас ще 3 дні роботи попереду",
-                "content": "Три офіси. Вісім постачальників. Сотні рядків у Excel. І дедлайн завтра вранці.",
-            },
-            {
-                "type": "empathy",
-                "headline": "Ми розуміємо, як це виглядає зсередини",
-                "content": "Координація між департаментами, email-ланцюжки з постачальниками, перевірка формул о 23:00. Це не ваша робота — це баг у системі.",
-            },
-            {
-                "type": "transformation",
-                "headline": "15 хвилин замість 3 днів",
-                "content": "EcoSync автоматично збирає дані з ваших систем, розраховує Scope 1/2/3 та генерує готовий CSRD-звіт. Ви просто натискаєте «Експортувати».",
-            },
-            {
-                "type": "social_proof",
-                "headline": "«Ми скоротили час підготовки звіту з 4 днів до 20 хвилин»",
-                "content": "— Head of Sustainability, Fortune 500 хімічна компанія. NPS нашої платформи: 72.",
-            },
-            {
-                "type": "invitation",
-                "headline": "Спробуйте безкоштовно 14 днів",
-                "content": "Підключіть свій SAP або Oracle за 30 хвилин. Перший автоматичний звіт — сьогодні ввечері.",
-            },
-        ],
-    },
-    "en": {
-        "investor": [
-            {
-                "type": "hook",
-                "headline": "$1.2 trillion in fines awaits EU companies by 2027",
-                "content": "The CSRD directive mandates 50,000+ companies to automate ESG reporting. Those who miss the deadline will pay.",
-            },
-            {
-                "type": "problem",
-                "headline": "ESG reporting still looks like 2005",
-                "content": "Teams spend 3+ days per quarter manually aggregating data in Excel. Errors, delays, and audit risks follow.",
-            },
-            {
-                "type": "solution",
-                "headline": "EcoSync: from 3 days to 15 minutes",
-                "content": "Automatic data collection from SAP/Oracle, real-time CO₂ calculator, and one-click CSRD report generation.",
-            },
-            {
-                "type": "traction",
-                "headline": "3 pilots. €2.1M ARR pipeline. NPS 72.",
-                "content": "Pilots at Henkel, Metinvest, DTEK. Average customer savings: 18 person-days per quarter. Churn: 0%.",
-            },
-            {
-                "type": "ask",
-                "headline": "Raising €4M Series A",
-                "content": "Scaling sales teams in Germany and Poland, R&D for new ERP connectors, and entering the Fortune 500 segment.",
-            },
-        ],
-        "client": [
-            {
-                "type": "opening",
-                "headline": "Imagine: end of quarter and you still have 3 days of work ahead",
-                "content": "Three offices. Eight suppliers. Hundreds of Excel rows. And the deadline is tomorrow morning.",
-            },
-            {
-                "type": "empathy",
-                "headline": "We know what this looks like from the inside",
-                "content": "Cross-department coordination, supplier email chains, formula checks at 11 PM. This isn't your job — it's a system bug.",
-            },
-            {
-                "type": "transformation",
-                "headline": "15 minutes instead of 3 days",
-                "content": "EcoSync automatically collects data from your systems, calculates Scope 1/2/3, and generates a ready CSRD report. You just click Export.",
-            },
-            {
-                "type": "social_proof",
-                "headline": "\"We cut report preparation from 4 days to 20 minutes\"",
-                "content": "— Head of Sustainability, Fortune 500 chemical company. Our platform NPS: 72.",
-            },
-            {
-                "type": "invitation",
-                "headline": "Try it free for 14 days",
-                "content": "Connect your SAP or Oracle in 30 minutes. First automated report — tonight.",
-            },
-        ],
-    },
+    "investor": [
+        {
+            "type": 'hook',
+            "headline_uk": '$1.2 трлн штрафів очікує компанії ЄС до 2027 року',
+            "headline_en": '$1.2 trillion in fines awaits EU companies by 2027',
+            "content_uk": "Директива CSRD зобов'язує 50 000+ компаній автоматизувати ESG-звітність. Ті, хто не встигне — заплатять.",
+            "content_en": 'The CSRD directive mandates 50,000+ companies to automate ESG reporting. Those who miss the deadline will pay.',
+        },
+        {
+            "type": 'problem',
+            "headline_uk": 'ESG-звітність досі виглядає як 2005 рік',
+            "headline_en": 'ESG reporting still looks like 2005',
+            "content_uk": 'Команди витрачають 3+ дні на квартал на ручну агрегацію даних у Excel. Помилки, затримки, ризики аудиту.',
+            "content_en": 'Teams spend 3+ days per quarter manually aggregating data in Excel. Errors, delays, and audit risks follow.',
+        },
+        {
+            "type": 'solution',
+            "headline_uk": 'EcoSync: від 3 днів до 15 хвилин',
+            "headline_en": 'EcoSync: from 3 days to 15 minutes',
+            "content_uk": 'Автоматичний збір даних із SAP/Oracle, real-time CO₂ калькулятор та генерація CSRD-звіту одним кліком.',
+            "content_en": 'Automatic data collection from SAP/Oracle, real-time CO₂ calculator, and one-click CSRD report generation.',
+        },
+        {
+            "type": 'traction',
+            "headline_uk": '3 пілоти. €2.1М ARR pipeline. NPS 72.',
+            "headline_en": '3 pilots. €2.1M ARR pipeline. NPS 72.',
+            "content_uk": 'Пілоти в Henkel, Metinvest, DTEK. Середня економія клієнта — 18 людино-днів на квартал. Churn 0%.',
+            "content_en": 'Pilots at Henkel, Metinvest, DTEK. Average customer savings: 18 person-days per quarter. Churn: 0%.',
+        },
+        {
+            "type": 'ask',
+            "headline_uk": 'Залучаємо €4М Series A',
+            "headline_en": 'Raising €4M Series A',
+            "content_uk": 'Масштабування команди продажів у Німеччині та Польщі, R&D нових ERP-коннекторів, вихід на Fortune 500.',
+            "content_en": 'Scaling sales teams in Germany and Poland, R&D for new ERP connectors, and entering the Fortune 500 segment.',
+        },
+    ],
+    "customer": [
+        {
+            "type": 'opening',
+            "headline_uk": 'Олено, уявіть: кінець кварталу, і у вас ще 3 дні роботи попереду',
+            "headline_en": 'Imagine: end of quarter and you still have 3 days of work ahead',
+            "content_uk": 'Три офіси. Вісім постачальників. Сотні рядків у Excel. І дедлайн завтра вранці.',
+            "content_en": 'Three offices. Eight suppliers. Hundreds of Excel rows. And the deadline is tomorrow morning.',
+        },
+        {
+            "type": 'empathy',
+            "headline_uk": 'Ми розуміємо, як це виглядає зсередини',
+            "headline_en": 'We know what this looks like from the inside',
+            "content_uk": 'Координація між департаментами, email-ланцюжки з постачальниками, перевірка формул о 23:00. Це не ваша робота — це баг у системі.',
+            "content_en": "Cross-department coordination, supplier email chains, formula checks at 11 PM. This isn't your job — it's a system bug.",
+        },
+        {
+            "type": 'transformation',
+            "headline_uk": '15 хвилин замість 3 днів',
+            "headline_en": '15 minutes instead of 3 days',
+            "content_uk": 'EcoSync автоматично збирає дані з ваших систем, розраховує Scope 1/2/3 та генерує готовий CSRD-звіт. Ви просто натискаєте «Експортувати».',
+            "content_en": 'EcoSync automatically collects data from your systems, calculates Scope 1/2/3, and generates a ready CSRD report. You just click Export.',
+        },
+        {
+            "type": 'social_proof',
+            "headline_uk": '«Ми скоротили час підготовки звіту з 4 днів до 20 хвилин»',
+            "headline_en": '"We cut report preparation from 4 days to 20 minutes"',
+            "content_uk": '— Head of Sustainability, Fortune 500 хімічна компанія. NPS нашої платформи: 72.',
+            "content_en": '— Head of Sustainability, Fortune 500 chemical company. Our platform NPS: 72.',
+        },
+        {
+            "type": 'invitation',
+            "headline_uk": 'Спробуйте безкоштовно 14 днів',
+            "headline_en": 'Try it free for 14 days',
+            "content_uk": 'Підключіть свій SAP або Oracle за 30 хвилин. Перший автоматичний звіт — сьогодні ввечері.',
+            "content_en": 'Connect your SAP or Oracle in 30 minutes. First automated report — tonight.',
+        },
+    ],
 }
 
 ECOSYNC_SCENARIO = {
@@ -476,36 +438,80 @@ SMART_GRID = Project(
         hyp("H2.2", "Автоматична балансування знижує втрати на 22% у реальних умовах України", "Feasibility", "q3"),
     ],
     pitch={
-        "uk": {
-            "investor": [
-                {"type": "hook", "headline": "Енергосистема України втрачає $400M/рік на технічні втрати в мережі", "content": "22% електроенергії губиться при передачі через застарілу інфраструктуру та відсутність автоматизації."},
-                {"type": "solution", "headline": "Smart Grid Automation: IoT + ML для розумної мережі", "content": "Предиктивний контроль навантаження, автоматична ізоляція аварій, єдиний дашборд для оператора."},
-                {"type": "traction", "headline": "2 пілоти з Обленерго. €1.8М ARR pipeline.", "content": "Київобленерго та Харківобленерго. Підтверджене зниження втрат на 19% за 3 місяці пілоту."},
-                {"type": "ask", "headline": "Залучаємо €3М на масштабування", "content": "Вихід на 5 обленерго у 2025 році та пілот у Польщі (PSE оператор)."},
-            ],
-            "client": [
-                {"type": "opening", "headline": "Андрію, уявіть: понеділок, 18:30, і ваша підстанція №12 знову відключила 3 000 абонентів", "content": "Черговий дзвінок від керівництва. Черговий звіт регулятору. Це відбувається вже третій тиждень поспіль."},
-                {"type": "empathy", "headline": "Ми знаємо, як виглядає реактивне управління мережею зсередини", "content": "Диспетчер стежить за SCADA цілодобово, але дізнається про проблему вже після того, як вона сталась. Це не ваша помилка — це обмеження старої системи."},
-                {"type": "transformation", "headline": "Попередження за 15 хвилин замість ліквідації аварії", "content": "Smart Grid Automation прогнозує пікові навантаження наперед і автоматично перерозподіляє потужності. Ваш диспетчер отримує сповіщення — і просто підтверджує рішення системи."},
-                {"type": "social_proof", "headline": "«Кількість аварійних відключень знизилась з 8 до 1 на місяць за перші 60 днів»", "content": "— Головний інженер, регіональний оператор мережі, Харківська область. Мережеві втрати скорочено на 19%."},
-                {"type": "invitation", "headline": "Безкоштовний пілот на 10 підстанцій протягом 30 днів", "content": "Підключення за 3 дні через інтеграцію з вашою SCADA. Перший автоматичний прогноз навантаження — наступного ранку."},
-            ],
-        },
-        "en": {
-            "investor": [
-                {"type": "hook", "headline": "Ukraine's power grid loses $400M/year in technical losses", "content": "22% of electricity is lost during transmission due to aging infrastructure and lack of automation."},
-                {"type": "solution", "headline": "Smart Grid Automation: IoT + ML for intelligent grids", "content": "Predictive load control, automated fault isolation, unified operator dashboard."},
-                {"type": "traction", "headline": "2 pilots with regional DSOs. €1.8M ARR pipeline.", "content": "Kyivoblenergo and Kharkivoblenergo. Confirmed 19% loss reduction in 3-month pilot."},
-                {"type": "ask", "headline": "Raising €3M to scale", "content": "Expanding to 5 regional DSOs in 2025 and launching a pilot in Poland (PSE operator)."},
-            ],
-            "client": [
-                {"type": "opening", "headline": "Imagine: Monday, 18:30, and substation #12 just cut power to 3,000 subscribers again", "content": "Another call from management. Another report to the regulator. This is the third week in a row."},
-                {"type": "empathy", "headline": "We know what reactive grid management looks like from the inside", "content": "Dispatchers watch SCADA around the clock, but only find out about problems after they happen. That's not your failure — it's the limitation of legacy systems."},
-                {"type": "transformation", "headline": "15-minute warning instead of post-incident response", "content": "Smart Grid Automation forecasts peak loads in advance and automatically redistributes capacity. Your dispatcher gets a notification and simply confirms the system's decision."},
-                {"type": "social_proof", "headline": "\"Emergency outages dropped from 8 to 1 per month in the first 60 days\"", "content": "— Chief Engineer, regional grid operator, Kharkiv region. Grid losses reduced by 19%."},
-                {"type": "invitation", "headline": "Free 30-day pilot on 10 substations", "content": "3-day integration with your existing SCADA. First automated load forecast — the next morning."},
-            ],
-        },
+        "investor": [
+            {
+                "type": 'hook',
+                "headline_uk": 'Енергосистема України втрачає $400M/рік на технічні втрати в мережі',
+                "headline_en": "Ukraine's power grid loses $400M/year in technical losses",
+                "content_uk": '22% електроенергії губиться при передачі через застарілу інфраструктуру та відсутність автоматизації.',
+                "content_en": '22% of electricity is lost during transmission due to aging infrastructure and lack of automation.',
+            },
+            {
+                "type": 'problem',
+                "headline_uk": 'Диспетчери дізнаються про аварію вже постфактум',
+                "headline_en": 'Dispatchers learn about outages only after they happen',
+                "content_uk": 'SCADA показує факт, а не прогноз. Втрати в мережі — 22%, штрафи регулятора зростають щороку.',
+                "content_en": 'SCADA shows facts, not forecasts. Grid losses run 22%, and regulator fines climb every year.',
+            },
+            {
+                "type": 'solution',
+                "headline_uk": 'Smart Grid Automation: IoT + ML для розумної мережі',
+                "headline_en": 'Smart Grid Automation: IoT + ML for intelligent grids',
+                "content_uk": 'Предиктивний контроль навантаження, автоматична ізоляція аварій, єдиний дашборд для оператора.',
+                "content_en": 'Predictive load control, automated fault isolation, unified operator dashboard.',
+            },
+            {
+                "type": 'traction',
+                "headline_uk": '2 пілоти з Обленерго. €1.8М ARR pipeline.',
+                "headline_en": '2 pilots with regional DSOs. €1.8M ARR pipeline.',
+                "content_uk": 'Київобленерго та Харківобленерго. Підтверджене зниження втрат на 19% за 3 місяці пілоту.',
+                "content_en": 'Kyivoblenergo and Kharkivoblenergo. Confirmed 19% loss reduction in 3-month pilot.',
+            },
+            {
+                "type": 'ask',
+                "headline_uk": 'Залучаємо €3М на масштабування',
+                "headline_en": 'Raising €3M to scale',
+                "content_uk": 'Вихід на 5 обленерго у 2025 році та пілот у Польщі (PSE оператор).',
+                "content_en": 'Expanding to 5 regional DSOs in 2025 and launching a pilot in Poland (PSE operator).',
+            },
+        ],
+        "customer": [
+            {
+                "type": 'opening',
+                "headline_uk": 'Андрію, підстанція №12 знову відключила 3 000 абонентів',
+                "headline_en": 'Andriy, substation #12 just cut power to 3,000 subscribers again',
+                "content_uk": 'Черговий дзвінок від керівництва. Черговий звіт регулятору. Це відбувається вже третій тиждень поспіль.',
+                "content_en": 'Another call from management. Another report to the regulator. This is the third week in a row.',
+            },
+            {
+                "type": 'empathy',
+                "headline_uk": 'Ми знаємо, як виглядає реактивне управління мережею зсередини',
+                "headline_en": 'We know what reactive grid management looks like from the inside',
+                "content_uk": 'Диспетчер стежить за SCADA цілодобово, але дізнається про проблему вже після того, як вона сталась. Це не ваша помилка — це обмеження старої системи.',
+                "content_en": "Dispatchers watch SCADA around the clock, but only find out about problems after they happen. That's not your failure — it's the limitation of legacy systems.",
+            },
+            {
+                "type": 'transformation',
+                "headline_uk": 'Попередження за 15 хвилин замість ліквідації аварії',
+                "headline_en": '15-minute warning instead of post-incident response',
+                "content_uk": 'Smart Grid Automation прогнозує пікові навантаження наперед і автоматично перерозподіляє потужності. Ваш диспетчер отримує сповіщення — і просто підтверджує рішення системи.',
+                "content_en": "Smart Grid Automation forecasts peak loads in advance and automatically redistributes capacity. Your dispatcher gets a notification and simply confirms the system's decision.",
+            },
+            {
+                "type": 'social_proof',
+                "headline_uk": '«Кількість аварійних відключень знизилась з 8 до 1 на місяць за перші 60 днів»',
+                "headline_en": '"Emergency outages dropped from 8 to 1 per month in the first 60 days"',
+                "content_uk": '— Головний інженер, регіональний оператор мережі, Харківська область. Мережеві втрати скорочено на 19%.',
+                "content_en": '— Chief Engineer, regional grid operator, Kharkiv region. Grid losses reduced by 19%.',
+            },
+            {
+                "type": 'invitation',
+                "headline_uk": 'Безкоштовний пілот на 10 підстанцій протягом 30 днів',
+                "headline_en": 'Free 30-day pilot on 10 substations',
+                "content_uk": 'Підключення за 3 дні через інтеграцію з вашою SCADA. Перший автоматичний прогноз навантаження — наступного ранку.',
+                "content_en": '3-day integration with your existing SCADA. First automated load forecast — the next morning.',
+            },
+        ],
     },
     scenario={
         "persona": {
@@ -649,36 +655,80 @@ CARBON_TRACK = Project(
         hyp("H2.2", "CBAM 2026 подвоїть попит на автоматизований моніторинг серед експортерів", "Desirability", "q1"),
     ],
     pitch={
-        "uk": {
-            "investor": [
-                {"type": "hook", "headline": "CBAM 2026: €50B нових штрафів для промисловості ЄС", "content": "Carbon Border Adjustment Mechanism робить точний моніторинг викидів обов'язковим для всіх EU-експортерів."},
-                {"type": "solution", "headline": "CarbonTrack IoT: безперервний моніторинг замість щорічного аудиту", "content": "Акредитовані сенсори + MES-інтеграція + автоматичний EU ETS звіт. Від €50k аудиту до €6k/рік."},
-                {"type": "traction", "headline": "4 заводи підключено. €980k ARR. Churn 0%.", "content": "Металургія, хімія, цемент. Середня економія клієнта на аудитах: €44k/рік."},
-                {"type": "ask", "headline": "Залучаємо €2.5М на сертифікацію EN 14181 та вихід у Польщу/Чехію", "content": "EU ETS охоплює 11 000 установок — TAM €5.5B."},
-            ],
-            "client": [
-                {"type": "opening", "headline": "Дмитре, ваш EU ETS аудит коштує €52k і займає 3 тижні — щороку", "content": "Зовнішній верифікатор приїжджає раз на рік, збирає дані вручну, і виставляє рахунок. А між аудитами ви не знаєте, де стоїте по квотах."},
-                {"type": "empathy", "headline": "Compliance заради compliance — це не управління викидами", "content": "Ваша команда витрачає місяць на підготовку документів замість реальної роботи з декарбонізацією. Регулятор вимагає все більше, а інструментів не додається."},
-                {"type": "transformation", "headline": "Від щорічного аудиту до real-time моніторингу за €6k/рік", "content": "CarbonTrack IoT встановлює акредитовані сенсори на ваших трубах за 2 дні. EU ETS звіт формується автоматично і відправляється в реєстр одним кліком."},
-                {"type": "social_proof", "headline": "«Скасували контракт із аудитором після першого ж автоматичного звіту»", "content": "— EHS Director, металургійний завод, 4 виробничих майданчики. Економія €46k у перший рік."},
-                {"type": "invitation", "headline": "Безкоштовна установка сенсорів на 1 майданчику протягом 30 днів", "content": "Якщо перший автоматичний EU ETS звіт не буде прийнятий регулятором — повернемо кошти повністю."},
-            ],
-        },
-        "en": {
-            "investor": [
-                {"type": "hook", "headline": "CBAM 2026: €50B in new penalties for EU industry", "content": "Carbon Border Adjustment Mechanism makes accurate emissions monitoring mandatory for all EU exporters."},
-                {"type": "solution", "headline": "CarbonTrack IoT: continuous monitoring instead of annual audits", "content": "Accredited sensors + MES integration + automatic EU ETS report. From €50k audit to €6k/year."},
-                {"type": "traction", "headline": "4 factories connected. €980k ARR. Churn 0%.", "content": "Steel, chemicals, cement. Average client savings on audits: €44k/year."},
-                {"type": "ask", "headline": "Raising €2.5M for EN 14181 certification and expansion to Poland/Czech Republic", "content": "EU ETS covers 11,000 installations — TAM €5.5B."},
-            ],
-            "client": [
-                {"type": "opening", "headline": "Your EU ETS audit costs €52k and takes 3 weeks — every single year", "content": "An external verifier shows up once a year, collects data manually, and sends the invoice. Between audits, you have no idea where you stand on quotas."},
-                {"type": "empathy", "headline": "Compliance for compliance's sake isn't emissions management", "content": "Your team spends a month preparing documents instead of doing real decarbonization work. Regulators demand more, but the tools don't keep up."},
-                {"type": "transformation", "headline": "From annual audit to real-time monitoring for €6k/year", "content": "CarbonTrack IoT installs accredited sensors on your stacks in 2 days. EU ETS reports are generated automatically and submitted to the registry with one click."},
-                {"type": "social_proof", "headline": "\"Cancelled the auditor contract after the very first automated report\"", "content": "— EHS Director, steel plant, 4 production sites. €46k savings in year one."},
-                {"type": "invitation", "headline": "Free sensor installation on 1 site for 30 days", "content": "If the first automated EU ETS report isn't accepted by the regulator, we'll give you a full refund."},
-            ],
-        },
+        "investor": [
+            {
+                "type": 'hook',
+                "headline_uk": 'CBAM 2026: €50B нових штрафів для промисловості ЄС',
+                "headline_en": 'CBAM 2026: €50B in new penalties for EU industry',
+                "content_uk": "Carbon Border Adjustment Mechanism робить точний моніторинг викидів обов'язковим для всіх EU-експортерів.",
+                "content_en": 'Carbon Border Adjustment Mechanism makes accurate emissions monitoring mandatory for all EU exporters.',
+            },
+            {
+                "type": 'problem',
+                "headline_uk": 'Щорічний аудит коштує €50k+ і не дає видимості між перевірками',
+                "headline_en": 'Annual audits cost €50k+ and give zero visibility between checks',
+                "content_uk": 'Зовнішні верифікатори збирають дані вручну раз на рік. Компанії ризикують перевищити квоти непомітно.',
+                "content_en": 'External verifiers collect data manually once a year. Companies risk breaching quotas unnoticed.',
+            },
+            {
+                "type": 'solution',
+                "headline_uk": 'CarbonTrack IoT: безперервний моніторинг замість щорічного аудиту',
+                "headline_en": 'CarbonTrack IoT: continuous monitoring instead of annual audits',
+                "content_uk": 'Акредитовані сенсори + MES-інтеграція + автоматичний EU ETS звіт. Від €50k аудиту до €6k/рік.',
+                "content_en": 'Accredited sensors + MES integration + automatic EU ETS report. From €50k audit to €6k/year.',
+            },
+            {
+                "type": 'traction',
+                "headline_uk": '4 заводи підключено. €980k ARR. Churn 0%.',
+                "headline_en": '4 factories connected. €980k ARR. Churn 0%.',
+                "content_uk": 'Металургія, хімія, цемент. Середня економія клієнта на аудитах: €44k/рік.',
+                "content_en": 'Steel, chemicals, cement. Average client savings on audits: €44k/year.',
+            },
+            {
+                "type": 'ask',
+                "headline_uk": 'Залучаємо €2.5М на сертифікацію EN 14181 та вихід у Польщу/Чехію',
+                "headline_en": 'Raising €2.5M for EN 14181 certification and expansion to Poland/Czech Republic',
+                "content_uk": 'EU ETS охоплює 11 000 установок — TAM €5.5B.',
+                "content_en": 'EU ETS covers 11,000 installations — TAM €5.5B.',
+            },
+        ],
+        "customer": [
+            {
+                "type": 'opening',
+                "headline_uk": 'Дмитре, ваш EU ETS аудит коштує €52k і займає 3 тижні — щороку',
+                "headline_en": 'Your EU ETS audit costs €52k and takes 3 weeks — every single year',
+                "content_uk": 'Зовнішній верифікатор приїжджає раз на рік, збирає дані вручну, і виставляє рахунок. А між аудитами ви не знаєте, де стоїте по квотах.',
+                "content_en": 'An external verifier shows up once a year, collects data manually, and sends the invoice. Between audits, you have no idea where you stand on quotas.',
+            },
+            {
+                "type": 'empathy',
+                "headline_uk": 'Compliance заради compliance — це не управління викидами',
+                "headline_en": "Compliance for compliance's sake isn't emissions management",
+                "content_uk": 'Ваша команда витрачає місяць на підготовку документів замість реальної роботи з декарбонізацією. Регулятор вимагає все більше, а інструментів не додається.',
+                "content_en": "Your team spends a month preparing documents instead of doing real decarbonization work. Regulators demand more, but the tools don't keep up.",
+            },
+            {
+                "type": 'transformation',
+                "headline_uk": 'Від щорічного аудиту до real-time моніторингу за €6k/рік',
+                "headline_en": 'From annual audit to real-time monitoring for €6k/year',
+                "content_uk": 'CarbonTrack IoT встановлює акредитовані сенсори на ваших трубах за 2 дні. EU ETS звіт формується автоматично і відправляється в реєстр одним кліком.',
+                "content_en": 'CarbonTrack IoT installs accredited sensors on your stacks in 2 days. EU ETS reports are generated automatically and submitted to the registry with one click.',
+            },
+            {
+                "type": 'social_proof',
+                "headline_uk": '«Скасували контракт із аудитором після першого ж автоматичного звіту»',
+                "headline_en": '"Cancelled the auditor contract after the very first automated report"',
+                "content_uk": '— EHS Director, металургійний завод, 4 виробничих майданчики. Економія €46k у перший рік.',
+                "content_en": '— EHS Director, steel plant, 4 production sites. €46k savings in year one.',
+            },
+            {
+                "type": 'invitation',
+                "headline_uk": 'Безкоштовна установка сенсорів на 1 майданчику протягом 30 днів',
+                "headline_en": 'Free sensor installation on 1 site for 30 days',
+                "content_uk": 'Якщо перший автоматичний EU ETS звіт не буде прийнятий регулятором — повернемо кошти повністю.',
+                "content_en": "If the first automated EU ETS report isn't accepted by the regulator, we'll give you a full refund.",
+            },
+        ],
     },
     scenario={
         "persona": {
@@ -822,36 +872,80 @@ BIOWASTE = Project(
         hyp("H2.2", "EU taxonomy автодокументація підвищить NPS серед enterprise-клієнтів до 65+", "Desirability", "q3"),
     ],
     pitch={
-        "uk": {
-            "investor": [
-                {"type": "hook", "headline": "€140B органічних відходів на звалищах ЄС щороку", "content": "EU Waste Framework Directive забороняє органіку на полігонах з 2027 року. Всі харчові підприємства мусять знайти альтернативу."},
-                {"type": "solution", "headline": "BioWaste Circular: маркетплейс органічних відходів", "content": "З'єднуємо 5 000+ харчових підприємств з мережею біогазових заводів. Оптимізований підбір партнера + логістика + EU-документація автоматично."},
-                {"type": "traction", "headline": "180 підключених підприємств. GMV €1.2М. NPS 68.", "content": "Середнє зниження витрат клієнта: €31k/рік. Churn 3%. 94% клієнтів продовжили підписку."},
-                {"type": "ask", "headline": "Залучаємо €1.8М на розширення мережі біогазових заводів у Польщі та Румунії", "content": "EU Waste Directive TAM: €8B у Центральній Європі до 2027."},
-            ],
-            "client": [
-                {"type": "opening", "headline": "Наталіє, €80k на рік за вивіз органіки на полігон — і жодної EU taxonomy документації", "content": "Шість окремих контрактів з переробниками, координація через email, і щороку консультанти за €15k для підготовки ESG-звіту."},
-                {"type": "empathy", "headline": "Циркулярна економіка на папері, хаос у логістиці на практиці", "content": "Знайти надійного біогазового партнера — це тижні переговорів. Відстежити статус вивозу — дзвінок водієві. Документація для EU taxonomy — окремий проєкт наприкінці року."},
-                {"type": "transformation", "headline": "Надійний партнер за 5 хвилин, EU taxonomy — автоматично", "content": "BioWaste Circular підбирає верифікованих біогазових партнерів поруч із вашим виробництвом, оформляє контракт онлайн і оновлює EU taxonomy документацію після кожної транзакції."},
-                {"type": "social_proof", "headline": "«Знизили витрати на утилізацію з €80k до €54k і нарешті отримали EU taxonomy без консультантів»", "content": "— Head of Sustainability, харчовий холдинг, 3 виробничі майданчики. Економія €26k у перший рік + €15k на консалтингу."},
-                {"type": "invitation", "headline": "Безкоштовно підключіться та знайдіть першого партнера цього тижня", "content": "Реєстрація займає 10 хвилин. Перший підібраний партнер і попередня ціна — протягом 24 годин. Без зобов'язань."},
-            ],
-        },
-        "en": {
-            "investor": [
-                {"type": "hook", "headline": "€140B in organic waste going to EU landfills every year", "content": "The EU Waste Framework Directive bans organics from landfills from 2027. All food companies must find an alternative."},
-                {"type": "solution", "headline": "BioWaste Circular: organic waste marketplace", "content": "Connecting 5,000+ food companies with a network of biogas plants. Optimized partner matching + logistics + EU documentation automatically."},
-                {"type": "traction", "headline": "180 connected companies. GMV €1.2M. NPS 68.", "content": "Average client cost reduction: €31k/year. Churn 3%. 94% of clients renewed subscriptions."},
-                {"type": "ask", "headline": "Raising €1.8M to expand biogas plant network in Poland and Romania", "content": "EU Waste Directive TAM: €8B in Central Europe by 2027."},
-            ],
-            "client": [
-                {"type": "opening", "headline": "€80k a year for organic waste disposal — and zero EU taxonomy documentation", "content": "Six separate contracts with recyclers, email coordination, and consultants at €15k every year just to prepare the ESG report."},
-                {"type": "empathy", "headline": "Circular economy on paper, logistics chaos in practice", "content": "Finding a reliable biogas partner takes weeks of negotiations. Tracking pickup status means calling the driver. EU taxonomy documentation is a separate year-end project."},
-                {"type": "transformation", "headline": "A verified partner in 5 minutes, EU taxonomy updated automatically", "content": "BioWaste Circular matches verified biogas partners near your facility, handles the contract online, and updates EU taxonomy documentation after every transaction."},
-                {"type": "social_proof", "headline": "\"Cut disposal costs from €80k to €54k and finally got EU taxonomy without consultants\"", "content": "— Head of Sustainability, food holding, 3 production sites. €26k saved in year one + €15k on consulting."},
-                {"type": "invitation", "headline": "Sign up free and find your first partner this week", "content": "Registration takes 10 minutes. First matched partner and indicative price — within 24 hours. No commitment required."},
-            ],
-        },
+        "investor": [
+            {
+                "type": 'hook',
+                "headline_uk": '€140B органічних відходів на звалищах ЄС щороку',
+                "headline_en": '€140B in organic waste going to EU landfills every year',
+                "content_uk": 'EU Waste Framework Directive забороняє органіку на полігонах з 2027 року. Всі харчові підприємства мусять знайти альтернативу.',
+                "content_en": 'The EU Waste Framework Directive bans organics from landfills from 2027. All food companies must find an alternative.',
+            },
+            {
+                "type": 'problem',
+                "headline_uk": 'Шість розрізнених контрактів з переробниками — і жодної документації',
+                "headline_en": 'Six fragmented recycler contracts — and zero documentation',
+                "content_uk": 'Пошук партнера — тижні переговорів. EU taxonomy звіт готують консультанти за €15k щороку.',
+                "content_en": 'Finding a partner takes weeks of negotiation. Consultants charge €15k/year for the EU taxonomy report.',
+            },
+            {
+                "type": 'solution',
+                "headline_uk": 'BioWaste Circular: маркетплейс органічних відходів',
+                "headline_en": 'BioWaste Circular: organic waste marketplace',
+                "content_uk": "З'єднуємо 5 000+ харчових підприємств з мережею біогазових заводів. Оптимізований підбір партнера + логістика + EU-документація автоматично.",
+                "content_en": 'Connecting 5,000+ food companies with a network of biogas plants. Optimized partner matching + logistics + EU documentation automatically.',
+            },
+            {
+                "type": 'traction',
+                "headline_uk": '180 підключених підприємств. GMV €1.2М. NPS 68.',
+                "headline_en": '180 connected companies. GMV €1.2M. NPS 68.',
+                "content_uk": 'Середнє зниження витрат клієнта: €31k/рік. Churn 3%. 94% клієнтів продовжили підписку.',
+                "content_en": 'Average client cost reduction: €31k/year. Churn 3%. 94% of clients renewed subscriptions.',
+            },
+            {
+                "type": 'ask',
+                "headline_uk": 'Залучаємо €1.8М на розширення мережі біогазових заводів у Польщі та Румунії',
+                "headline_en": 'Raising €1.8M to expand biogas plant network in Poland and Romania',
+                "content_uk": 'EU Waste Directive TAM: €8B у Центральній Європі до 2027.',
+                "content_en": 'EU Waste Directive TAM: €8B in Central Europe by 2027.',
+            },
+        ],
+        "customer": [
+            {
+                "type": 'opening',
+                "headline_uk": 'Наталіє, €80k на рік за вивіз органіки — і жодної документації',
+                "headline_en": '€80k a year on organic waste — and zero EU taxonomy documentation',
+                "content_uk": 'Шість окремих контрактів з переробниками, координація через email, і щороку консультанти за €15k для підготовки ESG-звіту.',
+                "content_en": 'Six separate contracts with recyclers, email coordination, and consultants at €15k every year just to prepare the ESG report.',
+            },
+            {
+                "type": 'empathy',
+                "headline_uk": 'Циркулярна економіка на папері, хаос у логістиці на практиці',
+                "headline_en": 'Circular economy on paper, logistics chaos in practice',
+                "content_uk": 'Знайти надійного біогазового партнера — це тижні переговорів. Відстежити статус вивозу — дзвінок водієві. Документація для EU taxonomy — окремий проєкт наприкінці року.',
+                "content_en": 'Finding a reliable biogas partner takes weeks of negotiations. Tracking pickup status means calling the driver. EU taxonomy documentation is a separate year-end project.',
+            },
+            {
+                "type": 'transformation',
+                "headline_uk": 'Надійний партнер за 5 хвилин, EU taxonomy — автоматично',
+                "headline_en": 'A verified partner in 5 minutes, EU taxonomy updated automatically',
+                "content_uk": 'BioWaste Circular підбирає верифікованих біогазових партнерів поруч із вашим виробництвом, оформляє контракт онлайн і оновлює EU taxonomy документацію після кожної транзакції.',
+                "content_en": 'BioWaste Circular matches verified biogas partners near your facility, handles the contract online, and updates EU taxonomy documentation after every transaction.',
+            },
+            {
+                "type": 'social_proof',
+                "headline_uk": '«Знизили витрати з €80k до €54k, EU taxonomy — без консультантів»',
+                "headline_en": '"Cut costs from €80k to €54k, got EU taxonomy without consultants"',
+                "content_uk": '— Head of Sustainability, харчовий холдинг, 3 виробничі майданчики. Економія €26k у перший рік + €15k на консалтингу.',
+                "content_en": '— Head of Sustainability, food holding, 3 production sites. €26k saved in year one + €15k on consulting.',
+            },
+            {
+                "type": 'invitation',
+                "headline_uk": 'Безкоштовно підключіться та знайдіть першого партнера цього тижня',
+                "headline_en": 'Sign up free and find your first partner this week',
+                "content_uk": "Реєстрація займає 10 хвилин. Перший підібраний партнер і попередня ціна — протягом 24 годин. Без зобов'язань.",
+                "content_en": 'Registration takes 10 minutes. First matched partner and indicative price — within 24 hours. No commitment required.',
+            },
+        ],
     },
     scenario={
         "persona": {
