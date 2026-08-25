@@ -75,11 +75,6 @@ async def test_long_tail_with_subtype_rejected_with_422(client, project, db_sess
 
 
 async def test_valid_free_freemium_accepted(client, project_ready_for_architecture, db_session):
-    # Uses project_ready_for_architecture (all other blocks already filled),
-    # not the bare `project` fixture: a success hook for the *last* block in
-    # BLOCK_CHAIN with earlier blocks still empty hits a pre-existing
-    # IndexError in the "enqueue next block" logic (out of scope here — see
-    # task summary).
     p = project_ready_for_architecture
     body = _hook_body(p.id, _valid_architecture(pattern="free", pattern_subtype="freemium"))
 

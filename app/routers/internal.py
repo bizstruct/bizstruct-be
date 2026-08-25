@@ -4,12 +4,12 @@ import uuid
 from typing import Annotated, Any, Literal
 
 from bizstruct_domain.blocks.architecture import Architecture
-from bizstruct_domain.chain import STAGES
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.block_chain import BLOCK_CHAIN, BLOCK_FIELDS, next_block
 from app.config import settings
 from app.database import get_db
 from app.models import Project
@@ -23,60 +23,12 @@ router = APIRouter(prefix="/api/internal", tags=["internal"])
 
 DbDep = Annotated[AsyncSession, Depends(get_db)]
 
-BLOCK_CHAIN: list[str] = [
-    "models_options",
-    "canvas_data",
-    "empathy_map",
-    "hypotheses",
-    "pitch",
-    "scenario",
-    "what_if",
-    "architecture",
-]
-
-BLOCK_FIELDS: frozenset[str] = frozenset(BLOCK_CHAIN) | {"validate_model"}
-
-# This repo's wire-level block ids (queue message `block`, hook payload,
-# Project column names) predate bizstruct_domain and don't all match its
-# stage ids one-for-one. `canvas_data` here is `canvas` in STAGES; everything
-# else lines up. This map bridges that one naming drift for the startup
-# check below — it does NOT rename the wire protocol (out of scope: shared
-# with bizstruct-ml and the frontend). See bizstruct-ml/generators/registry.py
-# for the identical pattern used there.
-_STAGE_ID_OVERRIDES: dict[str, str] = {
-    "canvas_data": "canvas",
-}
-
 # Blocks with dedicated bizstruct_domain models. Everything else in
-# BLOCK_CHAIN is still a bare dict[str, Any] — pilot slice, more blocks land
+# BLOCK_FIELDS is still a bare dict[str, Any] — pilot slice, more blocks land
 # in follow-up PRs the same way.
 _DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
     "architecture": Architecture,
 }
-
-
-def _validate_block_chain_against_stages() -> None:
-    """Fail fast on startup if a block this service handles has no matching stage.
-
-    Every BLOCK_CHAIN entry must resolve (directly, or via
-    `_STAGE_ID_OVERRIDES`) to a stage id in `bizstruct_domain.chain.STAGES`.
-    This deliberately does NOT go the other way — STAGES includes stages
-    (`brief`, `value_map`, `environment_scan`, `assessment`, ...) that no
-    generator/block handling exists for yet, and that's expected in this
-    pilot slice.
-    """
-    known_stage_ids = {s.id for s in STAGES}
-    for block_id in BLOCK_CHAIN:
-        stage_id = _STAGE_ID_OVERRIDES.get(block_id, block_id)
-        if stage_id not in known_stage_ids:
-            raise RuntimeError(
-                f"BLOCK_CHAIN configuration error: block '{block_id}' "
-                f"(resolved stage id '{stage_id}') is not a known stage in "
-                "bizstruct_domain.chain.STAGES"
-            )
-
-
-_validate_block_chain_against_stages()
 
 
 async def verify_internal_key(x_api_key: Annotated[str, Header()]) -> None:
@@ -178,8 +130,21 @@ async def ml_hook(
         if all_filled:
             send_generation_complete(project_id_str, "completed")
         else:
-            next_idx = BLOCK_CHAIN.index(body.block) + 1
-            background_tasks.add_task(enqueue_block, project_id_str, BLOCK_CHAIN[next_idx])
+            nxt = next_block(body.block)
+            if nxt is not None:
+                background_tasks.add_task(enqueue_block, project_id_str, nxt)
+            else:
+                # body.block is the last block in BLOCK_CHAIN but all_filled
+                # is False — an earlier block must still be missing (e.g. a
+                # hook arrived out of the usual order). Nothing left to
+                # enqueue; the still-missing block's own hook (whenever it
+                # arrives) will complete the project.
+                logger.warning(
+                    "Project %s: '%s' is the last block in BLOCK_CHAIN but "
+                    "the project isn't fully generated yet",
+                    project.id,
+                    body.block,
+                )
 
     else:
         project.status = "failed"

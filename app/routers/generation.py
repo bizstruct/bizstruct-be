@@ -6,6 +6,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.block_chain import BLOCK_CHAIN
 from app.database import get_db
 from app.models import Project
 from app.schemas import CamelModel, ProjectResponse
@@ -41,9 +42,10 @@ async def generate_project(
     await db.refresh(project)
 
     project_id = str(project.id)
-    background_tasks.add_task(enqueue_block, project_id, "models_options")
+    first_block = BLOCK_CHAIN[0]
+    background_tasks.add_task(enqueue_block, project_id, first_block)
 
-    logger.info("Project %s created, enqueuing first block", project_id)
+    logger.info("Project %s created, enqueuing first block %s", project_id, first_block)
     return ProjectResponse.model_validate(project)
 
 
