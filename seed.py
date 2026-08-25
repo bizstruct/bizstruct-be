@@ -89,70 +89,36 @@ ECOSYNC_CANVAS = {
 }
 
 ECOSYNC_EMPATHY_MAP = {
-    "uk": {
-        "says": [
-            ei(1, "Нам потрібно автоматизувати ESG-звітність, щоб уникнути штрафів CSRD"),
-            ei(2, "Поточні процеси занадто повільні — ми витрачаємо 3 дні на квартальний звіт"),
-            ei(3, "Акціонери вимагають прозорості, а ми досі збираємо дані в Excel"),
-        ],
-        "thinks": [
-            ei(1, "Чи можна реально довіряти точності даних перед аудитом ISO?"),
-            ei(2, "Як інтегрувати нову систему з нашим SAP / Oracle ERP без зупинки процесів?"),
-            ei(3, "Чи виправдає автоматизація вкладені інвестиції перед фінансовим директором?"),
-        ],
-        "does": [
-            ei(1, "Вручну збирає Excel-таблиці з 8 департаментів щомісяця"),
-            ei(2, "Презентує ESG-метрики через статичні PowerPoint-слайди на раді директорів"),
-            ei(3, "Координує дані між постачальниками через email-ланцюжки"),
-        ],
-        "feels": [
-            ei(1, "Розгубленість через постійні зміни регуляцій ЄС (CSRD, ESRS)"),
-            ei(2, "Фрустрація від закритості департаментів і відсутності єдиного джерела даних"),
-            ei(3, "Тиск від топ-менеджменту, який вимагає результатів «вже вчора»"),
-        ],
-        "pains": [
-            ei(1, "Ризик людського фактору: помилки в Excel призводять до хибної звітності"),
-            ei(2, "Відсутність real-time CO₂ трекінгу — дані завжди застарілі на місяць"),
-            ei(3, "Обмежений бюджет ESG-команди при зростаючих регуляторних вимогах"),
-        ],
-        "gains": [
-            ei(1, "Автоматизація звітів — звільнити 3 дні на квартал для стратегічної роботи"),
-            ei(2, "Довести ROI ESG-програми CFO на основі реальних даних платформи"),
-            ei(3, "Безшовна API-інтеграція з SAP/Oracle без ручного втручання"),
-        ],
-    },
-    "en": {
-        "says": [
-            ei(1, "We need to automate ESG reporting to avoid CSRD penalties"),
-            ei(2, "Current processes are too slow — we spend 3 days on a quarterly report"),
-            ei(3, "Shareholders demand transparency, yet we still collect data in Excel"),
-        ],
-        "thinks": [
-            ei(1, "Can we really trust data accuracy before an ISO audit?"),
-            ei(2, "How do we integrate a new system with our SAP / Oracle ERP without disrupting operations?"),
-            ei(3, "Will automation justify the investment in front of the CFO?"),
-        ],
-        "does": [
-            ei(1, "Manually consolidates Excel sheets from 8 departments every month"),
-            ei(2, "Presents ESG metrics via static PowerPoint slides at board meetings"),
-            ei(3, "Coordinates supplier data through email chains"),
-        ],
-        "feels": [
-            ei(1, "Confused by the constant stream of EU regulation changes (CSRD, ESRS)"),
-            ei(2, "Frustrated by siloed departments and lack of a single source of truth"),
-            ei(3, "Pressured by senior management demanding results immediately"),
-        ],
-        "pains": [
-            ei(1, "Human error risk: Excel mistakes lead to inaccurate disclosures"),
-            ei(2, "No real-time CO₂ tracking — data is always one month out of date"),
-            ei(3, "Limited ESG team budget against growing regulatory requirements"),
-        ],
-        "gains": [
-            ei(1, "Automated reports — free up 3 days per quarter for strategic work"),
-            ei(2, "Prove ESG program ROI to the CFO with real platform data"),
-            ei(3, "Seamless API integration with SAP/Oracle without manual intervention"),
-        ],
-    },
+    "says": [
+        {"id": 1, "text_uk": "Нам потрібно автоматизувати ESG-звітність, щоб уникнути штрафів CSRD", "text_en": "We need to automate ESG reporting to avoid CSRD penalties"},
+        {"id": 2, "text_uk": "Поточні процеси занадто повільні — ми витрачаємо 3 дні на квартальний звіт", "text_en": "Current processes are too slow — we spend 3 days on a quarterly report"},
+        {"id": 3, "text_uk": "Акціонери вимагають прозорості, а ми досі збираємо дані в Excel", "text_en": "Shareholders demand transparency, yet we still collect data in Excel"},
+    ],
+    "thinks": [
+        {"id": 1, "text_uk": "Чи можна реально довіряти точності даних перед аудитом ISO?", "text_en": "Can we really trust data accuracy before an ISO audit?"},
+        {"id": 2, "text_uk": "Як інтегрувати нову систему з нашим SAP / Oracle ERP без зупинки процесів?", "text_en": "How do we integrate a new system with our SAP / Oracle ERP without disrupting operations?"},
+        {"id": 3, "text_uk": "Чи виправдає автоматизація вкладені інвестиції перед фінансовим директором?", "text_en": "Will automation justify the investment in front of the CFO?"},
+    ],
+    "does": [
+        {"id": 1, "text_uk": "Вручну збирає Excel-таблиці з 8 департаментів щомісяця", "text_en": "Manually consolidates Excel sheets from 8 departments every month"},
+        {"id": 2, "text_uk": "Презентує ESG-метрики через статичні PowerPoint-слайди на раді директорів", "text_en": "Presents ESG metrics via static PowerPoint slides at board meetings"},
+        {"id": 3, "text_uk": "Координує дані між постачальниками через email-ланцюжки", "text_en": "Coordinates supplier data through email chains"},
+    ],
+    "feels": [
+        {"id": 1, "text_uk": "Розгубленість через постійні зміни регуляцій ЄС (CSRD, ESRS)", "text_en": "Confused by the constant stream of EU regulation changes (CSRD, ESRS)"},
+        {"id": 2, "text_uk": "Фрустрація від закритості департаментів і відсутності єдиного джерела даних", "text_en": "Frustrated by siloed departments and lack of a single source of truth"},
+        {"id": 3, "text_uk": "Тиск від топ-менеджменту, який вимагає результатів «вже вчора»", "text_en": "Pressured by senior management demanding results immediately"},
+    ],
+    "pains": [
+        {"id": 1, "text_uk": "Ризик людського фактору: помилки в Excel призводять до хибної звітності", "text_en": "Human error risk: Excel mistakes lead to inaccurate disclosures"},
+        {"id": 2, "text_uk": "Відсутність real-time CO₂ трекінгу — дані завжди застарілі на місяць", "text_en": "No real-time CO₂ tracking — data is always one month out of date"},
+        {"id": 3, "text_uk": "Обмежений бюджет ESG-команди при зростаючих регуляторних вимогах", "text_en": "Limited ESG team budget against growing regulatory requirements"},
+    ],
+    "gains": [
+        {"id": 1, "text_uk": "Автоматизація звітів — звільнити 3 дні на квартал для стратегічної роботи", "text_en": "Automated reports — free up 3 days per quarter for strategic work"},
+        {"id": 2, "text_uk": "Довести ROI ESG-програми CFO на основі реальних даних платформи", "text_en": "Prove ESG program ROI to the CFO with real platform data"},
+        {"id": 3, "text_uk": "Безшовна API-інтеграція з SAP/Oracle без ручного втручання", "text_en": "Seamless API integration with SAP/Oracle without manual intervention"},
+    ],
 }
 
 ECOSYNC_HYPOTHESES = [
@@ -456,23 +422,37 @@ SMART_GRID = Project(
         "revenue_streams": [ci("Annual SaaS license per substation"), ci("Performance-based bonus: % of saved losses"), ci("Consulting and integration services")],
     },
     empathy_map={
-        "uk": {
-            "says": [ei(1, "Нам потрібно знизити втрати в мережі — регулятор вимагає звіти щомісяця"), ei(2, "SCADA-системи не дають прогнозу — тільки факт")],
-            "thinks": [ei(1, "Чи витримає IoT-рішення навантаження нашої мережі?"), ei(2, "Як обґрунтувати CAPEX перед держрегулятором?")],
-            "does": [ei(1, "Аналізує графіки навантаження вручну в Excel"), ei(2, "Проводить щотижневі наради з операторами підстанцій")],
-            "feels": [ei(1, "Тривога через аварійні відключення в пікові години"), ei(2, "Розчарування від застарілої інфраструктури")],
-            "pains": [ei(1, "Реактивне обслуговування замість предиктивного"), ei(2, "Відсутність єдиного дашборду по всій мережі")],
-            "gains": [ei(1, "Прогноз навантаження за 24 год наперед"), ei(2, "Автоматичне відключення аварійних ділянок")],
-        },
-        "en": {
-            "says": [ei(1, "We need to reduce grid losses — the regulator demands monthly reports"), ei(2, "SCADA systems only show facts, not forecasts")],
-            "thinks": [ei(1, "Will the IoT solution handle our grid load?"), ei(2, "How do we justify CAPEX to the regulator?")],
-            "does": [ei(1, "Manually analyzes load profiles in Excel"), ei(2, "Holds weekly meetings with substation operators")],
-            "feels": [ei(1, "Anxiety over emergency outages during peak hours"), ei(2, "Frustration with aging infrastructure")],
-            "pains": [ei(1, "Reactive maintenance instead of predictive"), ei(2, "No single dashboard across the entire grid")],
-            "gains": [ei(1, "24-hour-ahead load forecasting"), ei(2, "Automated isolation of faulty grid sections")],
-        },
-    },
+    "says": [
+        {"id": 1, "text_uk": "Нам потрібно знизити втрати в мережі — регулятор вимагає звіти щомісяця", "text_en": "We need to reduce grid losses — the regulator demands monthly reports"},
+        {"id": 2, "text_uk": "SCADA-системи не дають прогнозу — тільки факт", "text_en": "SCADA systems only show facts, not forecasts"},
+        {"id": 3, "text_uk": "Диспетчери дізнаються про аварію постфактум", "text_en": "Dispatchers find out about outages after the fact"},
+    ],
+    "thinks": [
+        {"id": 1, "text_uk": "Чи витримає IoT-рішення навантаження нашої мережі?", "text_en": "Will the IoT solution handle our grid load?"},
+        {"id": 2, "text_uk": "Як обґрунтувати CAPEX перед держрегулятором?", "text_en": "How do we justify CAPEX to the regulator?"},
+        {"id": 3, "text_uk": "Чи витримає стара інфраструктура ще один сезон пікових навантажень?", "text_en": "Will the aging infrastructure survive another peak-load season?"},
+    ],
+    "does": [
+        {"id": 1, "text_uk": "Аналізує графіки навантаження вручну в Excel", "text_en": "Manually analyzes load profiles in Excel"},
+        {"id": 2, "text_uk": "Проводить щотижневі наради з операторами підстанцій", "text_en": "Holds weekly meetings with substation operators"},
+        {"id": 3, "text_uk": "Виїжджає на місце після кожного аварійного сигналу", "text_en": "Dispatches a crew on-site after every alarm"},
+    ],
+    "feels": [
+        {"id": 1, "text_uk": "Тривога через аварійні відключення в пікові години", "text_en": "Anxiety over emergency outages during peak hours"},
+        {"id": 2, "text_uk": "Розчарування від застарілої інфраструктури", "text_en": "Frustration with aging infrastructure"},
+        {"id": 3, "text_uk": "Виснаження від постійного реагування на аварії замість планування", "text_en": "Burnout from constantly reacting to outages instead of planning"},
+    ],
+    "pains": [
+        {"id": 1, "text_uk": "Реактивне обслуговування замість предиктивного", "text_en": "Reactive maintenance instead of predictive"},
+        {"id": 2, "text_uk": "Відсутність єдиного дашборду по всій мережі", "text_en": "No single dashboard across the entire grid"},
+        {"id": 3, "text_uk": "Штрафи регулятора за понаднормові втрати в мережі", "text_en": "Regulator fines for excess grid losses"},
+    ],
+    "gains": [
+        {"id": 1, "text_uk": "Прогноз навантаження за 24 год наперед", "text_en": "24-hour-ahead load forecasting"},
+        {"id": 2, "text_uk": "Автоматичне відключення аварійних ділянок", "text_en": "Automated isolation of faulty grid sections"},
+        {"id": 3, "text_uk": "Менше штрафів завдяки нижчим втратам у мережі", "text_en": "Fewer fines thanks to lower grid losses"},
+    ],
+},
     hypotheses=[
         hyp("H1.1", "Оператори DSO витрачають 8+ год/тиждень на ручний аналіз графіків навантаження", "Desirability", "q1"),
         hyp("H1.2", "Предиктивне обслуговування знижує OPEX трансформаторів на 30%", "Viability", "q1"),
@@ -583,23 +563,37 @@ CARBON_TRACK = Project(
         "revenue_streams": [ci("Hardware + SaaS bundle: €2k setup + €500/mo"), ci("EU ETS report generation fee per submission"), ci("Carbon credit advisory: % of optimized allocation")],
     },
     empathy_map={
-        "uk": {
-            "says": [ei(1, "EU ETS квоти закінчуються — нам загрожує штраф €100/тонну CO₂"), ei(2, "Наш EHS-директор витрачає місяць на підготовку річного звіту")],
-            "thinks": [ei(1, "Чи акредитовані сенсори для EU ETS верифікації?"), ei(2, "Як CBAM вплине на наш бізнес у 2026 році?")],
-            "does": [ei(1, "Замовляє щорічний аудит у зовнішніх верифікаторів за €50k+"), ei(2, "Веде журнали викидів у Excel зі щоденним ручним введенням")],
-            "feels": [ei(1, "Страх перед штрафами та репутаційними ризиками"), ei(2, "Невизначеність щодо майбутніх регуляторних змін")],
-            "pains": [ei(1, "Ризик перевищення квот через неточний моніторинг"), ei(2, "Висока вартість зовнішньої верифікації викидів")],
-            "gains": [ei(1, "Безперервний моніторинг замість щорічного аудиту"), ei(2, "Оптимізація розподілу квот — економія до €200k/рік")],
-        },
-        "en": {
-            "says": [ei(1, "EU ETS quotas are running out — we face a €100/tonne CO₂ fine"), ei(2, "Our EHS director spends a month preparing the annual report")],
-            "thinks": [ei(1, "Are the sensors accredited for EU ETS verification?"), ei(2, "How will CBAM affect our business in 2026?")],
-            "does": [ei(1, "Commissions annual audits from external verifiers at €50k+"), ei(2, "Maintains emissions logs in Excel with daily manual entry")],
-            "feels": [ei(1, "Fear of fines and reputational damage"), ei(2, "Uncertainty about future regulatory changes")],
-            "pains": [ei(1, "Risk of quota breach due to inaccurate monitoring"), ei(2, "High cost of external emissions verification")],
-            "gains": [ei(1, "Continuous monitoring instead of annual audit"), ei(2, "Quota allocation optimization — savings up to €200k/year")],
-        },
-    },
+    "says": [
+        {"id": 1, "text_uk": "EU ETS квоти закінчуються — нам загрожує штраф €100/тонну CO₂", "text_en": "EU ETS quotas are running out — we face a €100/tonne CO₂ fine"},
+        {"id": 2, "text_uk": "Наш EHS-директор витрачає місяць на підготовку річного звіту", "text_en": "Our EHS director spends a month preparing the annual report"},
+        {"id": 3, "text_uk": "CBAM змусить наших покупців вимагати верифіковані дані про викиди", "text_en": "CBAM will force our buyers to demand verified emissions data"},
+    ],
+    "thinks": [
+        {"id": 1, "text_uk": "Чи акредитовані сенсори для EU ETS верифікації?", "text_en": "Are the sensors accredited for EU ETS verification?"},
+        {"id": 2, "text_uk": "Як CBAM вплине на наш бізнес у 2026 році?", "text_en": "How will CBAM affect our business in 2026?"},
+        {"id": 3, "text_uk": "Чи витримає інтеграція навантаження без зупинки виробництва?", "text_en": "Will the integration hold up without stopping production?"},
+    ],
+    "does": [
+        {"id": 1, "text_uk": "Замовляє щорічний аудит у зовнішніх верифікаторів за €50k+", "text_en": "Commissions annual audits from external verifiers at €50k+"},
+        {"id": 2, "text_uk": "Веде журнали викидів у Excel зі щоденним ручним введенням", "text_en": "Maintains emissions logs in Excel with daily manual entry"},
+        {"id": 3, "text_uk": "Звіряє дані сенсорів вручну перед кожною подачею звіту в реєстр", "text_en": "Manually reconciles sensor data before every registry submission"},
+    ],
+    "feels": [
+        {"id": 1, "text_uk": "Страх перед штрафами та репутаційними ризиками", "text_en": "Fear of fines and reputational damage"},
+        {"id": 2, "text_uk": "Невизначеність щодо майбутніх регуляторних змін", "text_en": "Uncertainty about future regulatory changes"},
+        {"id": 3, "text_uk": "Втома від постійного ручного збору даних щомісяця", "text_en": "Fatigue from constant manual data collection every month"},
+    ],
+    "pains": [
+        {"id": 1, "text_uk": "Ризик перевищення квот через неточний моніторинг", "text_en": "Risk of quota breach due to inaccurate monitoring"},
+        {"id": 2, "text_uk": "Висока вартість зовнішньої верифікації викидів", "text_en": "High cost of external emissions verification"},
+        {"id": 3, "text_uk": "Немає видимості по викидах між щорічними аудитами", "text_en": "No visibility into emissions between annual audits"},
+    ],
+    "gains": [
+        {"id": 1, "text_uk": "Безперервний моніторинг замість щорічного аудиту", "text_en": "Continuous monitoring instead of annual audit"},
+        {"id": 2, "text_uk": "Оптимізація розподілу квот — економія до €200k/рік", "text_en": "Quota allocation optimization — savings up to €200k/year"},
+        {"id": 3, "text_uk": "Автоматична готовність до CBAM-звітності без додаткових витрат", "text_en": "Automatic CBAM reporting readiness at no extra cost"},
+    ],
+},
     hypotheses=[
         hyp("H1.1", "EHS-менеджери витрачають 20+ людино-днів на підготовку щорічного EU ETS звіту", "Desirability", "q1"),
         hyp("H1.2", "Виробники EU ETS готові платити €500/міс за автоматизацію замість €50k аудиту", "Viability", "q1"),
@@ -710,23 +704,37 @@ BIOWASTE = Project(
         "revenue_streams": [ci("Marketplace commission: 8% per waste transaction"), ci("SaaS subscription: €799/mo per facility"), ci("EU grant facilitation: 5% of grant value")],
     },
     empathy_map={
-        "uk": {
-            "says": [ei(1, "Ми платимо €80k/рік за вивіз органіки на полігон — це нераціонально"), ei(2, "Регулятор вже питає про нашу стратегію нульових відходів")],
-            "thinks": [ei(1, "Чи надійні біогазові заводи-партнери? Де гарантія якості?"), ei(2, "Як довести ROI переходу на циркулярну модель CFO?")],
-            "does": [ei(1, "Укладає окремі контракти з кількома переробниками вручну"), ei(2, "Готує щорічний EU taxonomy sound alignment звіт у консультантів")],
-            "feels": [ei(1, "Тиск від ESG-рейтингів та закупівельних вимог великих рітейлерів"), ei(2, "Невизначеність щодо майбутніх штрафів за EU Waste Directive")],
-            "pains": [ei(1, "Складна логістика: хтось забирає відходи, але не завжди вчасно"), ei(2, "Відсутність автоматичної документації для EU taxonomy")],
-            "gains": [ei(1, "Зниження витрат на утилізацію відходів на 30%"), ei(2, "Готова EU taxonomy-документація для ESG-звіту")],
-        },
-        "en": {
-            "says": [ei(1, "We pay €80k/year to send organics to landfill — that's irrational"), ei(2, "The regulator is already asking about our zero-waste strategy")],
-            "thinks": [ei(1, "Are the biogas plant partners reliable? Where's the quality guarantee?"), ei(2, "How do I prove the ROI of going circular to the CFO?")],
-            "does": [ei(1, "Signs separate contracts with multiple recyclers manually"), ei(2, "Hires consultants to prepare the annual EU taxonomy alignment report")],
-            "feels": [ei(1, "Pressure from ESG ratings and procurement requirements of large retailers"), ei(2, "Uncertainty about future EU Waste Directive penalties")],
-            "pains": [ei(1, "Logistics complexity: someone picks up waste, but not always on time"), ei(2, "No automatic documentation for EU taxonomy")],
-            "gains": [ei(1, "30% reduction in waste disposal costs"), ei(2, "Ready EU taxonomy documentation for ESG report")],
-        },
-    },
+    "says": [
+        {"id": 1, "text_uk": "Ми платимо €80k/рік за вивіз органіки на полігон — це нераціонально", "text_en": "We pay €80k/year to send organics to landfill — that's irrational"},
+        {"id": 2, "text_uk": "Регулятор вже питає про нашу стратегію нульових відходів", "text_en": "The regulator is already asking about our zero-waste strategy"},
+        {"id": 3, "text_uk": "Великі рітейлери вимагають ESG-звітність від постачальників", "text_en": "Major retailers require ESG reporting from their suppliers"},
+    ],
+    "thinks": [
+        {"id": 1, "text_uk": "Чи надійні біогазові заводи-партнери? Де гарантія якості?", "text_en": "Are the biogas plant partners reliable? Where's the quality guarantee?"},
+        {"id": 2, "text_uk": "Як довести ROI переходу на циркулярну модель CFO?", "text_en": "How do I prove the ROI of going circular to the CFO?"},
+        {"id": 3, "text_uk": "Чи впораємось із об'ємами органіки без зриву виробничого графіку?", "text_en": "Can we handle the organics volume without disrupting the production schedule?"},
+    ],
+    "does": [
+        {"id": 1, "text_uk": "Укладає окремі контракти з кількома переробниками вручну", "text_en": "Signs separate contracts with multiple recyclers manually"},
+        {"id": 2, "text_uk": "Готує щорічний EU taxonomy sound alignment звіт у консультантів", "text_en": "Hires consultants to prepare the annual EU taxonomy alignment report"},
+        {"id": 3, "text_uk": "Координує графіки вивозу відходів телефоном і email-листуванням", "text_en": "Coordinates waste pickup schedules over phone calls and email"},
+    ],
+    "feels": [
+        {"id": 1, "text_uk": "Тиск від ESG-рейтингів та закупівельних вимог великих рітейлерів", "text_en": "Pressure from ESG ratings and procurement requirements of large retailers"},
+        {"id": 2, "text_uk": "Невизначеність щодо майбутніх штрафів за EU Waste Directive", "text_en": "Uncertainty about future EU Waste Directive penalties"},
+        {"id": 3, "text_uk": "Розчарування від негнучкості чинних контрактів з переробниками", "text_en": "Frustration with the inflexibility of current recycler contracts"},
+    ],
+    "pains": [
+        {"id": 1, "text_uk": "Складна логістика: хтось забирає відходи, але не завжди вчасно", "text_en": "Logistics complexity: someone picks up waste, but not always on time"},
+        {"id": 2, "text_uk": "Відсутність автоматичної документації для EU taxonomy", "text_en": "No automatic documentation for EU taxonomy"},
+        {"id": 3, "text_uk": "Немає єдиної точки контролю над кількома переробниками одразу", "text_en": "No single point of control across multiple recyclers at once"},
+    ],
+    "gains": [
+        {"id": 1, "text_uk": "Зниження витрат на утилізацію відходів на 30%", "text_en": "30% reduction in waste disposal costs"},
+        {"id": 2, "text_uk": "Готова EU taxonomy-документація для ESG-звіту", "text_en": "Ready EU taxonomy documentation for ESG report"},
+        {"id": 3, "text_uk": "Один надійний партнер замість розрізнених контрактів", "text_en": "One reliable partner instead of fragmented contracts"},
+    ],
+},
     hypotheses=[
         hyp("H1.1", "Харчові підприємства готові перейти на маркетплейс замість прямих контрактів з переробниками", "Desirability", "q1"),
         hyp("H1.2", "Комісія 8% з угод забезпечить беззбитковість маркетплейсу при GMV €2M/міс", "Viability", "q2"),

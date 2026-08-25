@@ -12,6 +12,22 @@ from uuid import uuid4
 from app.block_chain import BLOCK_CHAIN
 from app.models import Project
 from tests.conftest import INTERNAL_HEADERS
+from tests.test_hook_architecture import _valid_architecture
+from tests.test_hook_empathy_map import _valid_empathy_map
+
+# Some BLOCK_CHAIN blocks are validated against a bizstruct_domain model on
+# hook receipt (see app.routers.internal._DOMAIN_VALIDATED_BLOCKS); a bare
+# {"stub": True} payload fails their validation, so those blocks need a
+# real, valid stub instead. Everything else still accepts the bare stub.
+_STUB_DATA = {
+    "architecture": _valid_architecture,
+    "empathy_map": _valid_empathy_map,
+}
+
+
+def _stub_data_for(block: str) -> dict:
+    factory = _STUB_DATA.get(block)
+    return factory() if factory else {"stub": True}
 
 
 def _hook_body(project_id, block: str, data) -> dict:
@@ -25,7 +41,7 @@ def _hook_body(project_id, block: str, data) -> dict:
 
 async def _make_project_missing(db_session, missing_block: str) -> Project:
     """A project with every BLOCK_CHAIN block filled except `missing_block`."""
-    filled = {b: {"stub": True} for b in BLOCK_CHAIN if b != missing_block}
+    filled = {b: _stub_data_for(b) for b in BLOCK_CHAIN if b != missing_block}
     p = Project(
         id=uuid4(),
         title="Test Project",
@@ -46,7 +62,7 @@ async def test_last_block_in_chain_completes_without_enqueue(client, db_session)
     with patch("app.routers.internal.enqueue_block", MagicMock()) as enqueue_mock:
         resp = await client.post(
             "/api/internal/hook",
-            json=_hook_body(p.id, last_block, {"stub": True}),
+            json=_hook_body(p.id, last_block, _stub_data_for(last_block)),
             headers=INTERNAL_HEADERS,
         )
 
@@ -73,7 +89,7 @@ async def test_intermediate_block_enqueues_the_next_one(client, db_session):
     with patch("app.routers.internal.enqueue_block", MagicMock()) as enqueue_mock:
         resp = await client.post(
             "/api/internal/hook",
-            json=_hook_body(p.id, first_block, {"stub": True}),
+            json=_hook_body(p.id, first_block, _stub_data_for(first_block)),
             headers=INTERNAL_HEADERS,
         )
 

@@ -3,6 +3,7 @@ import uuid
 from typing import Annotated, Any
 
 from bizstruct_domain.blocks.architecture import Architecture
+from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -152,15 +153,30 @@ async def delete_canvas_item(
 
 
 # ── Empathy Map ───────────────────────────────────────────────────────────────
+#
+# EmpathyMap (bizstruct_domain.blocks.empathy_map.EmpathyMap) stores both
+# languages inline per item (text_uk/text_en) — like architecture, unlike the
+# {uk: {...}, en: {...}} wrapper the other blocks below still use. So these
+# endpoints don't take a `locale` query param and always validate writes
+# against the domain model before saving.
+
+def _validate_empathy_map(data: dict) -> EmpathyMap:
+    try:
+        return EmpathyMap.model_validate(data)
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+
 
 @router.get("/empathy-map/{project_id}")
 async def get_empathy_map(
     project_id: uuid.UUID,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    return _block_response(project_id, "empathyMap", _resolve_locale(project.empathy_map, locale))
+    return _block_response(project_id, "empathyMap", project.empathy_map)
 
 
 @router.put("/empathy-map/{project_id}")
@@ -168,14 +184,14 @@ async def update_empathy_map(
     project_id: uuid.UUID,
     body: dict,
     db: DbDep,
-    locale: str = Query(default=None),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.empathy_map = _merge_locale(project.empathy_map, locale, body)
+    validated = _validate_empathy_map(body)
+    project.empathy_map = validated.model_dump(mode="json")
     flag_modified(project, "empathy_map")
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "empathyMap", _resolve_locale(project.empathy_map, locale or "uk"))
+    return _block_response(project_id, "empathyMap", project.empathy_map)
 
 
 # ── Hypotheses ────────────────────────────────────────────────────────────────

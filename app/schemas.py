@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any
 
 from bizstruct_domain.blocks.architecture import Architecture
+from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -30,12 +31,12 @@ class ProjectUpdate(CamelModel):
     translation_key: str | None = None
     models_options: dict[str, Any] | None = None
     canvas_data: dict[str, Any] | None = None
-    empathy_map: dict[str, Any] | None = None
     hypotheses: dict[str, Any] | None = None
     pitch: dict[str, Any] | None = None
     scenario: dict[str, Any] | None = None
     what_if: dict[str, Any] | None = None
     architecture: Architecture | None = None
+    empathy_map: EmpathyMap | None = None
 
 
 class ProjectResponse(CamelModel):
@@ -46,7 +47,6 @@ class ProjectResponse(CamelModel):
     translation_key: str | None
     models_options: dict[str, Any] | None
     canvas_data: dict[str, Any] | None
-    empathy_map: dict[str, Any] | None
     hypotheses: dict[str, Any] | None
     pitch: dict[str, Any] | None
     scenario: dict[str, Any] | None
@@ -56,6 +56,7 @@ class ProjectResponse(CamelModel):
     # alias_generator of its own, so its fields serialize snake_case even though
     # every sibling field here is camelCased.
     architecture: Architecture | None
+    empathy_map: EmpathyMap | None
     created_at: datetime
     updated_at: datetime
 

@@ -4,6 +4,7 @@ import uuid
 from typing import Annotated, Any, Literal
 
 from bizstruct_domain.blocks.architecture import Architecture
+from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -28,6 +29,7 @@ DbDep = Annotated[AsyncSession, Depends(get_db)]
 # in follow-up PRs the same way.
 _DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
     "architecture": Architecture,
+    "empathy_map": EmpathyMap,
 }
 
 

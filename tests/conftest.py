@@ -86,6 +86,16 @@ async def project(db_session):
     yield p
 
 
+def _minimal_valid_empathy_map() -> dict:
+    """A placeholder EmpathyMap satisfying the domain model's constraints
+    (min_length=3 items per section, min_length=10 chars per item text)."""
+    def _item(i: int) -> dict:
+        return {"id": i, "text_uk": f"Заповнювач елемент {i}", "text_en": f"Placeholder item {i}"}
+
+    section = [_item(1), _item(2), _item(3)]
+    return {s: section for s in ("says", "thinks", "does", "feels", "pains", "gains")}
+
+
 @pytest_asyncio.fixture
 async def project_ready_for_architecture(db_session):
     """A project with every other block already filled, waiting on architecture."""
@@ -96,7 +106,7 @@ async def project_ready_for_architecture(db_session):
         status="generating",
         models_options={"models": []},
         canvas_data={"key_partners": []},
-        empathy_map={"says": []},
+        empathy_map=_minimal_valid_empathy_map(),
         # NB: ProjectResponse types this dict[str, Any] | None even though
         # blocks.py's own hypotheses endpoints store a list — pre-existing
         # mismatch, not something this task touches. Use a dict here so this
