@@ -122,13 +122,13 @@ ECOSYNC_EMPATHY_MAP = {
 }
 
 ECOSYNC_HYPOTHESES = [
-    hyp("H1.1", "Менеджери зі сталого розвитку витрачають 6+ годин/тиждень на ручну агрегацію ESG-даних", "Desirability", "q1"),
-    hyp("H1.2", "CFO не можуть обґрунтувати ROI ESG-програми без автоматизованої звітності", "Viability", "q2"),
-    hyp("H1.3", "Real-time Scope 3 трекінг технічно реалізований через ERP connector APIs", "Feasibility", "q3"),
-    hyp("H2.1", "Дедлайни CSRD (2025) створюють термінований попит на автоматизацію по всьому ЄС", "Desirability", "q1"),
-    hyp("H2.2", "Mid-market компанії готові платити €12k–€36k/рік за повну автоматизацію ESG", "Viability", "q2"),
-    hyp("H3.1", "ESG-команди хочуть no-code onboarding без залучення IT-департаменту", "Desirability", "q3"),
-    hyp("H3.2", "Інтеграція SAP & Oracle можлива без впровадження сторонньої консалтингової фірми", "Feasibility", "q4"),
+    hyp("H1.1", "Менеджери зі сталого розвитку витрачають 6+ годин/тиждень на ручну агрегацію ESG-даних", "desirability", "q1"),
+    hyp("H1.2", "CFO не можуть обґрунтувати ROI ESG-програми без автоматизованої звітності", "viability", "q2"),
+    hyp("H1.3", "Real-time Scope 3 трекінг технічно реалізований через ERP connector APIs", "feasibility", "q3"),
+    hyp("H2.1", "Дедлайни CSRD (2025) створюють термінований попит на автоматизацію по всьому ЄС", "desirability", "q1"),
+    hyp("H2.2", "Mid-market компанії готові платити €12k–€36k/рік за повну автоматизацію ESG", "viability", "q2"),
+    hyp("H3.1", "ESG-команди хочуть no-code onboarding без залучення IT-департаменту", "desirability", "q3"),
+    hyp("H3.2", "Інтеграція SAP & Oracle можлива без впровадження сторонньої консалтингової фірми", "feasibility", "q4"),
 ]
 
 ECOSYNC_PITCH = {
@@ -432,10 +432,11 @@ SMART_GRID = Project(
     ],
 },
     hypotheses=[
-        hyp("H1.1", "Оператори DSO витрачають 8+ год/тиждень на ручний аналіз графіків навантаження", "Desirability", "q1"),
-        hyp("H1.2", "Предиктивне обслуговування знижує OPEX трансформаторів на 30%", "Viability", "q1"),
-        hyp("H2.1", "IoT-датчики можна встановити без зупинки мережі", "Feasibility", "q2"),
-        hyp("H2.2", "Автоматична балансування знижує втрати на 22% у реальних умовах України", "Feasibility", "q3"),
+        hyp("H1.1", "Оператори DSO витрачають 8+ год/тиждень на ручний аналіз графіків навантаження", "desirability", "q1"),
+        hyp("H1.2", "Предиктивне обслуговування знижує OPEX трансформаторів на 30%", "viability", "q1"),
+        hyp("H2.1", "IoT-датчики можна встановити без зупинки мережі", "feasibility", "q2"),
+        hyp("H2.2", "Автоматична балансування знижує втрати на 22% у реальних умовах України", "feasibility", "q3"),
+        hyp("H3.1", "Регіональні оператори готові платити €3000/міс за предиктивну аналітику мережі", "viability", "q4"),
     ],
     pitch={
         "investor": [
@@ -649,10 +650,11 @@ CARBON_TRACK = Project(
     ],
 },
     hypotheses=[
-        hyp("H1.1", "EHS-менеджери витрачають 20+ людино-днів на підготовку щорічного EU ETS звіту", "Desirability", "q1"),
-        hyp("H1.2", "Виробники EU ETS готові платити €500/міс за автоматизацію замість €50k аудиту", "Viability", "q1"),
-        hyp("H2.1", "IoT-сенсори з акредитацією EN 14181 можна встановити без зупинки виробництва", "Feasibility", "q2"),
-        hyp("H2.2", "CBAM 2026 подвоїть попит на автоматизований моніторинг серед експортерів", "Desirability", "q1"),
+        hyp("H1.1", "EHS-менеджери витрачають 20+ людино-днів на підготовку щорічного EU ETS звіту", "desirability", "q1"),
+        hyp("H1.2", "Виробники EU ETS готові платити €500/міс за автоматизацію замість €50k аудиту", "viability", "q1"),
+        hyp("H2.1", "IoT-сенсори з акредитацією EN 14181 можна встановити без зупинки виробництва", "feasibility", "q2"),
+        hyp("H2.2", "CBAM 2026 подвоїть попит на автоматизований моніторинг серед експортерів", "desirability", "q1"),
+        hyp("H3.1", "Інтеграція з MES-системами виробників можлива без кастомної розробки", "feasibility", "q4"),
     ],
     pitch={
         "investor": [
@@ -866,10 +868,11 @@ BIOWASTE = Project(
     ],
 },
     hypotheses=[
-        hyp("H1.1", "Харчові підприємства готові перейти на маркетплейс замість прямих контрактів з переробниками", "Desirability", "q1"),
-        hyp("H1.2", "Комісія 8% з угод забезпечить беззбитковість маркетплейсу при GMV €2M/міс", "Viability", "q2"),
-        hyp("H2.1", "Алгоритм маршрутизації знизить логістичні витрати на 30% порівняно з прямими контрактами", "Feasibility", "q2"),
-        hyp("H2.2", "EU taxonomy автодокументація підвищить NPS серед enterprise-клієнтів до 65+", "Desirability", "q3"),
+        hyp("H1.1", "Харчові підприємства готові перейти на маркетплейс замість прямих контрактів з переробниками", "desirability", "q1"),
+        hyp("H1.2", "Комісія 8% з угод забезпечить беззбитковість маркетплейсу при GMV €2M/міс", "viability", "q2"),
+        hyp("H2.1", "Алгоритм маршрутизації знизить логістичні витрати на 30% порівняно з прямими контрактами", "feasibility", "q2"),
+        hyp("H2.2", "EU taxonomy автодокументація підвищить NPS серед enterprise-клієнтів до 65+", "desirability", "q3"),
+        hyp("H3.1", "Біогазові заводи готові підключитись до платформи без інтеграційних витрат", "feasibility", "q4"),
     ],
     pitch={
         "investor": [
@@ -1057,8 +1060,11 @@ def _archived(title: str, idea: str, key: str) -> Project:
             "revenue_streams": [ci("Subscription revenue")],
         },
         hypotheses=[
-            hyp("H1.1", "Target users spend 5+ hours/week on manual tasks this product automates", "Desirability", "q1"),
-            hyp("H1.2", "Willingness to pay exceeds €500/month for the core use case", "Viability", "q2"),
+            hyp("H1.1", "Target users spend 5+ hours/week on manual tasks this product automates", "desirability", "q1"),
+            hyp("H1.2", "Willingness to pay exceeds €500/month for the core use case", "viability", "q2"),
+            hyp("H2.1", "The core integration can be built without a custom backend rewrite", "feasibility", "q2"),
+            hyp("H2.2", "At least 30% of surveyed prospects rank this pain in their top 3 priorities", "desirability", "q3"),
+            hyp("H3.1", "Onboarding a new customer takes under 2 weeks with existing tooling", "feasibility", "q4"),
         ],
         empathy_map=None,
         pitch=None,

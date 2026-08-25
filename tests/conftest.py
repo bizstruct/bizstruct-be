@@ -141,6 +141,28 @@ def _minimal_valid_pitch() -> dict:
     }
 
 
+def _minimal_valid_hypotheses() -> dict:
+    """A placeholder Hypotheses satisfying the domain model's constraints
+    (minimum 5, covering all three categories)."""
+    def _h(i: int, category: str, quadrant: str) -> dict:
+        return {
+            "id": f"H{i}.1",
+            "text": "A placeholder falsifiable claim involving a 10% metric",
+            "category": category,
+            "quadrant": quadrant,
+        }
+
+    return {
+        "hypotheses": [
+            _h(1, "desirability", "q1"),
+            _h(2, "viability", "q2"),
+            _h(3, "feasibility", "q3"),
+            _h(4, "desirability", "q4"),
+            _h(5, "viability", "q1"),
+        ]
+    }
+
+
 @pytest_asyncio.fixture
 async def project_ready_for_architecture(db_session):
     """A project with every other block already filled, waiting on architecture."""
@@ -152,11 +174,7 @@ async def project_ready_for_architecture(db_session):
         models_options={"models": []},
         canvas_data={"key_partners": []},
         empathy_map=_minimal_valid_empathy_map(),
-        # NB: ProjectResponse types this dict[str, Any] | None even though
-        # blocks.py's own hypotheses endpoints store a list — pre-existing
-        # mismatch, not something this task touches. Use a dict here so this
-        # fixture doesn't trip it.
-        hypotheses={},
+        hypotheses=_minimal_valid_hypotheses(),
         pitch=_minimal_valid_pitch(),
         scenario=_minimal_valid_scenario(),
         what_if={"scenarios": []},

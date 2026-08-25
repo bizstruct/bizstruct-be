@@ -6,6 +6,7 @@ from bizstruct_domain.blocks.architecture import Architecture
 from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
+from bizstruct_domain.blocks.hypotheses import Hypotheses
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -198,6 +199,26 @@ async def update_empathy_map(
 
 # ── Hypotheses ────────────────────────────────────────────────────────────────
 
+# Hypotheses (bizstruct_domain.blocks.hypotheses.Hypotheses) wraps its list
+# in a `hypotheses` field. Previously this repo stored/returned a bare list
+# here — a real mismatch with the ML hook, which already sent (and this
+# column already got, via internal.py) the wrapped {"hypotheses": [...]}
+# shape; PATCH's `body.get("hypotheses", body)` fallback was working around
+# exactly that inconsistency. GET/PUT/PATCH now all consistently
+# store/return {"hypotheses": [...]}, validated against the domain model
+# (minimum 5, D/V/F category coverage, id pattern, falsifiable-text length).
+
+def _validate_hypotheses(data: list | dict) -> Hypotheses:
+    payload = data if isinstance(data, dict) else {"hypotheses": data}
+    try:
+        return Hypotheses.model_validate(payload)
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+
+
 @router.get("/hypotheses/{project_id}")
 async def get_hypotheses(
     project_id: uuid.UUID,
@@ -211,10 +232,11 @@ async def get_hypotheses(
 async def update_hypotheses(
     project_id: uuid.UUID,
     db: DbDep,
-    body: list[Any] = Body(...),
+    body: list[Any] | dict[str, Any] = Body(...),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.hypotheses = body
+    validated = _validate_hypotheses(body)
+    project.hypotheses = validated.model_dump(mode="json")
     flag_modified(project, "hypotheses")
     await db.commit()
     await db.refresh(project)
@@ -228,8 +250,8 @@ async def patch_hypotheses(
     body: list[Any] | dict[str, Any] = Body(...),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    items = body.get("hypotheses", body) if isinstance(body, dict) else body
-    project.hypotheses = items
+    validated = _validate_hypotheses(body)
+    project.hypotheses = validated.model_dump(mode="json")
     flag_modified(project, "hypotheses")
     await db.commit()
     await db.refresh(project)
