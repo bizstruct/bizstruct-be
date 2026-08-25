@@ -360,32 +360,13 @@ ECOSYNC_WHAT_IF = {
 }
 
 ECOSYNC_ARCHITECTURE = {
-    "uk": {
-        "epicenter": {
-            "value": "Finance-driven",
-            "description": "Монетизація та грошові потоки — ключовий рушій моделі. Платформа будується навколо підписки та преміум-апгрейдів, де кожна функція прив'язана до доходу.",
-            "status": "determined",
-        },
-        "pattern": {
-            "value": "FREE",
-            "subtype": "Freemium",
-            "description": "Безкоштовний базовий план для залучення, преміум-функції конвертують у підписку. Акцент на швидкому onboarding та вірусному поширенні всередині корпорацій.",
-            "status": "system_selection",
-        },
-    },
-    "en": {
-        "epicenter": {
-            "value": "Finance-driven",
-            "description": "Monetization and cash flows are the key drivers of the model. The platform is built around subscriptions and premium upgrades, where every feature is tied to revenue.",
-            "status": "determined",
-        },
-        "pattern": {
-            "value": "FREE",
-            "subtype": "Freemium",
-            "description": "Free basic plan for acquisition, premium features convert to subscriptions. Focus on fast onboarding and viral spread within corporations.",
-            "status": "system_selection",
-        },
-    },
+    "epicenter": "finance_driven",
+    "epicenter_rationale_uk": "Монетизація та грошові потоки — ключовий рушій моделі. Платформа будується навколо підписки та преміум-апгрейдів, де кожна функція прив'язана до доходу.",
+    "epicenter_rationale_en": "Monetization and cash flows are the key drivers of the model. The platform is built around subscriptions and premium upgrades, where every feature is tied to revenue.",
+    "pattern": "free",
+    "pattern_subtype": "freemium",
+    "pattern_rationale_uk": "Безкоштовний базовий план для залучення, преміум-функції конвертують у підписку. Акцент на швидкому onboarding та вірусному поширенні всередині корпорацій.",
+    "pattern_rationale_en": "Free basic plan for acquisition, premium features convert to subscriptions. Focus on fast onboarding and viral spread within corporations.",
 }
 
 ECOSYNC_MODELS_OPTIONS = {
@@ -562,14 +543,17 @@ SMART_GRID = Project(
         ]
     },
     architecture={
-        "uk": {
-            "epicenter": {"value": "Resource-driven", "description": "Надійність інфраструктури та операційна ефективність — основа цінності. Платформа будується навколо якості даних та uptime мережі.", "status": "determined"},
-            "pattern": {"value": "Multi-sided Platform", "subtype": "Freemium", "description": "Базовий моніторинг безкоштовно, предиктивна аналітика — платно. Підключення операторів та регуляторів на одній платформі.", "status": "system_selection"},
-        },
-        "en": {
-            "epicenter": {"value": "Resource-driven", "description": "Infrastructure reliability and operational efficiency are the core value drivers. The platform is built around data quality and grid uptime.", "status": "determined"},
-            "pattern": {"value": "Multi-sided Platform", "subtype": "Freemium", "description": "Basic monitoring free, predictive analytics paid. Connecting operators and regulators on one platform.", "status": "system_selection"},
-        },
+        "epicenter": "resource_driven",
+        "epicenter_rationale_uk": "Надійність інфраструктури та операційна ефективність — основа цінності. Платформа будується навколо якості даних та uptime мережі.",
+        "epicenter_rationale_en": "Infrastructure reliability and operational efficiency are the core value drivers. The platform is built around data quality and grid uptime.",
+        # Was "Multi-sided Platform" + subtype "Freemium" in the old schema — an
+        # invalid combination under bizstruct_domain (only free/open_business_model
+        # have subtypes). The rationale text is genuinely a freemium tiering
+        # story, so reclassified as free/freemium rather than dropping the subtype.
+        "pattern": "free",
+        "pattern_subtype": "freemium",
+        "pattern_rationale_uk": "Базовий моніторинг безкоштовно, предиктивна аналітика — платно. Підключення операторів та регуляторів на одній платформі.",
+        "pattern_rationale_en": "Basic monitoring free, predictive analytics paid. Connecting operators and regulators on one platform.",
     },
 )
 
@@ -686,14 +670,17 @@ CARBON_TRACK = Project(
         ]
     },
     architecture={
-        "uk": {
-            "epicenter": {"value": "Offer-driven", "description": "Compliance-продукт із чіткою регуляторною цінністю. Пропозиція будується навколо автоматизації EU ETS звітності як основного deliverable.", "status": "determined"},
-            "pattern": {"value": "Long Tail", "subtype": "Bait & Hook", "description": "Початкова інсталяція сенсорів як вхідна точка, подальший recurring revenue через SaaS-підписку на аналітику та звітність.", "status": "system_selection"},
-        },
-        "en": {
-            "epicenter": {"value": "Offer-driven", "description": "A compliance product with a clear regulatory value proposition. The offering is built around automating EU ETS reporting as the core deliverable.", "status": "determined"},
-            "pattern": {"value": "Long Tail", "subtype": "Bait & Hook", "description": "Initial sensor installation as the entry point, followed by recurring revenue through SaaS subscription for analytics and reporting.", "status": "system_selection"},
-        },
+        "epicenter": "offer_driven",
+        "epicenter_rationale_uk": "Compliance-продукт із чіткою регуляторною цінністю. Пропозиція будується навколо автоматизації EU ETS звітності як основного deliverable.",
+        "epicenter_rationale_en": "A compliance product with a clear regulatory value proposition. The offering is built around automating EU ETS reporting as the core deliverable.",
+        # Was "Long Tail" + subtype "Bait & Hook" in the old schema — invalid
+        # under bizstruct_domain (long_tail has no subtypes). The rationale
+        # describes a textbook bait-and-hook story, so reclassified as
+        # free/bait_and_hook rather than dropping the subtype.
+        "pattern": "free",
+        "pattern_subtype": "bait_and_hook",
+        "pattern_rationale_uk": "Початкова інсталяція сенсорів як вхідна точка, подальший recurring revenue через SaaS-підписку на аналітику та звітність.",
+        "pattern_rationale_en": "Initial sensor installation as the entry point, followed by recurring revenue through SaaS subscription for analytics and reporting.",
     },
 )
 
@@ -810,14 +797,19 @@ BIOWASTE = Project(
         ]
     },
     architecture={
-        "uk": {
-            "epicenter": {"value": "Customer-driven", "description": "Харчові підприємства — центр екосистеми. Платформа будується навколо їхнього бажання знизити витрати та отримати EU taxonomy документацію без зусиль.", "status": "determined"},
-            "pattern": {"value": "Open Business Model", "subtype": "Ad-supported", "description": "Вільна реєстрація для харчових підприємств і біогазових заводів, монетизація через комісію 8% з кожної угоди на маркетплейсі.", "status": "system_selection"},
-        },
-        "en": {
-            "epicenter": {"value": "Customer-driven", "description": "Food companies are at the center of the ecosystem. The platform is built around their desire to cut costs and get EU taxonomy documentation effortlessly.", "status": "determined"},
-            "pattern": {"value": "Open Business Model", "subtype": "Ad-supported", "description": "Free registration for food companies and biogas plants, monetization through 8% commission on each marketplace transaction.", "status": "system_selection"},
-        },
+        "epicenter": "customer_driven",
+        "epicenter_rationale_uk": "Харчові підприємства — центр екосистеми. Платформа будується навколо їхнього бажання знизити витрати та отримати EU taxonomy документацію без зусиль.",
+        "epicenter_rationale_en": "Food companies are at the center of the ecosystem. The platform is built around their desire to cut costs and get EU taxonomy documentation effortlessly.",
+        # Was "Open Business Model" + subtype "Ad-supported" in the old schema —
+        # invalid under bizstruct_domain (ad_supported is a subtype of free,
+        # not open_business_model). The rationale describes a two-sided
+        # marketplace monetized by transaction commission, which is a
+        # multi_sided_platform story, not free or open_business_model — and
+        # multi_sided_platform takes no subtype.
+        "pattern": "multi_sided_platform",
+        "pattern_subtype": None,
+        "pattern_rationale_uk": "Вільна реєстрація для харчових підприємств і біогазових заводів, монетизація через комісію 8% з кожної угоди на маркетплейсі.",
+        "pattern_rationale_en": "Free registration for food companies and biogas plants, monetization through 8% commission on each marketplace transaction.",
     },
 )
 

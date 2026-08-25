@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
+from bizstruct_domain.blocks.architecture import Architecture
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -34,7 +35,7 @@ class ProjectUpdate(CamelModel):
     pitch: dict[str, Any] | None = None
     scenario: dict[str, Any] | None = None
     what_if: dict[str, Any] | None = None
-    architecture: dict[str, Any] | None = None
+    architecture: Architecture | None = None
 
 
 class ProjectResponse(CamelModel):
@@ -50,7 +51,11 @@ class ProjectResponse(CamelModel):
     pitch: dict[str, Any] | None
     scenario: dict[str, Any] | None
     what_if: dict[str, Any] | None
-    architecture: dict[str, Any] | None
+    # Sourced from bizstruct_domain — pilot slice, other blocks stay dict[str, Any]
+    # until they get their own domain models. Note this model has no camelCase
+    # alias_generator of its own, so its fields serialize snake_case even though
+    # every sibling field here is camelCased.
+    architecture: Architecture | None
     created_at: datetime
     updated_at: datetime
 

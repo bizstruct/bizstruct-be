@@ -53,7 +53,9 @@ async def update_project(
     if not project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    for field, value in body.model_dump(exclude_unset=True).items():
+    # mode="json" so nested models (e.g. architecture: Architecture) are
+    # dumped to plain JSON-safe dicts before being written to a JSONB column.
+    for field, value in body.model_dump(exclude_unset=True, mode="json").items():
         setattr(project, field, value)
 
     await db.commit()

@@ -1,7 +1,10 @@
+import json
 import uuid
 from typing import Annotated, Any
 
+from bizstruct_domain.blocks.architecture import Architecture
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
+from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -354,15 +357,33 @@ async def update_what_if_scenario(
 
 
 # ── Architecture ──────────────────────────────────────────────────────────────
+#
+# Architecture (bizstruct_domain.blocks.architecture.Architecture) is a flat
+# model with both languages inline (epicenter_rationale_uk/_en etc.) — unlike
+# every other block here it is NOT stored as {uk: {...}, en: {...}}. So,
+# unlike the sibling blocks above, these endpoints don't take a `locale`
+# query param and always validate writes against the domain model before
+# saving (partial PATCHes included — a merge that leaves the object in an
+# invalid state, e.g. pattern=free with no pattern_subtype, is rejected
+# rather than silently persisted).
+
+def _validate_architecture(data: dict) -> Architecture:
+    try:
+        return Architecture.model_validate(data)
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+
 
 @router.get("/architecture/{project_id}")
 async def get_architecture(
     project_id: uuid.UUID,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    return _block_response(project_id, "architecture", _resolve_locale(project.architecture, locale))
+    return _block_response(project_id, "architecture", project.architecture)
 
 
 @router.put("/architecture/{project_id}")
@@ -370,14 +391,14 @@ async def update_architecture(
     project_id: uuid.UUID,
     body: dict,
     db: DbDep,
-    locale: str = Query(default=None),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.architecture = _merge_locale(project.architecture, locale, body)
+    validated = _validate_architecture(body)
+    project.architecture = validated.model_dump(mode="json")
     flag_modified(project, "architecture")
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "architecture", _resolve_locale(project.architecture, locale or "uk"))
+    return _block_response(project_id, "architecture", project.architecture)
 
 
 @router.patch("/architecture/{project_id}/epicenter")
@@ -385,17 +406,15 @@ async def update_architecture_epicenter(
     project_id: uuid.UUID,
     body: dict,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    arch = project.architecture or {}
-    locale_data = arch.get(locale, {})
-    locale_data["epicenter"] = {**locale_data.get("epicenter", {}), **body}
-    project.architecture = {**arch, locale: locale_data}
+    merged = {**(project.architecture or {}), **body}
+    validated = _validate_architecture(merged)
+    project.architecture = validated.model_dump(mode="json")
     flag_modified(project, "architecture")
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "architecture", _resolve_locale(project.architecture, locale))
+    return _block_response(project_id, "architecture", project.architecture)
 
 
 @router.patch("/architecture/{project_id}/pattern")
@@ -403,14 +422,12 @@ async def update_architecture_pattern(
     project_id: uuid.UUID,
     body: dict,
     db: DbDep,
-    locale: str = Query(default="uk"),
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    arch = project.architecture or {}
-    locale_data = arch.get(locale, {})
-    locale_data["pattern"] = {**locale_data.get("pattern", {}), **body}
-    project.architecture = {**arch, locale: locale_data}
+    merged = {**(project.architecture or {}), **body}
+    validated = _validate_architecture(merged)
+    project.architecture = validated.model_dump(mode="json")
     flag_modified(project, "architecture")
     await db.commit()
     await db.refresh(project)
-    return _block_response(project_id, "architecture", _resolve_locale(project.architecture, locale))
+    return _block_response(project_id, "architecture", project.architecture)
