@@ -64,6 +64,6 @@ async def regenerate_models(
     flag_modified(project, "models_options")
     await db.commit()
 
-    background_tasks.add_task(enqueue_block, str(project_id), "models_options")
-    logger.info("Project %s: regenerating models_options", project_id)
+    background_tasks.add_task(enqueue_block, str(project_id), "models_options", True)
+    logger.info("Project %s: regenerating models_options (force=True)", project_id)
     return {"ok": "1"}

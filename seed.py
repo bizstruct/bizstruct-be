@@ -36,6 +36,23 @@ def hyp(h_id: str, text: str, category: str, quadrant: str) -> dict:
     return {"id": h_id, "text": text, "category": category, "quadrant": quadrant}
 
 
+def mo(title: str, monetization: str, score: int) -> dict:
+    """A minimal but valid BusinessModelOption (bizstruct_domain.blocks.models_options)
+    for projects that don't need the full detail ECOSYNC_MODELS_OPTIONS has."""
+    return {
+        "id": uid(),
+        "title": title,
+        "audience": f"Цільова аудиторія для варіанта «{title}»",
+        "value_proposition": f"Ціннісна пропозиція варіанта «{title}»",
+        "description": f"Опис бізнес-моделі «{title}» — монетизація {monetization}, довший за 20 символів.",
+        "monetization": monetization,
+        "key_metric": "MRR" if monetization == "subscription" else "GMV" if monetization == "transaction_fee" else "ACV",
+        "time_to_value": "2 тижні",
+        "score": score,
+        "score_rationale": f"Обґрунтування оцінки {score} для варіанта «{title}» довше за 15 символів.",
+    }
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # SHARED BLOCKS — EcoSync (primary project, all mocks point here)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -220,31 +237,26 @@ ECOSYNC_SCENARIO = {
     "timeline": [
         {
             "step_type": 'context',
-            "icon_key": 'calendar',
             "text_uk": 'Кінець кварталу. Потрібно консолідувати дані про викиди з офісів у Києві, Варшаві та Франкфурті.',
             "text_en": 'End of quarter. Need to consolidate emissions data from offices in Kyiv, Warsaw, and Frankfurt.',
         },
         {
             "step_type": 'goal',
-            "icon_key": 'target',
             "text_uk": "Зібрати Scope 1, 2, 3 дані від 3 офісів і сформувати CSRD-звіт для аудитора до п'ятниці.",
             "text_en": 'Collect Scope 1, 2, 3 data from 3 offices and generate a CSRD report for the auditor by Friday.',
         },
         {
             "step_type": 'action',
-            "icon_key": 'zap',
             "text_uk": 'Один клік → EcoSync автоматично підтягує дані з SAP та IoT-сенсорів, розраховує викиди та генерує звіт.',
             "text_en": 'One click → EcoSync automatically pulls data from SAP and IoT sensors, calculates emissions, and generates the report.',
         },
         {
             "step_type": 'result',
-            "icon_key": 'check-circle',
             "text_uk": 'Повний CSRD-звіт готовий за 15 хвилин. Олена надсилає його аудитору у вівторок вранці.',
             "text_en": 'Full CSRD report ready in 15 minutes. Olena sends it to the auditor on Tuesday morning.',
         },
         {
             "step_type": 'impact',
-            "icon_key": 'trending-up',
             "text_uk": 'Вивільнені 2.5 дні Олена витрачає на розробку нової ініціативи з декарбонізації ланцюга постачання.',
             "text_en": 'Olena uses the freed 2.5 days to develop a new supply chain decarbonization initiative.',
         },
@@ -314,39 +326,42 @@ ECOSYNC_ARCHITECTURE = {
 }
 
 ECOSYNC_MODELS_OPTIONS = {
-    "models": [
+    "options": [
         {
             "id": uid(),
-            "name": "B2B SaaS · EcoSync",
-            "tagline": "Підписка + onboarding для команд середнього бізнесу",
+            "title": "B2B SaaS · EcoSync",
+            "audience": "ESG-команди середнього бізнесу (200–2000 осіб)",
+            "value_proposition": "Підписка + швидкий self-serve onboarding для команд середнього бізнесу",
             "description": "Щомісячна або річна підписка з диференційованими тарифами. Акцент на швидкому self-serve onboarding без залучення IT. Цільовий сегмент: ESG-команди 200–2000 осіб.",
             "monetization": "subscription",
-            "target_segment": "mid-market",
             "key_metric": "MRR / NRR",
             "time_to_value": "30 хвилин до першого звіту",
             "score": 91,
+            "score_rationale": "Високий бал: передплата напряму монетизує щомісячну болючу точку зі звітністю, а self-serve onboarding знижує вартість залучення клієнта.",
         },
         {
             "id": uid(),
-            "name": "Marketplace · EcoSync",
-            "tagline": "Транзакційна монетизація для enterprise-екосистеми",
+            "title": "Marketplace · EcoSync",
+            "audience": "Enterprise ESG-команди та їх ланцюги постачання",
+            "value_proposition": "Транзакційна монетизація для enterprise-екосистеми",
             "description": "Платформа, де ESG-консультанти, верифікатори та постачальники даних пропонують послуги. Комісія 15–20% з кожної транзакції. Цільовий сегмент: enterprise + supply chain.",
             "monetization": "transaction_fee",
-            "target_segment": "enterprise",
             "key_metric": "GMV / Take rate",
             "time_to_value": "Перша транзакція за 1–2 тижні",
             "score": 74,
+            "score_rationale": "Помірний бал: більший потенціал доходу на транзакцію, але довший цикл продажу через потребу в мережевому ефекті постачальників.",
         },
         {
             "id": uid(),
-            "name": "Advisory Platform · EcoSync",
-            "tagline": "AI-консалтинг та premium-пакети для фаундерів",
-            "description": "Поєднання SaaS-інструменту та AI-асистованого консалтингу. Preміум-пакети включають персоналізовані roadmap, виділеного ESG-аналітика та участь у регуляторних слуханнях.",
+            "title": "Advisory Platform · EcoSync",
+            "audience": "Фаундери та CxO, яким потрібен персональний ESG-roadmap",
+            "value_proposition": "AI-консалтинг та premium-пакети для фаундерів",
+            "description": "Поєднання SaaS-інструменту та AI-асистованого консалтингу. Преміум-пакети включають персоналізовані roadmap, виділеного ESG-аналітика та участь у регуляторних слуханнях.",
             "monetization": "retainer_plus_saas",
-            "target_segment": "founders_and_cxo",
             "key_metric": "ACV / CSAT",
             "time_to_value": "Перший advisory session за 48 годин",
             "score": 62,
+            "score_rationale": "Нижчий бал: висока цінність на клієнта, але обмежена масштабованість через залежність від людських консультантів.",
         },
     ],
     "selected_id": None,
@@ -381,10 +396,10 @@ SMART_GRID = Project(
     status="completed",
     translation_key="project.smart_grid",
     models_options={
-        "models": [
-            {"id": uid(), "name": "B2B SaaS · Smart Grid", "tagline": "Підписка для енергетичних операторів", "monetization": "subscription", "score": 88},
-            {"id": uid(), "name": "Marketplace · Smart Grid", "tagline": "Платформа для агрегаторів попиту", "monetization": "transaction_fee", "score": 71},
-            {"id": uid(), "name": "Advisory Platform · Smart Grid", "tagline": "Consulting для DSO/TSO", "monetization": "retainer_plus_saas", "score": 55},
+        "options": [
+            mo("B2B SaaS · Smart Grid", "subscription", 88),
+            mo("Marketplace · Smart Grid", "transaction_fee", 71),
+            mo("Advisory Platform · Smart Grid", "retainer_plus_saas", 55),
         ],
         "selected_id": None,
     },
@@ -526,31 +541,26 @@ SMART_GRID = Project(
         "timeline": [
             {
                 "step_type": 'context',
-                "icon_key": 'calendar',
                 "text_uk": 'Підстанція №12 стабільно перевантажується щопонеділка о 18:30 — 2 аварійних відключення на тиждень.',
                 "text_en": 'Substation #12 consistently overloads every Monday at 18:30 — 2 emergency outages per week.',
             },
             {
                 "step_type": 'goal',
-                "icon_key": 'target',
                 "text_uk": 'Запобігти перевантаженню підстанцій у піковий час без ручного втручання диспетчера.',
                 "text_en": 'Prevent substation overloads during peak hours without manual dispatcher intervention.',
             },
             {
                 "step_type": 'action',
-                "icon_key": 'zap',
                 "text_uk": 'Smart Grid Automation прогнозує перевантаження за 15 хв та автоматично перерозподіляє навантаження на резервну лінію.',
                 "text_en": 'Smart Grid Automation forecasts overload 15 min ahead and automatically redistributes load to the backup line.',
             },
             {
                 "step_type": 'result',
-                "icon_key": 'check-circle',
                 "text_uk": 'Відключення не сталося. Андрій отримує автоматичний звіт о 18:16.',
                 "text_en": 'No outage occurred. Andriy receives an automated report at 18:16.',
             },
             {
                 "step_type": 'impact',
-                "icon_key": 'trending-up',
                 "text_uk": 'Кількість аварій знизилася з 2 до 0.2 на тиждень. Мережеві втрати скорочено з 22% до 4%.',
                 "text_en": 'Outages reduced from 2 to 0.2 per week. Grid losses cut from 22% to 4%.',
             },
@@ -599,10 +609,10 @@ CARBON_TRACK = Project(
     status="completed",
     translation_key="project.carbon_track",
     models_options={
-        "models": [
-            {"id": uid(), "name": "B2B SaaS · CarbonTrack", "tagline": "Підписка per site для виробників", "monetization": "subscription", "score": 85},
-            {"id": uid(), "name": "Marketplace · CarbonTrack", "tagline": "Продаж carbon credits через платформу", "monetization": "transaction_fee", "score": 68},
-            {"id": uid(), "name": "Advisory Platform · CarbonTrack", "tagline": "EU ETS compliance consulting", "monetization": "retainer_plus_saas", "score": 59},
+        "options": [
+            mo("B2B SaaS · CarbonTrack", "subscription", 85),
+            mo("Marketplace · CarbonTrack", "transaction_fee", 68),
+            mo("Advisory Platform · CarbonTrack", "retainer_plus_saas", 59),
         ],
         "selected_id": None,
     },
@@ -744,31 +754,26 @@ CARBON_TRACK = Project(
         "timeline": [
             {
                 "step_type": 'context',
-                "icon_key": 'calendar',
                 "text_uk": 'Щорічний EU ETS аудит коштує €52k і займає 3 тижні підготовки вручну.',
                 "text_en": 'Annual EU ETS audit costs €52k and takes 3 weeks of manual preparation.',
             },
             {
                 "step_type": 'goal',
-                "icon_key": 'target',
                 "text_uk": 'Автоматизувати моніторинг викидів і скасувати залежність від зовнішнього аудитора.',
                 "text_en": 'Automate emissions monitoring and eliminate dependency on the external auditor.',
             },
             {
                 "step_type": 'action',
-                "icon_key": 'zap',
                 "text_uk": 'Акредитовані IoT-сенсори встановлено за 2 дні. Один клік — EU ETS річний звіт сформовано і відправлено в реєстр.',
                 "text_en": 'Accredited IoT sensors installed in 2 days. One click — EU ETS annual report auto-generated and submitted to registry.',
             },
             {
                 "step_type": 'result',
-                "icon_key": 'check-circle',
                 "text_uk": 'Звіт прийнято регулятором. Дмитро скасував контракт із зовнішнім аудитором — €52k повернулися в бюджет.',
                 "text_en": 'Report accepted by regulator. Dmytro cancelled the external auditor contract — €52k returned to the budget.',
             },
             {
                 "step_type": 'impact',
-                "icon_key": 'trending-up',
                 "text_uk": 'Витрати на compliance знизилися з €52k до €6k/рік. Real-time дашборд показує викиди цілодобово.',
                 "text_en": 'Compliance costs reduced from €52k to €6k/year. Real-time dashboard shows emissions 24/7.',
             },
@@ -817,10 +822,10 @@ BIOWASTE = Project(
     status="completed",
     translation_key="project.biowaste",
     models_options={
-        "models": [
-            {"id": uid(), "name": "B2B SaaS · BioWaste Circular", "tagline": "Підписка для харчових підприємств", "monetization": "subscription", "score": 79},
-            {"id": uid(), "name": "Marketplace · BioWaste Circular", "tagline": "Комісія з угод на маркетплейсі", "monetization": "transaction_fee", "score": 86},
-            {"id": uid(), "name": "Advisory Platform · BioWaste Circular", "tagline": "Circular economy roadmap consulting", "monetization": "retainer_plus_saas", "score": 61},
+        "options": [
+            mo("B2B SaaS · BioWaste Circular", "subscription", 79),
+            mo("Marketplace · BioWaste Circular", "transaction_fee", 86),
+            mo("Advisory Platform · BioWaste Circular", "retainer_plus_saas", 61),
         ],
         "selected_id": None,
     },
@@ -962,31 +967,26 @@ BIOWASTE = Project(
         "timeline": [
             {
                 "step_type": 'context',
-                "icon_key": 'calendar',
                 "text_uk": 'Наталія платить €80k/рік за вивіз органіки на полігон і не має EU taxonomy документації.',
                 "text_en": 'Natalia pays €80k/year for organic waste disposal with no EU taxonomy documentation.',
             },
             {
                 "step_type": 'goal',
-                "icon_key": 'target',
                 "text_uk": 'Знайти надійного біогазового партнера, скоротити витрати та автоматизувати EU taxonomy звітність.',
                 "text_en": 'Find a reliable biogas partner, cut disposal costs, and automate EU taxonomy reporting.',
             },
             {
                 "step_type": 'action',
-                "icon_key": 'zap',
                 "text_uk": 'BioWaste Circular підібрав 3 партнери за 5 хвилин. Контракт підписано онлайн, логістика — автоматична.',
                 "text_en": 'BioWaste Circular matched 3 partners in 5 minutes. Contract signed online, logistics automated.',
             },
             {
                 "step_type": 'result',
-                "icon_key": 'check-circle',
                 "text_uk": 'EU taxonomy звіт оновився автоматично після першої транзакції. Готовий до аудиту.',
                 "text_en": 'EU taxonomy report updated automatically after the first transaction. Audit-ready.',
             },
             {
                 "step_type": 'impact',
-                "icon_key": 'trending-up',
                 "text_uk": 'Витрати на утилізацію знизилися з €80k до €54k/рік. Наталія отримала EU taxonomy документацію без жодного консультанта.',
                 "text_en": 'Disposal costs dropped from €80k to €54k/year. Natalia got full EU taxonomy documentation without a single consultant.',
             },
@@ -1041,10 +1041,10 @@ def _archived(title: str, idea: str, key: str) -> Project:
         status="archived",
         translation_key=key,
         models_options={
-            "models": [
-                {"id": uid(), "name": f"B2B SaaS · {title}", "tagline": "Підписка", "monetization": "subscription", "score": 72},
-                {"id": uid(), "name": f"Marketplace · {title}", "tagline": "Транзакційна монетизація", "monetization": "transaction_fee", "score": 58},
-                {"id": uid(), "name": f"Advisory Platform · {title}", "tagline": "Консалтинг", "monetization": "retainer_plus_saas", "score": 45},
+            "options": [
+                mo(f"B2B SaaS · {title}", "subscription", 72),
+                mo(f"Marketplace · {title}", "transaction_fee", 58),
+                mo(f"Advisory Platform · {title}", "retainer_plus_saas", 45),
             ],
             "selected_id": None,
         },

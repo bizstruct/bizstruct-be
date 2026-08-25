@@ -14,11 +14,16 @@ def _send_to_queue(message_body: str) -> None:
             sender.send_messages(ServiceBusMessage(message_body))
 
 
-def enqueue_block(project_id: str, block: str) -> None:
+def enqueue_block(project_id: str, block: str, force: bool = False) -> None:
+    # force=True bypasses bizstruct-ml's idempotency check ("already
+    # generated -> return completed without regenerating"). Normal chain
+    # progression always passes force=False (the default); only an explicit
+    # regeneration request (see routers/generation.py's regenerate_models)
+    # sets it.
     if not settings.service_bus_connection_string:
         logger.warning("SERVICE_BUS_CONNECTION_STRING not set — skipping enqueue for %s/%s", project_id, block)
         return
-    message_body = json.dumps({"project_id": project_id, "block": block})
+    message_body = json.dumps({"project_id": project_id, "block": block, "force": force})
     try:
         _send_to_queue(message_body)
         logger.info("Enqueued block %s for project %s", block, project_id)

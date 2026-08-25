@@ -7,6 +7,7 @@ from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
+from bizstruct_domain.blocks.models_options import ModelsOptions
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -16,6 +17,7 @@ class CamelModel(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True,
         from_attributes=True,
+        extra="forbid",
     )
 
 
@@ -32,7 +34,7 @@ class ProjectUpdate(CamelModel):
     idea: str | None = None
     status: str | None = None
     translation_key: str | None = None
-    models_options: dict[str, Any] | None = None
+    models_options: ModelsOptions | None = None
     canvas_data: dict[str, Any] | None = None
     what_if: dict[str, Any] | None = None
     architecture: Architecture | None = None
@@ -48,7 +50,7 @@ class ProjectResponse(CamelModel):
     idea: str | None
     status: str
     translation_key: str | None
-    models_options: dict[str, Any] | None
+    models_options: ModelsOptions | None
     canvas_data: dict[str, Any] | None
     what_if: dict[str, Any] | None
     # Sourced from bizstruct_domain — pilot slice, other blocks stay dict[str, Any]

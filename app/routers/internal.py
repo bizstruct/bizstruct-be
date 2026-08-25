@@ -8,6 +8,8 @@ from bizstruct_domain.blocks.empathy_map import EmpathyMap
 from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
+from bizstruct_domain.blocks.models_options import ModelsOptions
+from bizstruct_domain.validate_model import ValidateModelResult
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
@@ -36,6 +38,7 @@ _DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
     "scenario": Scenario,
     "pitch": Pitch,
     "hypotheses": Hypotheses,
+    "models_options": ModelsOptions,
 }
 
 
@@ -89,8 +92,25 @@ async def ml_hook(
 
     if body.block == "validate_model":
         if body.status == "success" and body.data:
+            # `model_id` is an ml-side wrapping convenience, not a field on
+            # ValidateModelResult itself (see bizstruct_domain.validate_model)
+            # — it identifies which option was validated, but isn't part of
+            # the validation result schema. Strip it before validating.
             model_id = str(body.data.get("model_id", ""))
-            send_validate_result(project_id_str, model_id, body.data)
+            result_data = {k: v for k, v in body.data.items() if k != "model_id"}
+            try:
+                validated = ValidateModelResult.model_validate(result_data)
+            except DomainValidationError as e:
+                errors = e.errors()
+                logger.error(
+                    "hook_schema_validation_failed",
+                    extra={"project_id": project_id_str, "block": body.block, "errors": errors},
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=json.loads(e.json()),
+                )
+            send_validate_result(project_id_str, model_id, validated.model_dump(mode="json"))
         return {"ok": "1"}
 
     if body.status == "success":

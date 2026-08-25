@@ -98,11 +98,8 @@ def _minimal_valid_empathy_map() -> dict:
 
 def _minimal_valid_scenario() -> dict:
     """A placeholder Scenario satisfying the domain model's constraints
-    (exactly 5 timeline steps, in step_type/icon_key order)."""
-    steps = [
-        ("context", "calendar"), ("goal", "target"), ("action", "zap"),
-        ("result", "check-circle"), ("impact", "trending-up"),
-    ]
+    (exactly 5 timeline steps, in step_type order)."""
+    steps = ["context", "goal", "action", "result", "impact"]
     return {
         "persona": {
             "name_uk": "Заповнювач", "name_en": "Placeholder",
@@ -112,10 +109,10 @@ def _minimal_valid_scenario() -> dict:
         },
         "timeline": [
             {
-                "step_type": step_type, "icon_key": icon_key,
+                "step_type": step_type,
                 "text_uk": f"Заповнювач кроку {step_type}", "text_en": f"Placeholder step {step_type}",
             }
-            for step_type, icon_key in steps
+            for step_type in steps
         ],
         "metrics": {
             "before": {"value_uk": "X", "value_en": "X", "label_uk": "Заповнювач", "label_en": "Placeholder"},
@@ -163,6 +160,33 @@ def _minimal_valid_hypotheses() -> dict:
     }
 
 
+def _minimal_valid_models_options() -> dict:
+    """A placeholder ModelsOptions satisfying the domain model's constraints
+    (exactly 3 options, each field meeting its min_length)."""
+    def _option(i: int, monetization: str) -> dict:
+        return {
+            "id": str(uuid.uuid4()),
+            "title": f"Заповнювач варіант {i}",
+            "audience": f"Заповнювач аудиторія {i}",
+            "value_proposition": f"Заповнювач ціннісна пропозиція {i}",
+            "description": f"Заповнювач розгорнутий опис моделі номер {i}, довший за 20 символів",
+            "monetization": monetization,
+            "key_metric": "MRR",
+            "time_to_value": "2 weeks",
+            "score": 50,
+            "score_rationale": f"Заповнювач обґрунтування оцінки для варіанта {i}",
+        }
+
+    return {
+        "options": [
+            _option(1, "subscription"),
+            _option(2, "transaction_fee"),
+            _option(3, "retainer_plus_saas"),
+        ],
+        "selected_id": None,
+    }
+
+
 @pytest_asyncio.fixture
 async def project_ready_for_architecture(db_session):
     """A project with every other block already filled, waiting on architecture."""
@@ -171,7 +195,7 @@ async def project_ready_for_architecture(db_session):
         title="Test Project",
         idea="A test idea",
         status="generating",
-        models_options={"models": []},
+        models_options=_minimal_valid_models_options(),
         canvas_data={"key_partners": []},
         empathy_map=_minimal_valid_empathy_map(),
         hypotheses=_minimal_valid_hypotheses(),

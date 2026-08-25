@@ -1,24 +1,17 @@
 """POST /api/internal/hook — scenario payload validation against bizstruct_domain."""
 from tests.conftest import INTERNAL_HEADERS
 
-_STEPS = [
-    ("context", "calendar"),
-    ("goal", "target"),
-    ("action", "zap"),
-    ("result", "check-circle"),
-    ("impact", "trending-up"),
-]
+_STEPS = ["context", "goal", "action", "result", "impact"]
 
 
 def _timeline(steps=_STEPS) -> list[dict]:
     return [
         {
             "step_type": step_type,
-            "icon_key": icon_key,
             "text_uk": f"Достатньо довгий текст кроку {step_type} українською",
             "text_en": f"A sufficiently long step text for {step_type} in English",
         }
-        for step_type, icon_key in steps
+        for step_type in steps
     ]
 
 
@@ -88,6 +81,20 @@ async def test_highlight_field_rejected_with_422(client, project, db_session):
     hook must reject it rather than silently drop or persist it."""
     steps = _timeline()
     steps[0]["highlight"] = False
+    body = _hook_body(project.id, _valid_scenario(timeline=steps))
+
+    resp = await client.post("/api/internal/hook", json=body, headers=INTERNAL_HEADERS)
+    assert resp.status_code == 422
+
+    await db_session.refresh(project)
+    assert project.scenario is None
+
+
+async def test_icon_key_field_rejected_with_422(client, project, db_session):
+    """icon_key was 100% derivable from step_type — presentation data, not
+    part of the domain model. The hook must reject it, not persist it."""
+    steps = _timeline()
+    steps[0]["icon_key"] = "calendar"
     body = _hook_body(project.id, _valid_scenario(timeline=steps))
 
     resp = await client.post("/api/internal/hook", json=body, headers=INTERNAL_HEADERS)
