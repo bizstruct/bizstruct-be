@@ -10,6 +10,7 @@ from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
 from bizstruct_domain.blocks.models_options import ModelsOptions
 from bizstruct_domain.blocks.canvas import CanvasGenerated
+from bizstruct_domain.blocks.what_if import WhatIfGenerated
 from bizstruct_domain.validate_model import ValidateModelResult
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from pydantic import ValidationError as DomainValidationError
@@ -45,6 +46,10 @@ _DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
     # bound. The looser Canvas (no per-section bound) is what CRUD edits
     # after generation are validated against instead — see routers/blocks.py.
     "canvas": CanvasGenerated,
+    # WhatIfGenerated (all alternatives status=draft), not WhatIf — same
+    # reasoning as canvas above: this validates what bizstruct-ml just
+    # generated, which must never claim an alternative is already applied.
+    "what_if": WhatIfGenerated,
 }
 
 

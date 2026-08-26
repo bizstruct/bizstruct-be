@@ -187,6 +187,38 @@ def _minimal_valid_models_options() -> dict:
     }
 
 
+def _minimal_valid_what_if() -> dict:
+    """A placeholder WhatIf satisfying the domain model's constraints
+    (exactly 3 alternatives, each with 3-6 moves covering >=3 distinct ERRC
+    actions, at most one status=applied)."""
+    def _move(action: str) -> dict:
+        move = {
+            "action": action,
+            "target_section": "key_partners",
+            "target": "Заповнювач картки довжиною понад пʼять символів",
+            "rationale_uk": "Заповнювач обґрунтування довжиною понад десять символів.",
+            "rationale_en": "Placeholder rationale, long enough to pass validation.",
+        }
+        if action in ("reduce", "raise"):
+            move["new_text"] = "Заповнювач новий текст картки"
+        return move
+
+    def _alt(i: int) -> dict:
+        return {
+            "id": str(uuid.uuid4()),
+            "title_uk": f"Заповнювач альтернатива {i}",
+            "title_en": f"Placeholder alternative {i}",
+            "premise_uk": "Заповнювач теза довжиною понад пʼять символів",
+            "premise_en": "Placeholder premise, long enough to pass validation",
+            "moves": [_move("eliminate"), _move("reduce"), _move("raise")],
+            "expected_impact_uk": "Заповнювач очікуваний ефект довжиною понад пʼять",
+            "expected_impact_en": "Placeholder expected impact, long enough to pass",
+            "status": "draft",
+        }
+
+    return {"alternatives": [_alt(1), _alt(2), _alt(3)]}
+
+
 @pytest_asyncio.fixture
 async def project_ready_for_architecture(db_session):
     """A project with every other block already filled, waiting on architecture."""
@@ -201,7 +233,13 @@ async def project_ready_for_architecture(db_session):
         hypotheses=_minimal_valid_hypotheses(),
         pitch=_minimal_valid_pitch(),
         scenario=_minimal_valid_scenario(),
-        what_if={"scenarios": []},
+        # This fixture's name promises "every OTHER block already filled",
+        # and the hook's all-blocks-filled check (BLOCK_CHAIN) depends on
+        # that — a None here would make the architecture hook below never
+        # flip the project to "completed", which isn't what this fixture is
+        # for. _minimal_valid_what_if(), not the pre-ERRC
+        # {"scenarios": [...]} placeholder that used to be here.
+        what_if=_minimal_valid_what_if(),
     )
     db_session.add(p)
     await db_session.commit()

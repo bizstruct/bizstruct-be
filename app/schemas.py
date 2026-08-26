@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import Any
 
 from bizstruct_domain.blocks.architecture import Architecture
 from bizstruct_domain.blocks.empathy_map import EmpathyMap
@@ -9,6 +8,7 @@ from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
 from bizstruct_domain.blocks.models_options import ModelsOptions
 from bizstruct_domain.blocks.canvas import Canvas
+from bizstruct_domain.blocks.what_if import WhatIf
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -41,7 +41,7 @@ class ProjectUpdate(CamelModel):
     # edits aren't bound by the 2-4-cards-per-section generation rule (see
     # bizstruct_domain.blocks.canvas's module docstring).
     canvas: Canvas | None = None
-    what_if: dict[str, Any] | None = None
+    what_if: WhatIf | None = None
     architecture: Architecture | None = None
     empathy_map: EmpathyMap | None = None
     scenario: Scenario | None = None
@@ -57,7 +57,7 @@ class ProjectResponse(CamelModel):
     translation_key: str | None
     models_options: ModelsOptions | None
     canvas: Canvas | None
-    what_if: dict[str, Any] | None
+    what_if: WhatIf | None
     # Sourced from bizstruct_domain — pilot slice, other blocks stay dict[str, Any]
     # until they get their own domain models. Note this model has no camelCase
     # alias_generator of its own, so its fields serialize snake_case even though

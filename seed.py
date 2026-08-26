@@ -277,39 +277,120 @@ ECOSYNC_SCENARIO = {
     },
 }
 
+def _errc_move(action: str, section: str, target: str, rationale_uk: str, rationale_en: str, new_text: str | None = None) -> dict:
+    move = {
+        "action": action,
+        "target_section": section,
+        "target": target,
+        "rationale_uk": rationale_uk,
+        "rationale_en": rationale_en,
+    }
+    if new_text is not None:
+        move["new_text"] = new_text
+    return move
+
+
+# ERRC alternatives, replacing the old Financial/Technical/Emotional-vector
+# design. Each move's `target` is the EXACT text of an existing ECOSYNC_CANVAS
+# card in `target_section` (for eliminate/reduce/raise) — see
+# bizstruct_domain.blocks.what_if's module docstring for why this is a text
+# match, not a UUID reference.
+#
+# The first alternative is seeded as already `applied`, same as before —
+# but note it has no `canvas_snapshot_before` (that's only ever produced by
+# actually calling POST .../apply, which this seed data bypasses), so
+# reverting THIS seeded alternative via the API will 409 until it's
+# re-applied for real. Acceptable for seed/demo data.
 ECOSYNC_WHAT_IF = {
-    "scenarios": [
+    "alternatives": [
         {
             "id": uid(),
-            "vector": "Financial",
-            "color": "indigo",
-            "icon": "coins",
-            "title": "Що якби ми перейшли на Revenue Share замість підписки?",
-            "description": "Замість фіксованої підписки стягувати % від підтвердженої економії клієнта на ESG-аудитах. Це знижує поріг входу та вирівнює інтереси.",
-            "value": "Клієнт платить лише коли бачить результат — вища довіра, нижчий churn",
-            "revenue": "Потенційний ARPU зростає до €8 000+/рік на великих клієнтах при підтвердженій економії €50k+",
+            "title_uk": "Revenue Share замість підписки",
+            "title_en": "Revenue share instead of subscription",
+            "premise_uk": "Замість фіксованої підписки стягувати % від підтвердженої економії клієнта на ESG-аудитах.",
+            "premise_en": "Charge a % of the client's confirmed ESG-audit cost savings instead of a fixed subscription.",
+            "moves": [
+                _errc_move(
+                    "eliminate", "revenue_streams", "Subscription tiers (Core, Pro, Enterprise)",
+                    "Прибираємо фіксовану підписку — вона суперечить моделі оплати за результат.",
+                    "Removing the fixed subscription — it conflicts with pay-for-outcome pricing.",
+                ),
+                _errc_move(
+                    "raise", "value_propositions", "Real-time carbon footprint monitoring for assets",
+                    "Посилюємо ціннісну пропозицію гарантією економії, пов'язаною з новим ціноутворенням.",
+                    "Strengthening the value proposition with a savings guarantee tied to the new pricing.",
+                    new_text="Real-time carbon footprint monitoring, with a savings guarantee tied to revenue-share pricing",
+                ),
+                _errc_move(
+                    "create", "revenue_streams", "Revenue share: % of confirmed audit-cost savings",
+                    "Новий потік доходу, що вирівнює інтереси платформи та клієнта.",
+                    "New revenue stream aligning platform and client incentives.",
+                ),
+            ],
+            "expected_impact_uk": "Клієнт платить лише коли бачить результат — вища довіра, нижчий churn, потенційний ARPU до €8 000+/рік на великих клієнтах.",
+            "expected_impact_en": "Client pays only when they see results — higher trust, lower churn, potential ARPU up to €8,000+/year on large accounts.",
             "status": "applied",
         },
         {
             "id": uid(),
-            "vector": "Technical",
-            "color": "teal",
-            "icon": "cpu",
-            "title": "Що якби ми додали on-premise розгортання для regulated industries?",
-            "description": "Фінансовий та енергетичний сектор не може передавати ESG-дані в публічний хмарний сервіс. On-premise версія відкриває Enterprise-сегмент.",
-            "value": "Доступ до 300+ регульованих компаній ЄС, які зараз заблоковані compliance-вимогами",
-            "revenue": "On-premise ліцензія від €24 000/рік — x4 до поточного Enterprise-плану",
+            "title_uk": "On-premise для регульованих індустрій",
+            "title_en": "On-premise for regulated industries",
+            "premise_uk": "Фінансовий та енергетичний сектор не може передавати ESG-дані в публічний хмарний сервіс.",
+            "premise_en": "Finance and energy sectors can't send ESG data to a public cloud service.",
+            "moves": [
+                _errc_move(
+                    "eliminate", "channels", "Partner channel through ERP vendors (SAP, Oracle)",
+                    "On-premise угоди регульованих клієнтів вимагають прямих продажів, а не партнерського каналу.",
+                    "On-premise deals with regulated clients need direct sales, not a vendor partner channel.",
+                ),
+                _errc_move(
+                    "raise", "key_resources", "Multi-tenant SaaS platform",
+                    "Платформа має підтримувати on-premise розгортання для клієнтів, яким заборонено хмару.",
+                    "The platform needs an on-premise deployment option for clients barred from the cloud.",
+                    new_text="Multi-tenant SaaS platform with an on-premise deployment option for regulated industries",
+                ),
+                _errc_move(
+                    "create", "revenue_streams", "On-premise enterprise license",
+                    "Новий тариф для Enterprise-сегменту, який зараз заблокований compliance-вимогами.",
+                    "New tier for the Enterprise segment currently blocked by compliance requirements.",
+                ),
+            ],
+            "expected_impact_uk": "Доступ до 300+ регульованих компаній ЄС; on-premise ліцензія від €24 000/рік — x4 до поточного Enterprise-плану.",
+            "expected_impact_en": "Access to 300+ regulated EU companies; on-premise license from €24,000/year — 4x the current Enterprise plan.",
             "status": "draft",
         },
         {
             "id": uid(),
-            "vector": "Emotional",
-            "color": "slate",
-            "icon": "heartHandshake",
-            "title": "Що якби ми зробили ESG-score публічним і видимим для партнерів?",
-            "description": "Публічний ESG-рейтинг компанії у профілі платформи стає інструментом B2B-довіри при тендерах та закупівлях.",
-            "value": "Вірусний ефект: кожен клієнт залучає постачальників через вимогу показати ESG-score",
-            "revenue": "Нова монетизація: верифікація ESG-score третіх сторін за €299/перевірку",
+            "title_uk": "Публічний ESG-score як інструмент довіри",
+            "title_en": "Public ESG-score as a trust signal",
+            "premise_uk": "Публічний ESG-рейтинг компанії стає інструментом B2B-довіри при тендерах та закупівлях.",
+            "premise_en": "A public company ESG rating becomes a B2B trust signal in tenders and procurement.",
+            "moves": [
+                _errc_move(
+                    "reduce", "customer_relationships", "Dedicated onboarding and monthly check-ins",
+                    "Менш витратний self-serve онбординг вивільняє бюджет на публічну вітрину ESG-score.",
+                    "Cheaper self-serve onboarding frees budget for the public ESG-score showcase.",
+                    new_text="Lightweight self-serve onboarding",
+                ),
+                _errc_move(
+                    "raise", "value_propositions", "Audit-ready compliance documentation",
+                    "Комплаєнс-документація стає публічним доказом довіри для партнерів, а не лише внутрішнім артефактом.",
+                    "Compliance documentation becomes a public trust proof for partners, not just an internal artifact.",
+                    new_text="Audit-ready compliance documentation, publicly showcased as a partner trust signal",
+                ),
+                _errc_move(
+                    "create", "channels", "Public ESG-score profile visible to B2B partners",
+                    "Новий канал: вірусний ефект, коли клієнти залучають постачальників показати свій ESG-score.",
+                    "New channel: a viral loop where clients push their own suppliers to show their ESG-score.",
+                ),
+                _errc_move(
+                    "create", "revenue_streams", "Third-party ESG-score verification fee",
+                    "Нова монетизація верифікації ESG-score для третіх сторін.",
+                    "New monetization: verifying third-party ESG-scores.",
+                ),
+            ],
+            "expected_impact_uk": "Вірусний ефект залучення постачальників; нова монетизація верифікації за €299/перевірку.",
+            "expected_impact_en": "Viral supplier-acquisition effect; new verification monetization at €299/check.",
             "status": "draft",
         },
     ]
@@ -581,10 +662,77 @@ SMART_GRID = Project(
         },
     },
     what_if={
-        "scenarios": [
-            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title": "Що якби ми перейшли на performance-based pricing?", "description": "Стягувати % від підтвердженої економії замість фіксованої підписки.", "value": "Нижчий поріг входу для нових клієнтів", "revenue": "ARPU зростає пропорційно до цінності для клієнта", "status": "applied"},
-            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title": "Що якби додати edge-computing модуль для критичної інфраструктури?", "description": "Обробка даних локально без передачі в хмару для regulated industries.", "value": "Доступ до сегменту з жорсткими data sovereignty вимогами", "revenue": "Edge-ліцензія від €18 000/рік на об'єкт", "status": "draft"},
-            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title": "Що якби зробити публічний дашборд стану мережі для споживачів?", "description": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.", "value": "Репутаційна перевага оператора, менше скарг регулятору", "revenue": "Монетизація через рекламу або B2B-дані агрегаторам попиту", "status": "draft"},
+        "alternatives": [
+            {
+                "id": uid(),
+                "title_uk": "Performance-based ціноутворення",
+                "title_en": "Performance-based pricing",
+                "premise_uk": "Стягувати % від підтвердженої економії замість фіксованої підписки.",
+                "premise_en": "Charge a % of confirmed savings instead of a fixed subscription.",
+                "moves": [
+                    _errc_move("eliminate", "revenue_streams", "Annual SaaS license per substation",
+                        "Фіксована ліцензія суперечить моделі оплати за результат.",
+                        "The fixed license conflicts with pay-for-outcome pricing."),
+                    _errc_move("raise", "revenue_streams", "Performance-based bonus: % of saved losses",
+                        "Робимо цю модель основною, а не бонусом до підписки.",
+                        "Making this the primary model, not a bonus on top of a subscription.",
+                        new_text="Performance-based fee: % of confirmed grid-loss savings, primary pricing model"),
+                    _errc_move("create", "customer_relationships", "Transparent monthly savings dashboard tied to billing",
+                        "Клієнт має бачити, за що саме платить щомісяця.",
+                        "The client needs to see exactly what they're paying for each month."),
+                ],
+                "expected_impact_uk": "Нижчий поріг входу для нових клієнтів; ARPU зростає пропорційно до цінності.",
+                "expected_impact_en": "Lower entry barrier for new clients; ARPU grows proportionally to value delivered.",
+                "status": "applied",
+            },
+            {
+                "id": uid(),
+                "title_uk": "Edge-обчислення для критичної інфраструктури",
+                "title_en": "Edge computing for critical infrastructure",
+                "premise_uk": "Обробка даних локально без передачі в хмару для regulated industries.",
+                "premise_en": "Local data processing without sending it to the cloud, for regulated industries.",
+                "moves": [
+                    _errc_move("eliminate", "channels", "Energy industry conferences",
+                        "Regulated-сегмент закривається прямими продажами, а не конференціями.",
+                        "The regulated segment closes through direct sales, not conferences."),
+                    _errc_move("raise", "key_resources", "IoT edge computing nodes",
+                        "Edge-вузли повинні повністю обробляти дані локально для data sovereignty вимог.",
+                        "Edge nodes must fully process data locally to meet data sovereignty requirements.",
+                        new_text="IoT edge computing nodes with full local processing, no cloud dependency"),
+                    _errc_move("create", "revenue_streams", "Edge deployment license per substation",
+                        "Новий тариф для об'єктів, яким заборонено передавати дані в хмару.",
+                        "New tier for sites barred from sending data to the cloud."),
+                ],
+                "expected_impact_uk": "Доступ до сегменту з жорсткими data sovereignty вимогами; edge-ліцензія від €18 000/рік на об'єкт.",
+                "expected_impact_en": "Access to the segment with strict data sovereignty requirements; edge license from €18,000/year per site.",
+                "status": "draft",
+            },
+            {
+                "id": uid(),
+                "title_uk": "Публічний дашборд стану мережі",
+                "title_en": "Public grid status dashboard",
+                "premise_uk": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.",
+                "premise_en": "Real-time transparency builds trust and reduces support call volume.",
+                "moves": [
+                    _errc_move("reduce", "customer_relationships", "24/7 NOC support",
+                        "Публічний дашборд перехоплює частину рутинних запитів про стан мережі.",
+                        "The public dashboard absorbs part of the routine status-check load.",
+                        new_text="24/7 NOC support for verified incidents, routine status checks self-served via dashboard"),
+                    _errc_move("raise", "value_propositions", "22% reduction in grid losses",
+                        "Показник стає публічним доказом довіри, а не лише внутрішньою метрикою.",
+                        "The metric becomes a public trust proof, not just an internal number.",
+                        new_text="22% reduction in grid losses, published live on the public dashboard"),
+                    _errc_move("create", "channels", "Public real-time grid status page for end consumers",
+                        "Новий канал прямої комунікації зі споживачами.",
+                        "New direct communication channel with end consumers."),
+                    _errc_move("create", "revenue_streams", "Aggregated demand data licensing to third parties",
+                        "Монетизація агрегованих (анонімізованих) даних попиту.",
+                        "Monetizing aggregated (anonymized) demand data."),
+                ],
+                "expected_impact_uk": "Репутаційна перевага оператора, менше скарг регулятору; монетизація через B2B-дані агрегаторам попиту.",
+                "expected_impact_en": "Reputational advantage for the operator, fewer regulator complaints; monetization via B2B data to demand aggregators.",
+                "status": "draft",
+            },
         ]
     },
     architecture={
@@ -794,10 +942,77 @@ CARBON_TRACK = Project(
         },
     },
     what_if={
-        "scenarios": [
-            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title": "Що якби ми перейшли на performance-based pricing?", "description": "Стягувати % від підтвердженої економії замість фіксованої підписки.", "value": "Нижчий поріг входу для нових клієнтів", "revenue": "ARPU зростає пропорційно до цінності для клієнта", "status": "applied"},
-            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title": "Що якби додати edge-computing модуль для критичної інфраструктури?", "description": "Обробка даних локально без передачі в хмару для regulated industries.", "value": "Доступ до сегменту з жорсткими data sovereignty вимогами", "revenue": "Edge-ліцензія від €18 000/рік на об'єкт", "status": "draft"},
-            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title": "Що якби зробити публічний дашборд стану мережі для споживачів?", "description": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.", "value": "Репутаційна перевага оператора, менше скарг регулятору", "revenue": "Монетизація через рекламу або B2B-дані агрегаторам попиту", "status": "draft"},
+        "alternatives": [
+            {
+                "id": uid(),
+                "title_uk": "Performance-based ціноутворення",
+                "title_en": "Performance-based pricing",
+                "premise_uk": "Стягувати % від оптимізованого розподілу квот замість фіксованого бандла.",
+                "premise_en": "Charge a % of optimized quota allocation instead of a fixed bundle.",
+                "moves": [
+                    _errc_move("eliminate", "revenue_streams", "Hardware + SaaS bundle: €2k setup + €500/mo",
+                        "Фіксований бандл суперечить моделі оплати за результат.",
+                        "The fixed bundle conflicts with pay-for-outcome pricing."),
+                    _errc_move("raise", "revenue_streams", "Carbon credit advisory: % of optimized allocation",
+                        "Робимо advisory-модель основним, а не другорядним потоком доходу.",
+                        "Making the advisory model the primary revenue stream, not a secondary one.",
+                        new_text="Carbon credit advisory: % of optimized allocation, now the primary pricing model"),
+                    _errc_move("create", "customer_relationships", "Monthly savings-to-billing transparency report",
+                        "Клієнт має бачити прямий звʼязок між заощадженнями та рахунком.",
+                        "The client needs to see the direct link between savings and their bill."),
+                ],
+                "expected_impact_uk": "Нижчий поріг входу для нових клієнтів; ARPU зростає пропорційно до цінності.",
+                "expected_impact_en": "Lower entry barrier for new clients; ARPU grows proportionally to value delivered.",
+                "status": "applied",
+            },
+            {
+                "id": uid(),
+                "title_uk": "Edge-обчислення для критичної інфраструктури",
+                "title_en": "Edge computing for critical infrastructure",
+                "premise_uk": "Обробка даних локально без передачі в хмару для regulated industries.",
+                "premise_en": "Local data processing without sending it to the cloud, for regulated industries.",
+                "moves": [
+                    _errc_move("eliminate", "channels", "Industrial automation trade shows",
+                        "Regulated-сегмент закривається прямими продажами, а не виставками.",
+                        "The regulated segment closes through direct sales, not trade shows."),
+                    _errc_move("raise", "key_resources", "Edge computing modules for factories",
+                        "Edge-модулі мають повністю обробляти дані локально для data sovereignty вимог.",
+                        "Edge modules must fully process data locally to meet data sovereignty requirements.",
+                        new_text="Edge computing modules with full local processing, no cloud dependency"),
+                    _errc_move("create", "revenue_streams", "Edge deployment license per factory",
+                        "Новий тариф для об'єктів, яким заборонено передавати дані в хмару.",
+                        "New tier for sites barred from sending data to the cloud."),
+                ],
+                "expected_impact_uk": "Доступ до сегменту з жорсткими data sovereignty вимогами; edge-ліцензія від €18 000/рік на об'єкт.",
+                "expected_impact_en": "Access to the segment with strict data sovereignty requirements; edge license from €18,000/year per site.",
+                "status": "draft",
+            },
+            {
+                "id": uid(),
+                "title_uk": "Публічна вітрина CBAM-готовності",
+                "title_en": "Public CBAM-readiness showcase",
+                "premise_uk": "Прозорість верифікованих даних про викиди підвищує довіру покупців перед CBAM.",
+                "premise_en": "Transparent, verified emissions data builds buyer trust ahead of CBAM.",
+                "moves": [
+                    _errc_move("reduce", "customer_relationships", "Annual compliance audit support",
+                        "Менш витратний self-serve супровід вивільняє бюджет на публічну вітрину.",
+                        "Cheaper self-serve support frees budget for the public showcase.",
+                        new_text="Self-serve compliance audit support, with escalation for complex cases"),
+                    _errc_move("raise", "value_propositions", "Real-time factory emissions dashboard",
+                        "Дашборд стає публічним доказом довіри для покупців у ланцюжку CBAM.",
+                        "The dashboard becomes a public trust proof for buyers across the CBAM supply chain.",
+                        new_text="Real-time factory emissions dashboard, with a public CBAM-readiness view for buyers"),
+                    _errc_move("create", "channels", "Public CBAM-readiness profile visible to buyers",
+                        "Новий канал прямої довіри з покупцями, які вимагають верифіковані дані.",
+                        "New direct trust channel with buyers who demand verified data."),
+                    _errc_move("create", "revenue_streams", "Third-party CBAM-readiness verification fee",
+                        "Нова монетизація верифікації готовності для третіх сторін.",
+                        "New monetization: verifying third-party CBAM readiness."),
+                ],
+                "expected_impact_uk": "Репутаційна перевага виробника; нова монетизація верифікації для покупців у ланцюжку постачання.",
+                "expected_impact_en": "Reputational advantage for the manufacturer; new verification monetization for supply-chain buyers.",
+                "status": "draft",
+            },
         ]
     },
     architecture={
@@ -1007,10 +1222,77 @@ BIOWASTE = Project(
         },
     },
     what_if={
-        "scenarios": [
-            {"id": uid(), "vector": "Financial", "color": "indigo", "icon": "coins", "title": "Що якби ми перейшли на performance-based pricing?", "description": "Стягувати % від підтвердженої економії замість фіксованої підписки.", "value": "Нижчий поріг входу для нових клієнтів", "revenue": "ARPU зростає пропорційно до цінності для клієнта", "status": "applied"},
-            {"id": uid(), "vector": "Technical", "color": "teal", "icon": "cpu", "title": "Що якби додати edge-computing модуль для критичної інфраструктури?", "description": "Обробка даних локально без передачі в хмару для regulated industries.", "value": "Доступ до сегменту з жорсткими data sovereignty вимогами", "revenue": "Edge-ліцензія від €18 000/рік на об'єкт", "status": "draft"},
-            {"id": uid(), "vector": "Emotional", "color": "slate", "icon": "heartHandshake", "title": "Що якби зробити публічний дашборд стану мережі для споживачів?", "description": "Прозорість у реальному часі підвищує довіру та знижує кількість дзвінків в підтримку.", "value": "Репутаційна перевага оператора, менше скарг регулятору", "revenue": "Монетизація через рекламу або B2B-дані агрегаторам попиту", "status": "draft"},
+        "alternatives": [
+            {
+                "id": uid(),
+                "title_uk": "Performance-based комісія маркетплейсу",
+                "title_en": "Performance-based marketplace fee",
+                "premise_uk": "Стягувати % від підтвердженої економії на утилізації замість фіксованої підписки.",
+                "premise_en": "Charge a % of confirmed disposal-cost savings instead of a fixed subscription.",
+                "moves": [
+                    _errc_move("eliminate", "revenue_streams", "SaaS subscription: €799/mo per facility",
+                        "Фіксована підписка суперечить моделі оплати за результат.",
+                        "The fixed subscription conflicts with pay-for-outcome pricing."),
+                    _errc_move("raise", "revenue_streams", "Marketplace commission: 8% per waste transaction",
+                        "Робимо комісію маркетплейсу основним, а не додатковим потоком доходу.",
+                        "Making the marketplace commission the primary revenue stream, not a supplementary one.",
+                        new_text="Marketplace commission: 8-15% scaled to confirmed disposal-cost savings"),
+                    _errc_move("create", "customer_relationships", "Monthly savings-to-billing transparency report",
+                        "Клієнт має бачити прямий звʼязок між заощадженнями та рахунком.",
+                        "The client needs to see the direct link between savings and their bill."),
+                ],
+                "expected_impact_uk": "Нижчий поріг входу для нових клієнтів; ARPU зростає пропорційно до цінності.",
+                "expected_impact_en": "Lower entry barrier for new clients; ARPU grows proportionally to value delivered.",
+                "status": "applied",
+            },
+            {
+                "id": uid(),
+                "title_uk": "Приватна мережа для регульованих виробників",
+                "title_en": "Private network for regulated producers",
+                "premise_uk": "Великі виробники не можуть ділитися даними про відходи на відкритому маркетплейсі.",
+                "premise_en": "Large manufacturers can't share waste data on an open marketplace.",
+                "moves": [
+                    _errc_move("eliminate", "channels", "Food industry trade associations",
+                        "Regulated-сегмент закривається прямими продажами, а не через асоціації.",
+                        "The regulated segment closes through direct sales, not trade associations."),
+                    _errc_move("raise", "key_resources", "Waste exchange marketplace algorithm",
+                        "Алгоритм має підтримувати приватні, непублічні пули для чутливих даних.",
+                        "The algorithm needs private, non-public pools for sensitive data.",
+                        new_text="Waste exchange marketplace algorithm with private, invite-only matching pools"),
+                    _errc_move("create", "revenue_streams", "Private network enterprise license",
+                        "Новий тариф для виробників, яким заборонено ділитися даними публічно.",
+                        "New tier for manufacturers barred from sharing data publicly."),
+                ],
+                "expected_impact_uk": "Доступ до сегменту великих виробників із жорсткими вимогами конфіденційності.",
+                "expected_impact_en": "Access to the large-manufacturer segment with strict confidentiality requirements.",
+                "status": "draft",
+            },
+            {
+                "id": uid(),
+                "title_uk": "Публічний circularity-рейтинг",
+                "title_en": "Public circularity rating",
+                "premise_uk": "Публічний рейтинг циркулярності стає інструментом довіри при закупівлях FMCG.",
+                "premise_en": "A public circularity rating becomes a trust signal in FMCG procurement.",
+                "moves": [
+                    _errc_move("reduce", "customer_relationships", "Dedicated circular economy advisor per enterprise client",
+                        "Менш витратний self-serve супровід вивільняє бюджет на публічну вітрину.",
+                        "Cheaper self-serve support frees budget for the public showcase.",
+                        new_text="Self-serve circularity dashboard, advisor escalation for complex cases"),
+                    _errc_move("raise", "value_propositions", "Zero organic waste to landfill — 100% circular",
+                        "Показник стає публічним доказом довіри для рітейл-покупців.",
+                        "The metric becomes a public trust proof for retail buyers.",
+                        new_text="Zero organic waste to landfill — 100% circular, published live on a public rating"),
+                    _errc_move("create", "channels", "Public circularity-score profile visible to retail buyers",
+                        "Новий канал прямої довіри з рітейл-покупцями.",
+                        "New direct trust channel with retail buyers."),
+                    _errc_move("create", "revenue_streams", "Third-party circularity-score verification fee",
+                        "Нова монетизація верифікації рейтингу для третіх сторін.",
+                        "New monetization: verifying third-party circularity scores."),
+                ],
+                "expected_impact_uk": "Репутаційна перевага виробника; нова монетизація верифікації для рітейл-партнерів.",
+                "expected_impact_en": "Reputational advantage for the manufacturer; new verification monetization for retail partners.",
+                "status": "draft",
+            },
         ]
     },
     architecture={

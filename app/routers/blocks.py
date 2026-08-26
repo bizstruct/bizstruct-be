@@ -8,6 +8,7 @@ from bizstruct_domain.blocks.scenario import Scenario
 from bizstruct_domain.blocks.pitch import Pitch
 from bizstruct_domain.blocks.hypotheses import Hypotheses
 from bizstruct_domain.blocks.canvas import Canvas
+from bizstruct_domain.blocks.what_if import WhatIf
 from bizstruct_domain.enums import CanvasSection
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import ValidationError as DomainValidationError
@@ -470,6 +471,82 @@ async def update_scenario(
 
 
 # ── What-If ───────────────────────────────────────────────────────────────────
+#
+# WhatIf (bizstruct_domain.blocks.what_if.WhatIf) is 3 ERRC alternatives, at
+# most one `applied`. Unlike every other block above, "applying" here isn't
+# just a status flip on this block's own data — it's a write to the
+# project's Canvas too (see B2 of the what_if task): eliminate removes a
+# card, reduce/raise rewrites one, create adds one. So this is the one
+# place in this file where an endpoint under /what-if also mutates
+# project.canvas, via the same `_validate_canvas`/`_save_canvas` helpers
+# canvas's own endpoints use above.
+#
+# Rollback: each applied alternative carries a `canvas_snapshot_before` —
+# the full Canvas as it was immediately before this alternative was
+# applied. This is the simplest of the two options the task named (a
+# snapshot-per-alternative vs. a separate canvas-version table): no new
+# table/migration, and "undo the one alternative currently in effect" is
+# the only rollback case that exists (at most one alternative is ever
+# applied at a time), so a full version history isn't needed. The tradeoff
+# is that this only supports undoing the CURRENT apply, not an arbitrary
+# point in canvas history — acceptable since full canvas versioning
+# (If-Match) is explicitly out of scope for this task.
+#
+# `canvas_snapshot_before` is intentionally NOT part of the
+# bizstruct_domain.blocks.what_if.WhatIfAlternative model — it's a
+# bizstruct-be persistence/rollback implementation detail, not domain data
+# every consumer needs to reason about. It's stripped before validating
+# against WhatIf and merged back in before saving (_validate_what_if /
+# _save_what_if below), so the domain model stays pure while bizstruct-fe
+# still gets it directly on the alternative it belongs to.
+
+def _validate_what_if(data: dict) -> tuple[WhatIf, dict[str, dict]]:
+    alternatives = data.get("alternatives", []) if isinstance(data, dict) else []
+    snapshots: dict[str, dict] = {}
+    stripped = []
+    for alt in alternatives:
+        alt = dict(alt)
+        snapshot = alt.pop("canvas_snapshot_before", None)
+        if snapshot is not None and alt.get("id") is not None:
+            snapshots[str(alt["id"])] = snapshot
+        stripped.append(alt)
+    try:
+        validated = WhatIf.model_validate({"alternatives": stripped})
+    except DomainValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=json.loads(e.json()),
+        )
+    return validated, snapshots
+
+
+def _save_what_if(project: Project, validated: WhatIf, snapshots: dict[str, dict]) -> dict:
+    dumped = validated.model_dump(mode="json")
+    for alt in dumped["alternatives"]:
+        snapshot = snapshots.get(alt["id"])
+        if snapshot is not None:
+            alt["canvas_snapshot_before"] = snapshot
+    project.what_if = dumped
+    flag_modified(project, "what_if")
+    return dumped
+
+
+def _find_alternative(alternatives: list[dict], alternative_id: uuid.UUID) -> tuple[int, dict]:
+    target = str(alternative_id)
+    idx = next((i for i, a in enumerate(alternatives) if a.get("id") == target), None)
+    if idx is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alternative not found")
+    return idx, alternatives[idx]
+
+
+# Applying/reverting an alternative is a canvas write, same as canvas's own
+# CRUD endpoints above — and same as those, this file does NOT enforce the
+# project.status == "generating" edit-lock server-side (that's a frontend-
+# only UI guard; full If-Match versioning is out of scope for this task).
+# Adding server-side enforcement only for apply/revert and not for
+# update_canvas_item etc. would be a new inconsistency, not a fix — left as
+# the same documented gap the rest of this file already has.
+
 
 @router.get("/what-if/{project_id}")
 async def get_what_if(
@@ -487,40 +564,162 @@ async def update_what_if(
     db: DbDep,
 ) -> dict:
     project = await _get_project_or_404(project_id, db)
-    project.what_if = body
-    flag_modified(project, "what_if")
+    validated, snapshots = _validate_what_if(body)
+    _save_what_if(project, validated, snapshots)
     await db.commit()
     await db.refresh(project)
     return _block_response(project_id, "whatIf", project.what_if)
 
 
-@router.patch("/what-if/{project_id}/{scenario_id}")
-async def update_what_if_scenario(
+@router.patch("/what-if/{project_id}/{alternative_id}")
+async def update_what_if_alternative(
     project_id: uuid.UUID,
-    scenario_id: str,
+    alternative_id: uuid.UUID,
     body: dict,
     db: DbDep,
 ) -> dict:
+    """Edit an alternative's own fields (title/premise/moves/expected_impact
+    — anything but `status`). `status` is exclusively managed by the apply/
+    revert endpoints below, since a bare status flip here used to be exactly
+    the "applied means nothing" bug this task fixes (B2) — allowing it back
+    in through PATCH would just reopen it."""
+    if "status" in body:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="status cannot be set via PATCH — use the apply/revert endpoints",
+        )
     project = await _get_project_or_404(project_id, db)
-
-    what_if = project.what_if or {"scenarios": []}
-    scenarios = what_if.get("scenarios", [])
-
-    idx = next((i for i, s in enumerate(scenarios) if s.get("id") == scenario_id), None)
-    if idx is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found")
-
-    if body.get("status") == "applied":
-        for s in scenarios:
-            s["status"] = "draft"
-
-    scenarios[idx] = {**scenarios[idx], **body}
-    project.what_if = {**what_if, "scenarios": scenarios}
-    flag_modified(project, "what_if")
-
+    what_if = project.what_if or {"alternatives": []}
+    alternatives = list(what_if.get("alternatives", []))
+    idx, alt = _find_alternative(alternatives, alternative_id)
+    alternatives[idx] = {**alt, **body, "id": alt["id"]}
+    validated, snapshots = _validate_what_if({"alternatives": alternatives})
+    _save_what_if(project, validated, snapshots)
     await db.commit()
     await db.refresh(project)
     return _block_response(project_id, "whatIf", project.what_if)
+
+
+@router.post("/what-if/{project_id}/{alternative_id}/apply")
+async def apply_what_if_alternative(
+    project_id: uuid.UUID,
+    alternative_id: uuid.UUID,
+    db: DbDep,
+) -> dict:
+    """Apply an ERRC alternative: mutate the canvas per its moves, mark it
+    `applied` (and every other alternative `draft`), save the pre-apply
+    canvas as this alternative's rollback snapshot.
+
+    Move -> canvas mapping (see bizstruct_domain.blocks.what_if.ERRCMove):
+    - eliminate: remove the card in target_section whose text == move.target
+    - reduce/raise: rewrite that card's text to move.new_text
+    - create: append a new card with text == move.target
+
+    Matching is an exact text match on the move's `target` against current
+    canvas card text — not a fuzzy/best-effort match. If any move's target
+    can't be matched (the canvas changed since this alternative was
+    generated, or the LLM's target text drifted from the actual card), the
+    whole apply is rejected with 422 and the full list of unresolved moves,
+    rather than silently applying the moves that DID match and dropping the
+    rest — see the what_if task's B2 for why silent best-effort was
+    explicitly ruled out.
+    """
+    project = await _get_project_or_404(project_id, db)
+
+    what_if = project.what_if or {"alternatives": []}
+    alternatives = list(what_if.get("alternatives", []))
+    idx, alt = _find_alternative(alternatives, alternative_id)
+    if alt.get("status") == "applied":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Alternative is already applied")
+
+    canvas = _validate_canvas(project.canvas or {})
+    canvas_snapshot = canvas.model_dump(mode="json")
+    sections: dict[str, list[dict]] = {k: list(v) for k, v in canvas_snapshot.items()}
+
+    unresolved: list[dict] = []
+    for move in alt.get("moves", []):
+        section = move["target_section"]
+        cards = sections.get(section, [])
+        action = move["action"]
+
+        if action == "eliminate":
+            match = next((c for c in cards if c["text"] == move["target"]), None)
+            if match is None:
+                unresolved.append(move)
+                continue
+            sections[section] = [c for c in cards if c["id"] != match["id"]]
+        elif action in ("reduce", "raise"):
+            match_idx = next((i for i, c in enumerate(cards) if c["text"] == move["target"]), None)
+            if match_idx is None:
+                unresolved.append(move)
+                continue
+            cards[match_idx] = {**cards[match_idx], "text": move["new_text"], "is_ai_generated": True}
+        elif action == "create":
+            cards.append({"id": str(uuid.uuid4()), "text": move["target"], "is_ai_generated": True})
+        else:
+            unresolved.append(move)
+
+    if unresolved:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "message": "Could not match every move to an existing canvas card. "
+                "No changes were applied.",
+                "unresolvedMoves": unresolved,
+            },
+        )
+
+    validated_canvas = _validate_canvas({**(project.canvas or {}), **sections})
+    _save_canvas(project, validated_canvas)
+
+    for i, a in enumerate(alternatives):
+        if i == idx:
+            alternatives[i] = {**a, "status": "applied", "canvas_snapshot_before": canvas_snapshot}
+        elif a.get("status") == "applied":
+            alternatives[i] = {**a, "status": "draft"}
+
+    validated_wi, snapshots = _validate_what_if({"alternatives": alternatives})
+    _save_what_if(project, validated_wi, snapshots)
+
+    await db.commit()
+    await db.refresh(project)
+    return {"projectId": str(project_id), "whatIf": project.what_if, "canvas": project.canvas}
+
+
+@router.post("/what-if/{project_id}/{alternative_id}/revert")
+async def revert_what_if_alternative(
+    project_id: uuid.UUID,
+    alternative_id: uuid.UUID,
+    db: DbDep,
+) -> dict:
+    """Undo an applied alternative: restore the canvas to its
+    `canvas_snapshot_before`, set the alternative back to `draft`."""
+    project = await _get_project_or_404(project_id, db)
+
+    what_if = project.what_if or {"alternatives": []}
+    alternatives = list(what_if.get("alternatives", []))
+    idx, alt = _find_alternative(alternatives, alternative_id)
+    if alt.get("status") != "applied":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Alternative is not applied")
+    snapshot = alt.get("canvas_snapshot_before")
+    if snapshot is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No canvas snapshot recorded for this alternative — cannot revert",
+        )
+
+    validated_canvas = _validate_canvas(snapshot)
+    _save_canvas(project, validated_canvas)
+
+    alternatives[idx] = {k: v for k, v in alt.items() if k != "canvas_snapshot_before"}
+    alternatives[idx]["status"] = "draft"
+
+    validated_wi, snapshots = _validate_what_if({"alternatives": alternatives})
+    _save_what_if(project, validated_wi, snapshots)
+
+    await db.commit()
+    await db.refresh(project)
+    return {"projectId": str(project_id), "whatIf": project.what_if, "canvas": project.canvas}
 
 
 # ── Architecture ──────────────────────────────────────────────────────────────
