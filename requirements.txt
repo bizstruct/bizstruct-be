@@ -7,3 +7,4 @@ pydantic==2.10.3
 pydantic-settings==2.6.1
 azure-servicebus==7.12.3
 azure-messaging-webpubsubservice==1.2.0
+bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@bbee62baff73b4c40eadedc7a285274bf63b15c0

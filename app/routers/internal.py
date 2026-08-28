@@ -1,11 +1,23 @@
+import json
 import logging
 import uuid
 from typing import Annotated, Any, Literal
 
+from bizstruct_domain.blocks.architecture import Architecture
+from bizstruct_domain.blocks.empathy_map import EmpathyMap
+from bizstruct_domain.blocks.scenario import Scenario
+from bizstruct_domain.blocks.pitch import Pitch
+from bizstruct_domain.blocks.hypotheses import Hypotheses
+from bizstruct_domain.blocks.models_options import ModelsOptions
+from bizstruct_domain.blocks.canvas import CanvasGenerated
+from bizstruct_domain.blocks.what_if import WhatIfGenerated
+from bizstruct_domain.validate_model import ValidateModelResult
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
+from pydantic import ValidationError as DomainValidationError
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.block_chain import BLOCK_CHAIN, BLOCK_FIELDS, next_block
 from app.config import settings
 from app.database import get_db
 from app.models import Project
@@ -19,18 +31,26 @@ router = APIRouter(prefix="/api/internal", tags=["internal"])
 
 DbDep = Annotated[AsyncSession, Depends(get_db)]
 
-BLOCK_CHAIN: list[str] = [
-    "models_options",
-    "canvas_data",
-    "empathy_map",
-    "hypotheses",
-    "pitch",
-    "scenario",
-    "what_if",
-    "architecture",
-]
-
-BLOCK_FIELDS: frozenset[str] = frozenset(BLOCK_CHAIN) | {"validate_model"}
+# Blocks with dedicated bizstruct_domain models. Everything else in
+# BLOCK_FIELDS is still a bare dict[str, Any] — pilot slice, more blocks land
+# in follow-up PRs the same way.
+_DOMAIN_VALIDATED_BLOCKS: dict[str, type] = {
+    "architecture": Architecture,
+    "empathy_map": EmpathyMap,
+    "scenario": Scenario,
+    "pitch": Pitch,
+    "hypotheses": Hypotheses,
+    "models_options": ModelsOptions,
+    # CanvasGenerated (2-4 cards/section), not Canvas — this validates what
+    # bizstruct-ml just generated, and generation output IS held to that
+    # bound. The looser Canvas (no per-section bound) is what CRUD edits
+    # after generation are validated against instead — see routers/blocks.py.
+    "canvas": CanvasGenerated,
+    # WhatIfGenerated (all alternatives status=draft), not WhatIf — same
+    # reasoning as canvas above: this validates what bizstruct-ml just
+    # generated, which must never claim an alternative is already applied.
+    "what_if": WhatIfGenerated,
+}
 
 
 async def verify_internal_key(x_api_key: Annotated[str, Header()]) -> None:
@@ -83,15 +103,63 @@ async def ml_hook(
 
     if body.block == "validate_model":
         if body.status == "success" and body.data:
+            # `model_id` is an ml-side wrapping convenience, not a field on
+            # ValidateModelResult itself (see bizstruct_domain.validate_model)
+            # — it identifies which option was validated, but isn't part of
+            # the validation result schema. Strip it before validating.
             model_id = str(body.data.get("model_id", ""))
-            send_validate_result(project_id_str, model_id, body.data)
+            result_data = {k: v for k, v in body.data.items() if k != "model_id"}
+            try:
+                validated = ValidateModelResult.model_validate(result_data)
+            except DomainValidationError as e:
+                errors = e.errors()
+                logger.error(
+                    "hook_schema_validation_failed",
+                    extra={"project_id": project_id_str, "block": body.block, "errors": errors},
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=json.loads(e.json()),
+                )
+            send_validate_result(project_id_str, model_id, validated.model_dump(mode="json"))
         return {"ok": "1"}
 
     if body.status == "success":
-        setattr(project, body.block, body.data)
+        block_data: Any = body.data
+
+        domain_model = _DOMAIN_VALIDATED_BLOCKS.get(body.block)
+        if domain_model is not None:
+            try:
+                validated = domain_model.model_validate(body.data)
+            except DomainValidationError as e:
+                errors = e.errors()
+                logger.error(
+                    "hook_schema_validation_failed",
+                    extra={"project_id": project_id_str, "block": body.block, "errors": errors},
+                )
+                # A schema violation is not a transient failure — retrying the
+                # same generation would produce the same invalid shape. So
+                # this must NOT come back as a 5xx: bizstruct-ml currently
+                # treats hook failure as abandon-and-retry, which would burn
+                # through its retry budget re-generating the same bad output.
+                # 422 is the deliberate signal for "unrecoverable, dead-letter
+                # it, don't retry" — bizstruct-ml needs a follow-up change to
+                # actually branch on this status code (see task summary).
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=json.loads(e.json()),
+                )
+            block_data = validated.model_dump(mode="json")
+
+        setattr(project, body.block, block_data)
         flag_modified(project, body.block)
 
-        all_filled = all(getattr(project, field) is not None for field in BLOCK_FIELDS)
+        # BLOCK_CHAIN (not BLOCK_FIELDS): "validate_model" is a side-channel
+        # message, not a generation block, and isn't a Project column at all
+        # — iterating BLOCK_FIELDS here would getattr() a nonexistent
+        # attribute on every successful hook. Pre-existing bug, fixed as part
+        # of touching this line for architecture validation.
+        all_filled = all(getattr(project, field) is not None for field in BLOCK_CHAIN)
         if all_filled:
             project.status = "completed"
             logger.info("Project %s completed", project.id)
@@ -101,8 +169,23 @@ async def ml_hook(
         if all_filled:
             send_generation_complete(project_id_str, "completed")
         else:
-            next_idx = BLOCK_CHAIN.index(body.block) + 1
-            background_tasks.add_task(enqueue_block, project_id_str, BLOCK_CHAIN[next_idx])
+            nxt = next_block(body.block)
+            if nxt is not None:
+                background_tasks.add_task(
+                    enqueue_block, project_id_str, nxt, False, project.language
+                )
+            else:
+                # body.block is the last block in BLOCK_CHAIN but all_filled
+                # is False — an earlier block must still be missing (e.g. a
+                # hook arrived out of the usual order). Nothing left to
+                # enqueue; the still-missing block's own hook (whenever it
+                # arrives) will complete the project.
+                logger.warning(
+                    "Project %s: '%s' is the last block in BLOCK_CHAIN but "
+                    "the project isn't fully generated yet",
+                    project.id,
+                    body.block,
+                )
 
     else:
         project.status = "failed"
