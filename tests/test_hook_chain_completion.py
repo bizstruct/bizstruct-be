@@ -104,7 +104,7 @@ async def test_intermediate_block_enqueues_the_next_one(client, db_session):
         )
 
     assert resp.status_code == 200
-    enqueue_mock.assert_called_once_with(str(p.id), second_block)
+    enqueue_mock.assert_called_once_with(str(p.id), second_block, False, "en")
 
     await db_session.refresh(p)
     assert p.status != "completed"
@@ -132,12 +132,10 @@ async def test_out_of_order_last_block_hook_does_not_crash(client, db_session):
             architecture_block,
             {
                 "epicenter": "customer_driven",
-                "epicenter_rationale_uk": "Достатньо довге обґрунтування українською мовою для цього тесту, справді.",
-                "epicenter_rationale_en": "A rationale long enough in English to satisfy the field's validation here.",
+                "epicenter_rationale": "A rationale long enough in English to satisfy the field's validation here.",
                 "pattern": "free",
                 "pattern_subtype": "freemium",
-                "pattern_rationale_uk": "Достатньо довге обґрунтування патерну українською мовою для цього тесту тут.",
-                "pattern_rationale_en": "A pattern rationale long enough in English to satisfy validation for this test.",
+                "pattern_rationale": "A pattern rationale long enough in English to satisfy validation for this test.",
             },
         ),
         headers=INTERNAL_HEADERS,

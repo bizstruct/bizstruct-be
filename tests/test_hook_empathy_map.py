@@ -2,12 +2,8 @@
 from tests.conftest import INTERNAL_HEADERS
 
 
-def _item(i: int, text_uk: str | None = None, text_en: str | None = None) -> dict:
-    return {
-        "id": i,
-        "text_uk": text_uk or f"Достатньо довгий текст українською номер {i}",
-        "text_en": text_en or f"Sufficiently long English text number {i}",
-    }
+def _item(i: int, text: str | None = None) -> dict:
+    return {"id": i, "text": text or f"Sufficiently long English text number {i}"}
 
 
 def _valid_empathy_map(**overrides) -> dict:
@@ -48,7 +44,7 @@ async def test_too_few_items_in_section_rejected_with_422(client, project, db_se
 
 
 async def test_short_item_text_rejected_with_422(client, project, db_session):
-    body = _hook_body(project.id, _valid_empathy_map(pains=[_item(1, text_uk="Ні"), _item(2), _item(3)]))
+    body = _hook_body(project.id, _valid_empathy_map(pains=[_item(1, text="No"), _item(2), _item(3)]))
 
     resp = await client.post("/api/internal/hook", json=body, headers=INTERNAL_HEADERS)
     assert resp.status_code == 422

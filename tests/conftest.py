@@ -90,7 +90,7 @@ def _minimal_valid_empathy_map() -> dict:
     """A placeholder EmpathyMap satisfying the domain model's constraints
     (min_length=3 items per section, min_length=10 chars per item text)."""
     def _item(i: int) -> dict:
-        return {"id": i, "text_uk": f"Заповнювач елемент {i}", "text_en": f"Placeholder item {i}"}
+        return {"id": i, "text": f"Placeholder item {i}"}
 
     section = [_item(1), _item(2), _item(3)]
     return {s: section for s in ("says", "thinks", "does", "feels", "pains", "gains")}
@@ -102,21 +102,17 @@ def _minimal_valid_scenario() -> dict:
     steps = ["context", "goal", "action", "result", "impact"]
     return {
         "persona": {
-            "name_uk": "Заповнювач", "name_en": "Placeholder",
-            "role_uk": "Заповнювач", "role_en": "Placeholder",
-            "pain_point_uk": "Заповнювач болю персони довжиною понад 10 символів",
-            "pain_point_en": "Placeholder persona pain point over 10 characters",
+            "name": "Placeholder",
+            "role": "Placeholder",
+            "pain_point": "Placeholder persona pain point over 10 characters",
         },
         "timeline": [
-            {
-                "step_type": step_type,
-                "text_uk": f"Заповнювач кроку {step_type}", "text_en": f"Placeholder step {step_type}",
-            }
+            {"step_type": step_type, "text": f"Placeholder step {step_type}"}
             for step_type in steps
         ],
         "metrics": {
-            "before": {"value_uk": "X", "value_en": "X", "label_uk": "Заповнювач", "label_en": "Placeholder"},
-            "after": {"value_uk": "Y", "value_en": "Y", "label_uk": "Заповнювач", "label_en": "Placeholder"},
+            "before": {"value": "X", "label": "Placeholder"},
+            "after": {"value": "Y", "label": "Placeholder"},
         },
     }
 
@@ -127,9 +123,8 @@ def _minimal_valid_pitch() -> dict:
     def _slide(slide_type: str) -> dict:
         return {
             "type": slide_type,
-            "headline_uk": "Заповнювач", "headline_en": "Placeholder",
-            "content_uk": "Заповнювач вмісту слайду довжиною понад 10 символів",
-            "content_en": "Placeholder slide content over 10 characters long",
+            "headline": "Placeholder",
+            "content": "Placeholder slide content over 10 characters long",
         }
 
     return {
@@ -196,8 +191,7 @@ def _minimal_valid_what_if() -> dict:
             "action": action,
             "target_section": "key_partners",
             "target": "Заповнювач картки довжиною понад пʼять символів",
-            "rationale_uk": "Заповнювач обґрунтування довжиною понад десять символів.",
-            "rationale_en": "Placeholder rationale, long enough to pass validation.",
+            "rationale": "Placeholder rationale, long enough to pass validation.",
         }
         if action in ("reduce", "raise"):
             move["new_text"] = "Заповнювач новий текст картки"
@@ -206,13 +200,10 @@ def _minimal_valid_what_if() -> dict:
     def _alt(i: int) -> dict:
         return {
             "id": str(uuid.uuid4()),
-            "title_uk": f"Заповнювач альтернатива {i}",
-            "title_en": f"Placeholder alternative {i}",
-            "premise_uk": "Заповнювач теза довжиною понад пʼять символів",
-            "premise_en": "Placeholder premise, long enough to pass validation",
+            "title": f"Placeholder alternative {i}",
+            "premise": "Placeholder premise, long enough to pass validation",
             "moves": [_move("eliminate"), _move("reduce"), _move("raise")],
-            "expected_impact_uk": "Заповнювач очікуваний ефект довжиною понад пʼять",
-            "expected_impact_en": "Placeholder expected impact, long enough to pass",
+            "expected_impact": "Placeholder expected impact, long enough to pass",
             "status": "draft",
         }
 

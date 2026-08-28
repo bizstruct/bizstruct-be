@@ -18,7 +18,7 @@ async def test_project_response_serializes_architecture_block(client, project_re
     assert arch["pattern_subtype"] == "freemium"
     # Nested Architecture model has no camelCase alias generator of its own —
     # fields stay snake_case even though the rest of ProjectResponse is camelCase.
-    assert "epicenter_rationale_uk" in arch
+    assert "epicenter_rationale" in arch
 
 
 async def test_project_with_no_architecture_yet_returns_null(client, project):

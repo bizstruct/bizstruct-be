@@ -28,6 +28,9 @@ class ProjectCreate(CamelModel):
     title: str
     idea: str | None = None
     translation_key: str | None = None
+    # Generation language ("uk"/"en"), fixed for the whole project. Not
+    # translation_key (that's an unrelated frontend i18n lookup key).
+    language: str = "en"
 
 
 class ProjectUpdate(CamelModel):
@@ -35,6 +38,7 @@ class ProjectUpdate(CamelModel):
     idea: str | None = None
     status: str | None = None
     translation_key: str | None = None
+    language: str | None = None
     models_options: ModelsOptions | None = None
     # Canvas, not CanvasGenerated — a PATCH here is either a full CRUD
     # replace or comes from bizstruct-ml's hook (see internal.py), and CRUD
@@ -55,6 +59,7 @@ class ProjectResponse(CamelModel):
     idea: str | None
     status: str
     translation_key: str | None
+    language: str
     models_options: ModelsOptions | None
     canvas: Canvas | None
     what_if: WhatIf | None
@@ -77,6 +82,7 @@ class ProjectListResponse(CamelModel):
     idea: str | None
     status: str
     translation_key: str | None
+    language: str
     created_at: datetime
     updated_at: datetime
 

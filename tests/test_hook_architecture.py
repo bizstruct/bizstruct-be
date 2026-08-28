@@ -3,19 +3,16 @@ import pytest
 
 from tests.conftest import INTERNAL_HEADERS
 
-RATIONALE_UK = "Достатньо довге обґрунтування українською, щоб пройти перевірку мінімальної довжини поля."
-RATIONALE_EN = "A rationale long enough in English to satisfy the field's minimum length validation."
+RATIONALE = "A rationale long enough in English to satisfy the field's minimum length validation."
 
 
 def _valid_architecture(**overrides) -> dict:
     payload = dict(
         epicenter="customer_driven",
-        epicenter_rationale_uk=RATIONALE_UK,
-        epicenter_rationale_en=RATIONALE_EN,
+        epicenter_rationale=RATIONALE,
         pattern="free",
         pattern_subtype="freemium",
-        pattern_rationale_uk=RATIONALE_UK,
-        pattern_rationale_en=RATIONALE_EN,
+        pattern_rationale=RATIONALE,
     )
     payload.update(overrides)
     return payload

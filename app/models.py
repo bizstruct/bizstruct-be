@@ -18,6 +18,10 @@ class Project(Base):
     idea: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="generating")
     translation_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # The generation-language parameter ("uk" or "en"), fixed at project
+    # creation — NOT the same thing as translation_key above (that's an
+    # unrelated frontend i18n lookup key for demo project titles).
+    language: Mapped[str] = mapped_column(String(10), nullable=False, default="en")
 
     # AI-generated business model blocks
     models_options: Mapped[dict | None] = mapped_column(JSONB, nullable=True)

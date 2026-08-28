@@ -251,11 +251,11 @@ async def move_canvas_item(
 
 # ── Empathy Map ───────────────────────────────────────────────────────────────
 #
-# EmpathyMap (bizstruct_domain.blocks.empathy_map.EmpathyMap) stores both
-# languages inline per item (text_uk/text_en) — like architecture, unlike the
-# {uk: {...}, en: {...}} wrapper the other blocks below still use. So these
-# endpoints don't take a `locale` query param and always validate writes
-# against the domain model before saving.
+# EmpathyMap (bizstruct_domain.blocks.empathy_map.EmpathyMap) is single-
+# language per project (part E — no more _uk/_en field pairs); language is
+# a project-level setting, not stored per item. These endpoints don't take
+# a `locale` query param and always validate writes against the domain
+# model before saving.
 
 def _validate_empathy_map(data: dict) -> EmpathyMap:
     try:
@@ -354,13 +354,13 @@ async def patch_hypotheses(
 
 # ── Pitch ─────────────────────────────────────────────────────────────────────
 #
-# Pitch (bizstruct_domain.blocks.pitch.Pitch) stores both languages inline
-# per slide (headline_uk/headline_en, content_uk/content_en) — like
-# architecture/empathy_map/scenario, unlike hypotheses below. So these
-# endpoints don't take a `locale` query param and always validate writes
-# against the domain model before saving. The audience is `customer`, not
-# `client` (bizstruct-be previously used `client` here while bizstruct-fe
-# already used `customer` — this settles the drift on `customer`, matching
+# Pitch (bizstruct_domain.blocks.pitch.Pitch) is single-language per project
+# (part E — no more headline_uk/headline_en, content_uk/content_en pairs);
+# language is a project-level setting. So these endpoints don't take a
+# `locale` query param and always validate writes against the domain model
+# before saving. The audience is `customer`, not `client` (bizstruct-be
+# previously used `client` here while bizstruct-fe already used `customer`
+# — this settles the drift on `customer`, matching
 # bizstruct_domain.enums.PitchAudience).
 
 def _validate_pitch(data: dict) -> Pitch:
@@ -416,7 +416,7 @@ async def update_pitch_slide(
     if idx is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Slide '{slide_type}' not found in {pitch_type} pitch")
 
-    allowed_fields = ("headline_uk", "headline_en", "content_uk", "content_en")
+    allowed_fields = ("headline", "content")
     slides[idx] = {**slides[idx], **{k: v for k, v in body.items() if k in allowed_fields}}
     merged = {**pitch, pitch_type: slides}
     validated = _validate_pitch(merged)
@@ -430,11 +430,10 @@ async def update_pitch_slide(
 
 # ── Scenario ──────────────────────────────────────────────────────────────────
 #
-# Scenario (bizstruct_domain.blocks.scenario.Scenario) stores both languages
-# inline per field (text_uk/text_en etc.) — like architecture and
-# empathy_map, unlike pitch/hypotheses below. So these endpoints don't take
-# a `locale` query param and always validate writes against the domain
-# model before saving.
+# Scenario (bizstruct_domain.blocks.scenario.Scenario) is single-language
+# per project (part E — no more text_uk/text_en pairs); language is a
+# project-level setting. So these endpoints don't take a `locale` query
+# param and always validate writes against the domain model before saving.
 
 def _validate_scenario(data: dict) -> Scenario:
     try:
@@ -724,14 +723,13 @@ async def revert_what_if_alternative(
 
 # ── Architecture ──────────────────────────────────────────────────────────────
 #
-# Architecture (bizstruct_domain.blocks.architecture.Architecture) is a flat
-# model with both languages inline (epicenter_rationale_uk/_en etc.) — unlike
-# every other block here it is NOT stored as {uk: {...}, en: {...}}. So,
-# unlike the sibling blocks above, these endpoints don't take a `locale`
-# query param and always validate writes against the domain model before
-# saving (partial PATCHes included — a merge that leaves the object in an
-# invalid state, e.g. pattern=free with no pattern_subtype, is rejected
-# rather than silently persisted).
+# Architecture (bizstruct_domain.blocks.architecture.Architecture) is a flat,
+# single-language model (part E — no more epicenter_rationale_uk/_en pairs);
+# language is a project-level setting, not stored per field. These endpoints
+# don't take a `locale` query param and always validate writes against the
+# domain model before saving (partial PATCHes included — a merge that leaves
+# the object in an invalid state, e.g. pattern=free with no pattern_subtype,
+# is rejected rather than silently persisted).
 
 def _validate_architecture(data: dict) -> Architecture:
     try:

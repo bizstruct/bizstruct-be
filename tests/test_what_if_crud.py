@@ -17,8 +17,7 @@ def _move(action: str = "eliminate", section: str = "key_partners", target: str 
         "action": action,
         "target_section": section,
         "target": target,
-        "rationale_uk": "Обґрунтування ходу довжиною понад десять символів.",
-        "rationale_en": "Rationale for this move, long enough to pass validation.",
+        "rationale": "Rationale for this move, long enough to pass validation.",
     }
     if action in ("reduce", "raise"):
         move.setdefault("new_text", "Regional logistics partner, smaller contract")
@@ -29,13 +28,10 @@ def _move(action: str = "eliminate", section: str = "key_partners", target: str 
 def _alternative(alt_id: str, status: str = "draft", moves: list[dict] | None = None) -> dict:
     return {
         "id": alt_id,
-        "title_uk": "Пряма доставка",
-        "title_en": "Direct delivery",
-        "premise_uk": "Прибрати посередників у логістиці.",
-        "premise_en": "Remove logistics intermediaries.",
+        "title": "Direct delivery",
+        "premise": "Remove logistics intermediaries.",
         "moves": moves or [_move("eliminate"), _move("reduce"), _move("raise")],
-        "expected_impact_uk": "Нижча собівартість доставки.",
-        "expected_impact_en": "Lower delivery cost.",
+        "expected_impact": "Lower delivery cost.",
         "status": status,
     }
 
@@ -98,11 +94,11 @@ async def test_patch_alternative_edits_premise(client, project):
     await _seed_what_if(client, project.id)
     resp = await client.patch(
         f"/api/what-if/{project.id}/11111111-1111-1111-1111-111111111111",
-        json={"premise_uk": "Оновлена теза довжиною понад п'ять символів.", "premise_en": "An updated premise long enough to pass validation."},
+        json={"premise": "An updated premise long enough to pass validation."},
     )
     assert resp.status_code == 200, resp.text
     alt = next(a for a in resp.json()["whatIf"]["alternatives"] if a["id"] == "11111111-1111-1111-1111-111111111111")
-    assert alt["premise_en"] == "An updated premise long enough to pass validation."
+    assert alt["premise"] == "An updated premise long enough to pass validation."
 
 
 async def test_apply_eliminates_reduces_and_creates_cards(client, project):

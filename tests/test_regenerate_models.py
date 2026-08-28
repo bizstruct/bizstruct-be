@@ -18,7 +18,7 @@ async def test_regenerate_models_nulls_data_and_enqueues_with_force(client, proj
         resp = await client.post(f"/api/generation/{project.id}/regenerate")
 
     assert resp.status_code == 202
-    enqueue_mock.assert_called_once_with(str(project.id), "models_options", True)
+    enqueue_mock.assert_called_once_with(str(project.id), "models_options", True, "en")
 
     await db_session.refresh(project)
     assert project.models_options is None

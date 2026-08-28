@@ -8,10 +8,8 @@ _CUSTOMER_TYPES = ["opening", "empathy", "transformation", "social_proof", "invi
 def _slide(slide_type: str) -> dict:
     return {
         "type": slide_type,
-        "headline_uk": f"Заголовок {slide_type}",
-        "headline_en": f"Headline {slide_type}",
-        "content_uk": f"Достатньо довгий вміст слайду {slide_type} українською",
-        "content_en": f"Sufficiently long slide content for {slide_type} in English",
+        "headline": f"Headline {slide_type}",
+        "content": f"Sufficiently long slide content for {slide_type} in English",
     }
 
 

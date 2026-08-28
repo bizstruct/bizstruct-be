@@ -171,7 +171,9 @@ async def ml_hook(
         else:
             nxt = next_block(body.block)
             if nxt is not None:
-                background_tasks.add_task(enqueue_block, project_id_str, nxt)
+                background_tasks.add_task(
+                    enqueue_block, project_id_str, nxt, False, project.language
+                )
             else:
                 # body.block is the last block in BLOCK_CHAIN but all_filled
                 # is False — an earlier block must still be missing (e.g. a

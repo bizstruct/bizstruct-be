@@ -15,8 +15,7 @@ def _move(action: str = "eliminate", **overrides) -> dict:
         "action": action,
         "target_section": "key_partners",
         "target": "Third-party logistics partner",
-        "rationale_uk": "Обґрунтування ходу довжиною понад десять символів.",
-        "rationale_en": "Rationale for this move, long enough to pass validation.",
+        "rationale": "Rationale for this move, long enough to pass validation.",
     }
     if action in ("reduce", "raise"):
         move["new_text"] = "Regional logistics partner, smaller contract"
@@ -27,13 +26,10 @@ def _move(action: str = "eliminate", **overrides) -> dict:
 def _alternative(status: str = "draft", **overrides) -> dict:
     alt = {
         "id": str(uuid4()),
-        "title_uk": "Пряма доставка",
-        "title_en": "Direct delivery",
-        "premise_uk": "Прибрати посередників у логістиці.",
-        "premise_en": "Remove logistics intermediaries.",
+        "title": "Direct delivery",
+        "premise": "Remove logistics intermediaries.",
         "moves": [_move("eliminate"), _move("reduce"), _move("raise")],
-        "expected_impact_uk": "Нижча собівартість доставки.",
-        "expected_impact_en": "Lower delivery cost.",
+        "expected_impact": "Lower delivery cost.",
         "status": status,
     }
     alt.update(overrides)

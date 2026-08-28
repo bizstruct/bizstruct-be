@@ -6,11 +6,7 @@ _STEPS = ["context", "goal", "action", "result", "impact"]
 
 def _timeline(steps=_STEPS) -> list[dict]:
     return [
-        {
-            "step_type": step_type,
-            "text_uk": f"Достатньо довгий текст кроку {step_type} українською",
-            "text_en": f"A sufficiently long step text for {step_type} in English",
-        }
+        {"step_type": step_type, "text": f"A sufficiently long step text for {step_type} in English"}
         for step_type in steps
     ]
 
@@ -18,17 +14,14 @@ def _timeline(steps=_STEPS) -> list[dict]:
 def _valid_scenario(**overrides) -> dict:
     payload = {
         "persona": {
-            "name_uk": "Дмитро Петренко",
-            "name_en": "Dmytro Petrenko",
-            "role_uk": "EHS Director",
-            "role_en": "EHS Director",
-            "pain_point_uk": "Щорічний аудит коштує €52k і займає 3 тижні підготовки",
-            "pain_point_en": "The annual audit costs €52k and takes 3 weeks to prepare",
+            "name": "Dmytro Petrenko",
+            "role": "EHS Director",
+            "pain_point": "The annual audit costs €52k and takes 3 weeks to prepare",
         },
         "timeline": _timeline(),
         "metrics": {
-            "before": {"value_uk": "€52k", "value_en": "€52k", "label_uk": "Вартість аудиту", "label_en": "Audit cost"},
-            "after": {"value_uk": "€6k", "value_en": "€6k", "label_uk": "Вартість моніторингу", "label_en": "Monitoring cost"},
+            "before": {"value": "€52k", "label": "Audit cost"},
+            "after": {"value": "€6k", "label": "Monitoring cost"},
         },
     }
     payload.update(overrides)
