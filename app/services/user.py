@@ -4,13 +4,19 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.exceptions.base import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
+from app.exceptions.auth import AuthenticationError
+
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import (
+    UserCreate,
+    UserUpdate,
+    ChangePasswordRequest,
+)
 
 
 class UserService:
@@ -84,4 +90,24 @@ class UserService:
             field="email",
             value=email,
         )
+    
+    async def change_password(
+        self,
+        user_id: UUID,
+        data: ChangePasswordRequest,
+    ) -> None:
+        """
+            hanges the user password after verifying the current one.
+
+            Raises:
+                AuthenticationError: If the current password does not match.
+                EntityNotFoundError: If the user is not found.
+        """
+        user = await self.get_by_id(user_id)
+
+        if not verify_password(data.current_password, user.password_hash):
+            raise AuthenticationError("Current password is incorrect")
+
+        user.password_hash = hash_password(data.new_password)
+        await self.session.commit()
 

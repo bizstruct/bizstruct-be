@@ -5,7 +5,12 @@ from fastapi import APIRouter, Query, status
 
 from app.core.dependencies import CurrentUserDep, UserServiceDep
 from app.core.openapi import error_responses
-from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+    ChangePasswordRequest,
+)
 
 
 router = APIRouter(
@@ -80,6 +85,26 @@ async def update_current_user(
     return UserResponse.model_validate(user)
 
 
+@router.post(
+    "/me/change-password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=error_responses(
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_404_NOT_FOUND,
+    ),
+    summary="Change current user password",
+)
+async def change_password(
+    data: ChangePasswordRequest,
+    current_user: CurrentUserDep,
+    service: UserServiceDep,
+) -> None:
+    await service.change_password(
+        user_id=current_user.id,
+        data=data,
+    )
+
+
 @router.get(
     "/{user_id}",
     response_model=UserResponse,
@@ -97,4 +122,3 @@ async def get_user_by_id(
 ) -> UserResponse:
     user = await service.get_by_id(user_id)
     return UserResponse.model_validate(user)
-

@@ -106,3 +106,23 @@ class UserResponse(UserBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class ChangePasswordRequest(BaseModel):
+    """
+        Model for changing a user's password.
+    """
+    current_password: RawPassword = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        description="Current plaintext password",
+        examples=["currentpassword123"],
+    )
+    new_password: RawPassword = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        description="New plaintext password to be hashed",
+        examples=["newsecurepassword456"],
+    )
+
