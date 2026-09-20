@@ -44,12 +44,34 @@ class CORSConfig(BaseSettings):
     )
 
 
+class JWTConfig(BaseSettings):
+    """
+        JWT (JSON Web Token) configuration settings.
+    """
+    
+    secret_key: str = Field(
+        default="dev-insecure-secret-key-change-in-production",
+        description="Secret key for signing cryptographic tokens",
+    )
+    algorithm: str = Field(
+        default="HS256",
+        description="The algorithm used for signing JWTs"
+    )
+    access_token_expire_seconds: int = Field(
+        default=30 * 60,
+        description="Lifetime of access token in seconds",
+    )
+    refresh_token_expire_seconds: int = Field(
+        default=7 * 24 * 60 * 60,
+        description="Lifetime of refresh token in seconds",
+    )
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()
+    jwt: JWTConfig = JWTConfig()
 
     # Database
     postgres_user: str = "postgres"
