@@ -20,3 +20,14 @@ class InvalidTokenError(AuthenticationError):
 
     def __init__(self, message: str = "Invalid token") -> None:
         super().__init__(message)
+
+
+class PermissionDeniedError(AppException):
+    code: str = "permission_denied"
+
+    def __init__(
+        self,
+        message: str = "You do not have permission to perform this action",
+    ) -> None:
+        super().__init__(message)
+
