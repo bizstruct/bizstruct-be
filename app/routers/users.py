@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Query, status
 
 from app.core.dependencies import UserServiceDep
-from app.schemas.common import error_responses
+from app.core.openapi import error_responses
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 
 router = APIRouter(

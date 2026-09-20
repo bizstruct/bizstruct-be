@@ -1,6 +1,5 @@
+from http import HTTPStatus
 from typing import Any
-
-from fastapi import status
 
 from app.schemas.common import ErrorResponse
 
@@ -14,10 +13,15 @@ def error_responses(*status_codes: int) -> dict[int | str, dict[str, Any]]:
         Returns:
             A dictionary mapping status codes to their corresponding error response schemas.
         """
-    return {
-        code: {
+    responses: dict[int | str, dict[str, Any]] = {}
+    for code in status_codes:
+        try:
+            description = HTTPStatus(code).phrase
+        except ValueError:
+            description = "Error"
+
+        responses[code] = {
             "model": ErrorResponse,
-            "description": status.HTTP_STATUS_PHRASES.get(code, "Error"),
+            "description": description,
         }
-        for code in status_codes
-    }
+    return responses
