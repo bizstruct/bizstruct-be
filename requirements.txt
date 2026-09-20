@@ -8,3 +8,5 @@ pydantic-settings==2.6.1
 azure-servicebus==7.12.3
 azure-messaging-webpubsubservice==1.2.0
 bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@v0.9.0
+pwdlib[argon2]
+structlog
