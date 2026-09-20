@@ -3,9 +3,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Query, status
 
-from app.core.dependencies import UserServiceDep
+from app.core.dependencies import CurrentUserDep, UserServiceDep
 from app.core.openapi import error_responses
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
+
 
 router = APIRouter(
     prefix="/users",
@@ -33,9 +34,11 @@ async def create_user(
     "/",
     response_model=list[UserResponse],
     status_code=status.HTTP_200_OK,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
     summary="List users",
 )
 async def list_users(
+    _: CurrentUserDep,
     service: UserServiceDep,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
@@ -45,35 +48,53 @@ async def list_users(
 
 
 @router.get(
-    "/{user_id}",
+    "/me",
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
-    responses=error_responses(status.HTTP_404_NOT_FOUND),
-    summary="Get user by ID",
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+    summary="Get current logged-in user profile",
 )
-async def get_user_by_id(
-    user_id: UUID,
-    service: UserServiceDep,
+async def get_me(
+    current_user: CurrentUserDep,
 ) -> UserResponse:
-    user = await service.get_by_id(user_id)
-    return UserResponse.model_validate(user)
+    return UserResponse.model_validate(current_user)
 
 
 @router.patch(
+    "/me",
+    response_model=UserResponse,
+    status_code=status.HTTP_200_OK,
+    responses=error_responses(
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_404_NOT_FOUND,
+        status.HTTP_409_CONFLICT,
+    ),
+    summary="Update own profile",
+)
+async def update_current_user(
+    data: UserUpdate,
+    service: UserServiceDep,
+    current_user: CurrentUserDep,
+) -> UserResponse:
+    user = await service.update(user_id=current_user.id, data=data)
+    return UserResponse.model_validate(user)
+
+
+@router.get(
     "/{user_id}",
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
     responses=error_responses(
+        status.HTTP_401_UNAUTHORIZED,
         status.HTTP_404_NOT_FOUND,
-        status.HTTP_409_CONFLICT,
     ),
-    summary="Update user details",
+    summary="Get user by ID",
 )
-async def update_user(
+async def get_user_by_id(
     user_id: UUID,
-    data: UserUpdate,
+    _: CurrentUserDep,
     service: UserServiceDep,
 ) -> UserResponse:
-    user = await service.update(user_id=user_id, data=data)
+    user = await service.get_by_id(user_id)
     return UserResponse.model_validate(user)
 

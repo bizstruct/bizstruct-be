@@ -15,6 +15,8 @@ dependencies = [
     "bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@v0.9.0",
     "pwdlib[argon2]",
     "structlog",
+    "pyjwt[crypto]>=2.14.0",
+    "python-multipart>=0.0.32",
 ]
 
 [dependency-groups]
