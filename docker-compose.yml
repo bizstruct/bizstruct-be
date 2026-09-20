@@ -14,6 +14,9 @@ services:
       POSTGRES_HOST: db
     volumes:
       - .:/app
+      # Anonymous volume so the bind mount above doesn't shadow the venv
+      # baked into the image with the (likely absent/mismatched) host one.
+      - /app/.venv
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     depends_on:
       db:
