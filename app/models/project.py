@@ -11,6 +11,7 @@ from app.models.base import TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.stage import Stage
 
 
 class ProjectLanguage(StrEnum):
@@ -19,7 +20,7 @@ class ProjectLanguage(StrEnum):
 
 
 class ProjectMode(StrEnum):
-    PIPELINE = "pipeline"
+    STEPWISE = "stepwise"
     AGENT = "agent"
 
 
@@ -28,6 +29,7 @@ class ProjectStatus(StrEnum):
     GENERATING = "generating"
     AWAITING_DECISION = "awaiting_decision"
     COMPLETED = "completed"
+    CANCELED = "canceled"
     FAILED = "failed"
 
 
@@ -71,7 +73,7 @@ class Project(Base, TimestampMixin):
             validate_strings=True,
             values_callable=lambda x: [e.value for e in x],
         ),
-        default=ProjectMode.PIPELINE,
+        default=ProjectMode.STEPWISE,
         nullable=False,
     )
     status: Mapped[ProjectStatus] = mapped_column(
@@ -85,6 +87,20 @@ class Project(Base, TimestampMixin):
         default=ProjectStatus.PENDING,
         nullable=False,
     )
+    consistency_loop: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=True,
+    )
 
-    user: Mapped["User"] = relationship("User", back_populates="projects")
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="projects",
+    )
+    stages: Mapped[list["Stage"]] = relationship(
+        "Stage",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="Stage.created_at",
+    )
 
