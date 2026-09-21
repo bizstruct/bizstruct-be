@@ -10,6 +10,7 @@ from app.core.security import decode_token
 from app.exceptions.auth import InvalidTokenError
 from app.models.user import User
 from app.services.auth import AuthService
+from app.services.project import ProjectService
 from app.services.user import UserService
 
 
@@ -42,6 +43,12 @@ def get_auth_service(session: DbSession) -> AuthService:
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 
 
+def get_project_service(session: DbSession) -> ProjectService:
+    return ProjectService(session)
+
+
+ProjectServiceDep = Annotated[ProjectService, Depends(get_project_service)]
+
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     user_service: UserServiceDep,
@@ -58,7 +65,11 @@ async def get_current_user(
     except Exception as err:
         raise InvalidTokenError("User associated with token no longer exists") from err
 
+    if not user.is_active:
+        raise InvalidTokenError("User account is inactive")
+
     return user
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+

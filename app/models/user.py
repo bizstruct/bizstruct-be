@@ -1,13 +1,17 @@
-from datetime import datetime, timezone
-
-from sqlalchemy import Boolean, DateTime, String, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid7
 
+from sqlalchemy import Boolean, String, Uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.core.database import Base
+from app.models.base import TimestampMixin
+
+if TYPE_CHECKING:
+    from app.models.project import Project
 
 
-class User(Base):
+class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     id: Mapped[UUID] = mapped_column(
@@ -39,15 +43,11 @@ class User(Base):
         default=False,
         nullable=False,
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False,
-    )
-    updated_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
-        default=None,
-        onupdate=lambda: datetime.now(timezone.utc),
-        nullable=True,
+
+    projects: Mapped[list["Project"]] = relationship(
+        "Project",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
