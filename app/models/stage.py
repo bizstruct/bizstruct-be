@@ -16,40 +16,13 @@ from sqlalchemy import (
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
-from bizstruct_domain import STAGES
-
-# from bizstruct_domain.enums import StageErrorCode, StageStatus
+from bizstruct_domain import STAGE_IDS, StageErrorCode, StageStatus
 
 from app.core.database import Base
 from app.models.base import TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.project import Project
-
-STAGE_IDS: frozenset[str] = frozenset(
-    getattr(stage, "id", stage) for stage in STAGES
-)
-
-
-class StageStatus(str, Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELED = "canceled"
-    
-
-class StageErrorCode(str, Enum):
-    """Error codes for stage execution failures.
-
-    These are used to categorize and identify specific failure scenarios
-    during the execution of a stage in the domain pipeline.
-    """
-
-    TIMEOUT = "timeout"
-    VALIDATION_ERROR = "validation_error"
-    EXTERNAL_SERVICE_FAILURE = "external_service_failure"
-    UNKNOWN_ERROR = "unknown_error"
 
 
 class Stage(Base, TimestampMixin):
