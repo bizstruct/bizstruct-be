@@ -12,7 +12,10 @@ dependencies = [
     "pydantic-settings==2.11.0",
     "azure-servicebus==7.12.3",
     "azure-messaging-webpubsubservice==1.2.0",
-    "bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@v0.9.0",
+    # Provisional: pinned to the STR-240 (E06-S06) branch commit while its PR
+    # is in review. Swap this for the released tag once bizstruct-domain
+    # cuts it, before this PR leaves draft.
+    "bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@f065a44bc1fc371b7700e727f760b657460ac6ec",
     "pwdlib[argon2]",
     "structlog",
     "pyjwt[crypto]>=2.14.0",
