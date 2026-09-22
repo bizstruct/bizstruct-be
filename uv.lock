@@ -174,7 +174,7 @@ requires-dist = [
     { name = "asyncpg", specifier = "==0.30.0" },
     { name = "azure-messaging-webpubsubservice", specifier = "==1.2.0" },
     { name = "azure-servicebus", specifier = "==7.12.3" },
-    { name = "bizstruct-domain", git = "https://github.com/bizstruct/bizstruct-domain?rev=f065a44bc1fc371b7700e727f760b657460ac6ec" },
+    { name = "bizstruct-domain", git = "https://github.com/bizstruct/bizstruct-domain?rev=f5ce3a93cc99ee0616a5e2865f38aa7cd0507754" },
     { name = "fastapi", specifier = "==0.115.5" },
     { name = "pwdlib", extras = ["argon2"] },
     { name = "pydantic", extras = ["email"], specifier = "==2.13.5" },
@@ -196,7 +196,7 @@ dev = [
 [[package]]
 name = "bizstruct-domain"
 version = "0.10.0"
-source = { git = "https://github.com/bizstruct/bizstruct-domain?rev=f065a44bc1fc371b7700e727f760b657460ac6ec#f065a44bc1fc371b7700e727f760b657460ac6ec" }
+source = { git = "https://github.com/bizstruct/bizstruct-domain?rev=f5ce3a93cc99ee0616a5e2865f38aa7cd0507754#f5ce3a93cc99ee0616a5e2865f38aa7cd0507754" }
 dependencies = [
     { name = "pydantic" },
 ]

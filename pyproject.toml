@@ -12,10 +12,10 @@ dependencies = [
     "pydantic-settings==2.11.0",
     "azure-servicebus==7.12.3",
     "azure-messaging-webpubsubservice==1.2.0",
-    # Provisional: pinned to the STR-240 (E06-S06) branch commit while its PR
-    # is in review. Swap this for the released tag once bizstruct-domain
-    # cuts it, before this PR leaves draft.
-    "bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@f065a44bc1fc371b7700e727f760b657460ac6ec",
+    # Provisional: pinned to the merged STR-288 (ready_stages) commit on
+    # main while bizstruct-domain is still pre-release. Swap this for the
+    # released tag once bizstruct-domain cuts it.
+    "bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@f5ce3a93cc99ee0616a5e2865f38aa7cd0507754",
     "pwdlib[argon2]",
     "structlog",
     "pyjwt[crypto]>=2.14.0",
