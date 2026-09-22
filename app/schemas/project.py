@@ -51,9 +51,9 @@ class ProjectCreate(BaseModel):
         examples=[ProjectLanguage.UK],
     )
     mode: ProjectMode = Field(
-        default=ProjectMode.PIPELINE,
+        default=ProjectMode.STEPWISE,
         description="Generation execution mode",
-        examples=[ProjectMode.PIPELINE],
+        examples=[ProjectMode.STEPWISE],
     )
 
 
