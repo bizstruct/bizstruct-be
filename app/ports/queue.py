@@ -18,6 +18,11 @@ class QueuePort(Protocol):
     ) -> None:
         """
             Enqueue one stage for the worker to process.
+
+            Callers must call this only after their own transaction has
+            committed — a message sent for a stage row that isn't visible
+            yet to the worker's own connection would send it chasing state
+            that doesn't exist.
         """
         ...
 
