@@ -1,0 +1,33 @@
+[project]
+name = "bizstruct-be"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+    "sqlalchemy==2.0.54",
+    "asyncpg==0.30.0",
+    "alembic==1.14.0",
+    "pydantic[email]==2.13.5",
+    "pydantic-settings==2.11.0",
+    "azure-servicebus==7.12.3",
+    "azure-messaging-webpubsubservice==1.2.0",
+    # Provisional: pinned to the merged STR-288 (ready_stages) commit on
+    # main while bizstruct-domain is still pre-release. Swap this for the
+    # released tag once bizstruct-domain cuts it.
+    "bizstruct-domain @ git+https://github.com/bizstruct/bizstruct-domain@f5ce3a93cc99ee0616a5e2865f38aa7cd0507754",
+    "pwdlib[argon2]",
+    "structlog",
+    "pyjwt[crypto]>=2.14.0",
+    "python-multipart>=0.0.32",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==8.3.3",
+    "pytest-asyncio==0.24.0",
+    "httpx==0.27.2",
+]
+
+[tool.uv]
+package = false

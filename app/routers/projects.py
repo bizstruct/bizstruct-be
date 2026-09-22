@@ -1,72 +1,139 @@
-import uuid
+from collections.abc import Sequence
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Query, status
 
-from app.database import get_db
-from app.models import Project
-from app.schemas import ProjectCreate, ProjectListResponse, ProjectResponse, ProjectUpdate
+from app.core.dependencies import CurrentUserDep, ProjectServiceDep
+from app.core.openapi import error_responses
+from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 
-router = APIRouter(prefix="/api/projects", tags=["projects"])
-
-DbDep = Annotated[AsyncSession, Depends(get_db)]
-
-
-@router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
-async def create_project(body: ProjectCreate, db: DbDep) -> ProjectResponse:
-    project = Project(**body.model_dump(exclude_none=True))
-    db.add(project)
-    await db.commit()
-    await db.refresh(project)
-    return ProjectResponse.model_validate(project)
+router = APIRouter(
+    prefix="/projects",
+    tags=["projects"],
+    responses=error_responses(
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+    ),
+)
 
 
-@router.get("", response_model=list[ProjectListResponse])
-async def list_projects(db: DbDep) -> list[ProjectListResponse]:
-    result = await db.execute(select(Project).order_by(Project.updated_at.desc()))
-    projects = result.scalars().all()
-    return [ProjectListResponse.model_validate(p) for p in projects]
-
-
-@router.get("/history", response_model=list[ProjectListResponse])
-async def get_project_history(db: DbDep) -> list[ProjectListResponse]:
-    result = await db.execute(select(Project).order_by(Project.updated_at.desc()))
-    projects = result.scalars().all()
-    return [ProjectListResponse.model_validate(p) for p in projects]
-
-
-@router.get("/{project_id}", response_model=ProjectResponse)
-async def get_project(project_id: uuid.UUID, db: DbDep) -> ProjectResponse:
-    project = await db.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    return ProjectResponse.model_validate(project)
-
-
-@router.patch("/{project_id}", response_model=ProjectResponse)
-async def update_project(
-    project_id: uuid.UUID, body: ProjectUpdate, db: DbDep
+@router.post(
+    "",
+    response_model=ProjectResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses=error_responses(status.HTTP_422_UNPROCESSABLE_ENTITY),
+    summary="Create a new project",
+)
+async def create_project(
+    data: ProjectCreate,
+    current_user: CurrentUserDep,
+    service: ProjectServiceDep,
 ) -> ProjectResponse:
-    project = await db.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-
-    # mode="json" so nested models (e.g. architecture: Architecture) are
-    # dumped to plain JSON-safe dicts before being written to a JSONB column.
-    for field, value in body.model_dump(exclude_unset=True, mode="json").items():
-        setattr(project, field, value)
-
-    await db.commit()
-    await db.refresh(project)
+    """
+        Creates a new project owned by the authenticated user.
+    """
+    project = await service.create(user_id=current_user.id, data=data)
     return ProjectResponse.model_validate(project)
 
 
-@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_project(project_id: uuid.UUID, db: DbDep) -> None:
-    project = await db.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    await db.delete(project)
-    await db.commit()
+@router.get(
+    "",
+    response_model=list[ProjectResponse],
+    status_code=status.HTTP_200_OK,
+    summary="List current user's projects",
+)
+async def list_projects(
+    current_user: CurrentUserDep,
+    service: ProjectServiceDep,
+    skip: Annotated[int, Query(ge=0, description="Offset items")] = 0,
+    limit: Annotated[int, Query(ge=1, le=100, description="Max items per page")] = 50,
+) -> Sequence[ProjectResponse]:
+    """
+        Retrieves paginated projects owned exclusively by the authenticated user.
+    """
+    projects = await service.list_user_projects(
+        current_user_id=current_user.id,
+        skip=skip,
+        limit=limit,
+    )
+    return [ProjectResponse.model_validate(p) for p in projects]
+
+
+@router.get(
+    "/{project_id}",
+    response_model=ProjectResponse,
+    status_code=status.HTTP_200_OK,
+    responses=error_responses(
+        status.HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND,
+    ),
+    summary="Get project details by ID",
+)
+async def get_project(
+    project_id: UUID,
+    current_user: CurrentUserDep,
+    service: ProjectServiceDep,
+) -> ProjectResponse:
+    """
+        Retrieves a single project by UUID ensuring ownership.
+    """
+    project = await service.get_by_id(
+        project_id=project_id,
+        current_user_id=current_user.id,
+    )
+    return ProjectResponse.model_validate(project)
+
+
+@router.patch(
+    "/{project_id}",
+    response_model=ProjectResponse,
+    status_code=status.HTTP_200_OK,
+    responses=error_responses(
+        status.HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND,
+        status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ),
+    summary="Update project title",
+)
+async def update_project(
+    project_id: UUID,
+    data: ProjectUpdate,
+    current_user: CurrentUserDep,
+    service: ProjectServiceDep,
+) -> ProjectResponse:
+    """
+        Updates mutable project attributes (title only).
+
+        Any attempt to modify immutable fields triggers 422 extra_forbidden.
+    """
+    project = await service.update(
+        project_id=project_id,
+        current_user_id=current_user.id,
+        data=data,
+    )
+    return ProjectResponse.model_validate(project)
+
+
+@router.delete(
+    "/{project_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=error_responses(
+        status.HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND,
+    ),
+    summary="Delete a project",
+)
+async def delete_project(
+    project_id: UUID,
+    current_user: CurrentUserDep,
+    service: ProjectServiceDep,
+) -> None:
+    """
+        Deletes a project owned by the current user.
+    """
+    await service.delete(
+        project_id=project_id,
+        current_user_id=current_user.id,
+    )
+
