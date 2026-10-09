@@ -1,76 +1,41 @@
-import logging
-import uuid
-from typing import Annotated
+from fastapi import APIRouter, status
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
-from sqlalchemy.orm.attributes import flag_modified
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.dependencies import CurrentUserDep, OrchestratorDep, ProjectServiceDep, StageServiceDep
+from app.core.openapi import error_responses
+from app.schemas.project import GenerationRequest, ProjectDetail
 
-from app.block_chain import BLOCK_CHAIN
-from app.database import get_db
-from app.models import Project
-from app.schemas import CamelModel, ProjectResponse
-from app.servicebus import enqueue_block
-
-logger = logging.getLogger(__name__)
-
-router = APIRouter(prefix="/api/generation", tags=["generation"])
-
-DbDep = Annotated[AsyncSession, Depends(get_db)]
+router = APIRouter(
+    prefix="/generation",
+    tags=["generation"],
+    responses=error_responses(
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+    ),
+)
 
 
-class GenerationRequest(CamelModel):
-    title: str | None = None
-    idea: str | None = None
-    translation_key: str | None = None
-    # Generation language ("uk"/"en"), fixed for the whole project — set by
-    # the client from the user's locale at creation time. Not translation_key
-    # (that's an unrelated frontend i18n lookup key for demo project titles).
-    language: str = "en"
-
-
-@router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ProjectDetail,
+    status_code=status.HTTP_201_CREATED,
+    responses=error_responses(status.HTTP_422_UNPROCESSABLE_ENTITY),
+    summary="Create a project and start its generation",
+)
 async def generate_project(
-    body: GenerationRequest,
-    background_tasks: BackgroundTasks,
-    db: DbDep,
-) -> ProjectResponse:
-    project = Project(
-        title=body.title or "Новий проєкт",
-        idea=body.idea,
-        translation_key=body.translation_key,
-        language=body.language,
-        status="generating",
-    )
-    db.add(project)
-    await db.commit()
-    await db.refresh(project)
-
-    project_id = str(project.id)
-    first_block = BLOCK_CHAIN[0]
-    background_tasks.add_task(enqueue_block, project_id, first_block, False, project.language)
-
-    logger.info("Project %s created, enqueuing first block %s", project_id, first_block)
-    return ProjectResponse.model_validate(project)
-
-
-@router.post("/{project_id}/regenerate", status_code=status.HTTP_202_ACCEPTED)
-async def regenerate_models(
-    project_id: uuid.UUID,
-    background_tasks: BackgroundTasks,
-    db: DbDep,
-) -> dict[str, str]:
-    project = await db.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-
-    project.models_options = None
-    project.status = "generating"
-    flag_modified(project, "models_options")
-    await db.commit()
-
-    background_tasks.add_task(
-        enqueue_block, str(project_id), "models_options", True, project.language
-    )
-    logger.info("Project %s: regenerating models_options (force=True)", project_id)
-    return {"ok": "1"}
+    data: GenerationRequest,
+    current_user: CurrentUserDep,
+    service: ProjectServiceDep,
+    stage_service: StageServiceDep,
+    orchestrator: OrchestratorDep,
+) -> ProjectDetail:
+    """
+        Creates a project owned by the authenticated user with its first rows
+        (the brief and the enabled optional stages), starts whatever is ready
+        and returns the project. The rest of the pipeline advances on its own
+        as results arrive.
+    """
+    project = await service.create(user_id=current_user.id, data=data)
+    await orchestrator.start(project)
+    rows = await stage_service.get_rows(project.id)
+    statuses = await service.statuses([project])
+    return ProjectDetail.build(project, statuses[project.id], rows)

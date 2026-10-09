@@ -8,6 +8,7 @@ from app.exceptions.auth import (
     AuthenticationError,
     PermissionDeniedError
 )
+from app.exceptions.stage import StageConflictError
 from app.exceptions.base import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
@@ -80,6 +81,21 @@ async def entity_already_exists_handler(
     )
 
 
+async def stage_conflict_handler(
+    request: Request, exc: StageConflictError
+) -> JSONResponse:
+    logger.warning(
+        exc.__class__.__name__,
+        path=request.url.path,
+        detail=exc.message,
+    )
+    payload = ErrorResponse(detail=exc.message).model_dump()
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content=payload,
+    )
+
+
 async def sqlalchemy_exception_handler(
     request: Request, exc: SQLAlchemyError
 ) -> JSONResponse:
@@ -105,4 +121,5 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(PermissionDeniedError, permission_denied_handler)
     app.add_exception_handler(EntityNotFoundError, entity_not_found_handler)
     app.add_exception_handler(EntityAlreadyExistsError, entity_already_exists_handler)
+    app.add_exception_handler(StageConflictError, stage_conflict_handler)
     app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)

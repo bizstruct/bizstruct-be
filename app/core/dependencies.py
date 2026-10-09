@@ -7,10 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import AsyncSessionLocal
 from app.core.security import decode_token
+from app.core.config import settings
 from app.exceptions.auth import InvalidTokenError
 from app.models.user import User
+from app.ports.events import EventPort
+from app.ports.queue import QueuePort
+from app.pubsub import WebPubSubEvents
+from app.servicebus import ServiceBusQueue
 from app.services.auth import AuthService
+from app.services.orchestrator import GenerationOrchestrator
 from app.services.project import ProjectService
+from app.services.stage import StageService
 from app.services.user import UserService
 
 
@@ -48,6 +55,40 @@ def get_project_service(session: DbSession) -> ProjectService:
 
 
 ProjectServiceDep = Annotated[ProjectService, Depends(get_project_service)]
+
+
+def get_stage_service(session: DbSession) -> StageService:
+    return StageService(session)
+
+
+StageServiceDep = Annotated[StageService, Depends(get_stage_service)]
+
+
+def get_queue() -> QueuePort:
+    return ServiceBusQueue()
+
+
+def get_events() -> EventPort:
+    return WebPubSubEvents()
+
+
+def get_orchestrator(
+    session: DbSession,
+    stage_service: StageServiceDep,
+    queue: Annotated[QueuePort, Depends(get_queue)],
+    events: Annotated[EventPort, Depends(get_events)],
+) -> GenerationOrchestrator:
+    return GenerationOrchestrator(
+        session,
+        stage_service,
+        queue,
+        events,
+        stuck_timeout_seconds=settings.stuck_timeout_seconds,
+    )
+
+
+OrchestratorDep = Annotated[GenerationOrchestrator, Depends(get_orchestrator)]
+
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],

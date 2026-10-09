@@ -1,174 +1,172 @@
 import asyncio
 import itertools
 import random
-import uuid
+from datetime import datetime, timedelta, timezone
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.pool import NullPool
 
-from bizstruct_domain import STAGE_IDS, StageErrorCode, StageStatus
+from bizstruct_domain import (
+    STAGE_IDS,
+    ArtifactRecord,
+    ArtifactType,
+    ConsistencyReport,
+    Stage,
+    StageErrorCode,
+    StageFailure,
+    StageStatus,
+)
 from bizstruct_domain.stage_machine import STAGE_TRANSITIONS
 
-from app.core.database import Base, settings
-from app.exceptions.stage import InvalidStageTransition, StageNotFound, StagesAlreadyExist
-from app.models import Project, Stage, User
-from app.services.stage import MAX_ERROR_MESSAGE_LENGTH, StageService
+from app.exceptions.stage import InvalidStageTransition, StageRowNotFound
+from app.models import Project, StageRow
+from app.services.orchestration import NewRow
+from app.services.stage import MAX_ERROR_MESSAGE_LENGTH, StageService, to_wire_row
 
-# Isolated from tests/conftest.py's engine, which is wired to the legacy
-# app.database.Base (the pre-Stage hook architecture). Stage/Project/User
-# live on app.core.database.Base, so this suite needs its own engine —
-# same NullPool rationale as conftest.py: one connection per test's event
-# loop, nothing held across test boundaries.
-_engine = create_async_engine(settings.database_url, poolclass=NullPool)
-_SessionLocal = async_sessionmaker(bind=_engine, expire_on_commit=False, autoflush=False)
-
-_schema_ready = False
+S = Stage
+FAILURE = StageFailure(code=StageErrorCode.GENERATION_FAILED, message="boom")
 
 
-@pytest_asyncio.fixture(autouse=True)
-async def _create_schema():
-    global _schema_ready
-    if not _schema_ready:
-        async with _engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
-            await conn.run_sync(Base.metadata.create_all)
-        _schema_ready = True
-    yield
-
-
-@pytest_asyncio.fixture
-async def session():
-    async with _SessionLocal() as s:
-        yield s
-
-
-@pytest_asyncio.fixture
-async def user(session):
-    u = User(email=f"{uuid.uuid4()}@example.com", password_hash="x")
-    session.add(u)
-    await session.commit()
-    await session.refresh(u)
-    return u
-
-
-@pytest_asyncio.fixture
-async def project(session, user):
-    p = Project(user_id=user.id, title="Test", idea="An idea", language="en")
-    session.add(p)
-    await session.commit()
-    await session.refresh(p)
-    return p
-
-
-@pytest_asyncio.fixture
+@pytest.fixture
 def service(session):
     return StageService(session)
 
 
-# --- create_stages -----------------------------------------------------
+def spec(row_id: str, stage: Stage, refs: dict[Stage, list[str]] | None = None, index: int = 0) -> NewRow:
+    return NewRow(id=row_id, stage=stage, instance_index=index, refs=refs or {})
 
 
-async def test_create_stages_creates_one_per_domain_stage_in_pending(service, project, session):
-    stages = await service.create_stages(project.id)
+def chain_specs() -> list[NewRow]:
+    """brief -> two empathy maps -> a scenario and an ideation each; an unrelated environment_scan."""
+    return [
+        spec("brief", S.BRIEF),
+        spec("em0", S.EMPATHY_MAP, {S.BRIEF: ["brief"]}, 0),
+        spec("em1", S.EMPATHY_MAP, {S.BRIEF: ["brief"]}, 1),
+        spec("cs0", S.CUSTOMER_SCENARIO, {S.EMPATHY_MAP: ["em0"]}),
+        spec("cs1", S.CUSTOMER_SCENARIO, {S.EMPATHY_MAP: ["em1"]}),
+        spec("id0", S.IDEATION, {S.EMPATHY_MAP: ["em0"]}),
+        spec("id1", S.IDEATION, {S.EMPATHY_MAP: ["em1"]}),
+        spec("scan", S.ENVIRONMENT_SCAN, {S.BRIEF: ["brief"]}),
+    ]
 
-    assert len(stages) == len(STAGE_IDS)
-    assert [s.type for s in stages] == list(STAGE_IDS)
-    assert all(s.status == StageStatus.PENDING for s in stages)
+
+async def walk_to_done(service: StageService, project_id, row_id: str) -> None:
+    row = await service.get_row(project_id, row_id)
+    await service.transition(row, StageStatus.RUNNING)
+    await service.transition(row, StageStatus.CONSISTENCY_CHECK)
+    await service.transition(row, StageStatus.DONE)
+
+
+# --- create_rows -------------------------------------------------------
+
+
+async def test_create_rows_creates_pending_rows_with_the_given_ids_and_refs(service, project, session):
+    rows = await service.create_rows(project.id, chain_specs())
     await session.commit()
 
+    assert [r.id for r in rows] == [s.id for s in chain_specs()]
+    assert all(r.status == StageStatus.PENDING for r in rows)
+    em1 = next(r for r in rows if r.id == "em1")
+    assert em1.stage == S.EMPATHY_MAP
+    assert em1.instance_index == 1
+    assert em1.refs == {"brief": ["brief"]}
+    assert em1.artifacts == [] and em1.attempt_id is None and em1.retry_count == 0
 
-async def test_create_stages_twice_raises_stages_already_exist(service, project, session):
-    await service.create_stages(project.id)
+
+async def test_a_stage_can_have_several_rows(service, project, session):
+    rows = await service.create_rows(project.id, [spec("a", S.EMPATHY_MAP, index=0), spec("b", S.EMPATHY_MAP, index=1)])
     await session.commit()
 
-    with pytest.raises(StagesAlreadyExist):
-        await service.create_stages(project.id)
-
-    count = await session.execute(
-        Stage.__table__.select().where(Stage.project_id == project.id)
-    )
-    assert len(count.fetchall()) == len(STAGE_IDS)
+    assert {r.stage for r in rows} == {S.EMPATHY_MAP}
+    assert len(await service.get_rows(project.id)) == 2
 
 
-# --- get_stages ----------------------------------------------------------
-
-
-async def test_get_stages_returns_domain_graph_order_not_creation_order(service, project, session):
-    # Bypass create_stages and insert rows directly in a shuffled order, so
-    # a pass based on created_at or insertion order would fail here.
-    shuffled_ids = list(STAGE_IDS)
-    random.Random(42).shuffle(shuffled_ids)
-    assert shuffled_ids != list(STAGE_IDS)  # sanity: the shuffle actually changed the order
-
-    for stage_id in shuffled_ids:
-        session.add(Stage(project_id=project.id, type=stage_id, status=StageStatus.PENDING))
+async def test_create_rows_persists_json_columns(service, project, session, session_factory):
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
 
-    stages = await service.get_stages(project.id)
-    assert [s.type for s in stages] == list(STAGE_IDS)
+    async with session_factory() as other:
+        row = await StageService(other).get_row(project.id, "cs0")
+        assert row.refs == {"empathy_map": ["em0"]}
+        assert row.error is None and row.consistency is None
 
 
-# --- get_stage -------------------------------------------------------------
+# --- get_rows ---------------------------------------------------------
 
 
-async def test_get_stage_returns_the_matching_stage(service, project, session):
-    await service.create_stages(project.id)
+async def test_get_rows_returns_graph_order_then_instance_index_not_insertion_order(service, project, session):
+    specs = chain_specs()
+    random.Random(7).shuffle(specs)
+    for s in specs:
+        session.add(StageRow(id=s.id, project_id=project.id, stage=s.stage, instance_index=s.instance_index, refs={}))
     await session.commit()
 
-    stage = await service.get_stage(project.id, STAGE_IDS[0])
-    assert stage.type == STAGE_IDS[0]
+    rows = await service.get_rows(project.id)
+    order = {stage: i for i, stage in enumerate(STAGE_IDS)}
+    assert [(order[r.stage], r.instance_index) for r in rows] == sorted((order[r.stage], r.instance_index) for r in rows)
+    assert [r.id for r in rows if r.stage == S.EMPATHY_MAP] == ["em0", "em1"]
 
 
-async def test_get_stage_missing_raises_stage_not_found(service, project):
-    with pytest.raises(StageNotFound):
-        await service.get_stage(project.id, STAGE_IDS[0])
-
-
-async def test_get_stage_existing_type_wrong_project_raises_stage_not_found(service, project, session, user):
-    await service.create_stages(project.id)
+async def test_get_rows_only_returns_the_projects_rows(service, project, session, user):
+    await service.create_rows(project.id, [spec("mine", S.BRIEF)])
+    other = Project(user_id=user.id, title="Other", idea="Another idea", language="en")
+    session.add(other)
+    await session.commit()
+    await service.create_rows(other.id, [spec("theirs", S.BRIEF)])
     await session.commit()
 
-    other_project = Project(user_id=user.id, title="Other", idea="Another idea", language="en")
-    session.add(other_project)
-    await session.commit()
-    await session.refresh(other_project)
-
-    with pytest.raises(StageNotFound):
-        await service.get_stage(other_project.id, STAGE_IDS[0])
+    assert [r.id for r in await service.get_rows(project.id)] == ["mine"]
 
 
-async def test_get_stage_lock_blocks_a_second_transaction(project, session):
-    setup_service = StageService(session)
-    await setup_service.create_stages(project.id)
+# --- get_row -----------------------------------------------------------
+
+
+async def test_get_row_returns_the_matching_row(service, project, session):
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
 
-    session_a = _SessionLocal()
-    session_b = _SessionLocal()
+    assert (await service.get_row(project.id, "id1")).stage == S.IDEATION
+
+
+async def test_get_row_missing_raises_not_found(service, project):
+    with pytest.raises(StageRowNotFound):
+        await service.get_row(project.id, "nope")
+
+
+async def test_get_row_of_another_project_raises_not_found(service, project, session, user):
+    await service.create_rows(project.id, [spec("r", S.BRIEF)])
+    await session.commit()
+    other = Project(user_id=user.id, title="Other", idea="Another idea", language="en")
+    session.add(other)
+    await session.commit()
+    await session.refresh(other)
+
+    with pytest.raises(StageRowNotFound):
+        await service.get_row(other.id, "r")
+
+
+async def test_get_row_lock_blocks_a_second_transaction(project, session, session_factory):
+    await StageService(session).create_rows(project.id, [spec("r", S.BRIEF)])
+    await session.commit()
+
+    session_a = session_factory()
+    session_b = session_factory()
     try:
         service_a = StageService(session_a)
         service_b = StageService(session_b)
 
         async with session_a.begin():
-            await service_a.get_stage(project.id, STAGE_IDS[0], lock=True)
+            await service_a.get_row(project.id, "r", lock=True)
 
             async with session_b.begin():
                 with pytest.raises(asyncio.TimeoutError):
-                    await asyncio.wait_for(
-                        service_b.get_stage(project.id, STAGE_IDS[0], lock=True),
-                        timeout=0.5,
-                    )
+                    await asyncio.wait_for(service_b.get_row(project.id, "r", lock=True), timeout=0.5)
                 await session_b.rollback()
 
-        # Released once session_a's transaction ends; session_b can now
-        # acquire the lock.
+        # Released once session_a's transaction ends; session_b can now acquire the lock.
         async with session_b.begin():
-            stage = await asyncio.wait_for(
-                service_b.get_stage(project.id, STAGE_IDS[0], lock=True),
-                timeout=2,
-            )
-            assert stage.type == STAGE_IDS[0]
+            row = await asyncio.wait_for(service_b.get_row(project.id, "r", lock=True), timeout=2)
+            assert row.id == "r"
     finally:
         await session_a.close()
         await session_b.close()
@@ -190,89 +188,96 @@ FORBIDDEN_SAMPLE = [
 
 
 @pytest_asyncio.fixture
-async def stage(service, project, session):
-    stages = await service.create_stages(project.id)
+async def row(service, project, session):
+    rows = await service.create_rows(project.id, [spec("r", S.BRIEF)])
     await session.commit()
-    return stages[0]
+    return rows[0]
 
 
 @pytest.mark.parametrize("current,target", STAGE_TRANSITIONS)
-async def test_every_allowed_edge_is_accepted(service, stage, current, target, session):
-    stage.status = current
-    session.add(stage)
+async def test_every_allowed_edge_is_accepted(service, row, current, target, session):
+    row.status = current
+    session.add(row)
     await session.flush()
 
-    kwargs = {}
-    if target == StageStatus.ERROR:
-        kwargs["error_code"] = StageErrorCode.GENERATION_FAILED
-
-    result = await service.transition(stage, target, **kwargs)
+    result = await service.transition(row, target, failure=FAILURE if target == StageStatus.ERROR else None)
     assert result.status == target
 
 
 @pytest.mark.parametrize("current,target", FORBIDDEN_SAMPLE)
-async def test_forbidden_edges_are_rejected(service, stage, current, target, session):
-    stage.status = current
-    session.add(stage)
+async def test_forbidden_edges_are_rejected(service, row, current, target, session):
+    row.status = current
+    session.add(row)
     await session.flush()
 
     with pytest.raises(InvalidStageTransition):
-        await service.transition(stage, target)
+        await service.transition(row, target)
 
-    assert stage.status == current  # untouched
+    assert row.status == current  # untouched
 
 
 _VALID_TRANSITIONS_SET = set(STAGE_TRANSITIONS)
 
 
 @pytest.mark.parametrize("current,target", list(itertools.product(ALL_STATUSES, ALL_STATUSES)))
-async def test_all_status_pairs_transition_table(service, stage, current, target, session):
-    """Table-driven over every (current, target) pair: the 16 valid edges land on `target`
-    exactly, the remaining 33 raise InvalidStageTransition."""
-    stage.status = current
-    session.add(stage)
+async def test_all_status_pairs_transition_table(service, row, current, target, session):
+    """Table-driven over every (current, target) pair: the valid edges of the domain's
+    stage machine land on `target` exactly, every other pair raises InvalidStageTransition."""
+    row.status = current
+    session.add(row)
     await session.flush()
 
-    kwargs = {"error_code": StageErrorCode.GENERATION_FAILED} if target == StageStatus.ERROR else {}
+    failure = FAILURE if target == StageStatus.ERROR else None
 
     if (current, target) in _VALID_TRANSITIONS_SET:
-        result = await service.transition(stage, target, **kwargs)
+        result = await service.transition(row, target, failure=failure)
         assert result.status == target
     else:
         with pytest.raises(InvalidStageTransition):
-            await service.transition(stage, target, **kwargs)
-        assert stage.status == current
+            await service.transition(row, target, failure=failure)
+        assert row.status == current
 
 
 # --- transition: field side effects -------------------------------------
 
 
-async def test_entering_running_sets_started_and_clears_others(service, stage, session):
-    stage.status = StageStatus.PENDING
-    session.add(stage)
+async def test_entering_running_sets_started_and_a_new_attempt_and_clears_others(service, row, session):
+    await service.transition(row, StageStatus.RUNNING)
+
+    assert row.started_at is not None
+    assert row.attempt_id is not None
+    assert row.finished_at is None
+    assert row.approved_at is None
+    assert row.error is None
+
+
+async def test_every_entry_into_running_issues_a_new_attempt(service, row, session):
+    await service.transition(row, StageStatus.RUNNING)
+    first = row.attempt_id
+    await service.transition(row, StageStatus.PENDING)
+    await service.transition(row, StageStatus.RUNNING)
+
+    assert row.attempt_id is not None and row.attempt_id != first
+
+
+async def test_running_again_issues_a_new_attempt_even_without_passing_through_pending(service, row, session):
+    await service.transition(row, StageStatus.RUNNING)
+    first = row.attempt_id
+
+    await service.transition(row, StageStatus.RUNNING)
+
+    assert row.attempt_id is not None and row.attempt_id != first
+
+
+async def test_running_to_running_clears_stale_error_state(service, row, session):
+    row.status = StageStatus.RUNNING
+    row.error = FAILURE.model_dump(mode="json")
     await session.flush()
 
-    await service.transition(stage, StageStatus.RUNNING)
+    await service.transition(row, StageStatus.RUNNING)
 
-    assert stage.started_at is not None
-    assert stage.finished_at is None
-    assert stage.approved_at is None
-    assert stage.error is None
-    assert stage.error_code is None
-
-
-async def test_running_to_running_clears_stale_error_state(service, stage, session):
-    stage.status = StageStatus.RUNNING
-    stage.error = "stale"
-    stage.error_code = StageErrorCode.GENERATION_FAILED
-    stage.approved_at = None
-    await session.flush()
-
-    await service.transition(stage, StageStatus.RUNNING)
-
-    assert stage.error is None
-    assert stage.error_code is None
-    assert stage.started_at is not None
+    assert row.error is None
+    assert row.started_at is not None
 
 
 @pytest.mark.parametrize(
@@ -283,343 +288,367 @@ async def test_running_to_running_clears_stale_error_state(service, stage, sessi
         (StageStatus.CONSISTENCY_CHECK, StageStatus.AWAITING_DECISION),
     ],
 )
-async def test_entering_finished_states_sets_finished_at(service, stage, current, target, session):
-    stage.status = current
-    session.add(stage)
+async def test_entering_finished_states_sets_finished_at(service, row, current, target, session):
+    row.status = current
+    session.add(row)
     await session.flush()
 
-    kwargs = {"error_code": StageErrorCode.GENERATION_FAILED} if target == StageStatus.ERROR else {}
-    await service.transition(stage, target, **kwargs)
+    await service.transition(row, target, failure=FAILURE if target == StageStatus.ERROR else None)
 
-    assert stage.finished_at is not None
+    assert row.finished_at is not None
 
 
-async def test_entering_consistency_check_does_not_set_finished_at(service, stage, session):
-    stage.status = StageStatus.RUNNING
-    session.add(stage)
+async def test_entering_consistency_check_does_not_set_finished_at(service, row, session):
+    row.status = StageStatus.RUNNING
     await session.flush()
 
-    await service.transition(stage, StageStatus.CONSISTENCY_CHECK)
-    assert stage.finished_at is None
+    await service.transition(row, StageStatus.CONSISTENCY_CHECK)
+    assert row.finished_at is None
 
 
-async def test_entering_awaiting_decision_only_touches_finished_at_and_status(service, stage, session):
-    await service.transition(stage, StageStatus.RUNNING)
-    started_before = stage.started_at
+async def test_entering_awaiting_decision_only_touches_finished_at_and_status(service, row, session):
+    await service.transition(row, StageStatus.RUNNING)
+    started_before = row.started_at
+    attempt_before = row.attempt_id
     assert started_before is not None
 
-    await service.transition(stage, StageStatus.CONSISTENCY_CHECK)
-    await service.transition(stage, StageStatus.AWAITING_DECISION)
+    await service.transition(row, StageStatus.CONSISTENCY_CHECK)
+    await service.transition(row, StageStatus.AWAITING_DECISION)
 
-    assert stage.status == StageStatus.AWAITING_DECISION
-    assert stage.finished_at is not None
-    assert stage.started_at == started_before  # untouched by entering awaiting_decision
-    assert stage.approved_at is None
-    assert stage.error is None
-    assert stage.error_code is None
+    assert row.status == StageStatus.AWAITING_DECISION
+    assert row.finished_at is not None
+    assert row.started_at == started_before  # untouched by entering awaiting_decision
+    assert row.attempt_id == attempt_before
+    assert row.approved_at is None
+    assert row.error is None
 
 
-async def test_approved_at_only_set_when_marked_as_approval(service, stage, session):
-    stage.status = StageStatus.AWAITING_DECISION
-    session.add(stage)
+async def test_approved_at_only_set_when_marked_as_approval(service, row, session):
+    row.status = StageStatus.AWAITING_DECISION
     await session.flush()
 
-    await service.transition(stage, StageStatus.DONE)
-    assert stage.approved_at is None
+    await service.transition(row, StageStatus.DONE)
+    assert row.approved_at is None
 
 
-async def test_approved_at_set_when_transition_marked_as_approval(service, stage, session):
-    stage.status = StageStatus.AWAITING_DECISION
-    session.add(stage)
+async def test_approved_at_set_when_transition_marked_as_approval(service, row, session):
+    row.status = StageStatus.AWAITING_DECISION
     await session.flush()
 
-    await service.transition(stage, StageStatus.DONE, approved=True)
-    assert stage.approved_at is not None
-    assert stage.finished_at is not None
+    await service.transition(row, StageStatus.DONE, approved=True)
+    assert row.approved_at is not None
+    assert row.finished_at is not None
 
 
-async def test_approved_true_with_non_done_target_raises_value_error(service, stage, session):
-    stage.status = StageStatus.PENDING
-    session.add(stage)
+async def test_approved_true_with_non_done_target_raises_value_error(service, row, session):
+    with pytest.raises(ValueError):
+        await service.transition(row, StageStatus.RUNNING, approved=True)
+
+
+async def test_entering_pending_clears_attempt_error_artifacts_and_report(service, row, session):
+    row.status = StageStatus.ERROR
+    row.attempt_id = "attempt"
+    row.error = FAILURE.model_dump(mode="json")
+    row.artifacts = [{"id": "a", "type": "brief", "data": {}}]
+    row.consistency = {"score": 3, "violations": []}
+    row.started_at = datetime.now(timezone.utc)
+    row.approved_at = datetime.now(timezone.utc)
+    await session.flush()
+
+    await service.transition(row, StageStatus.PENDING)
+
+    assert row.started_at is None and row.finished_at is None and row.approved_at is None
+    assert row.error is None
+    assert row.attempt_id is None
+    assert row.artifacts == []
+    assert row.consistency is None
+
+
+async def test_entering_pending_keeps_the_row_id_and_refs(service, project, session):
+    (child,) = await service.create_rows(project.id, [spec("c", S.EMPATHY_MAP, {S.BRIEF: ["brief"]})])
+    child.status = StageStatus.DONE
+    await session.flush()
+
+    await service.transition(child, StageStatus.PENDING)
+
+    assert child.id == "c"
+    assert child.refs == {"brief": ["brief"]}
+
+
+async def test_entering_error_requires_a_failure(service, row, session):
+    row.status = StageStatus.RUNNING
     await session.flush()
 
     with pytest.raises(ValueError):
-        await service.transition(stage, StageStatus.RUNNING, approved=True)
+        await service.transition(row, StageStatus.ERROR)
 
 
-async def test_entering_pending_clears_everything(service, stage, session):
-    stage.status = StageStatus.ERROR
-    stage.started_at = None
-    stage.finished_at = None
-    stage.approved_at = None
-    stage.error = "boom"
-    stage.error_code = StageErrorCode.GENERATION_FAILED
-    session.add(stage)
+async def test_entering_error_stores_the_failure_as_json(service, row, session):
+    row.status = StageStatus.RUNNING
     await session.flush()
 
-    await service.transition(stage, StageStatus.PENDING)
+    await service.transition(row, StageStatus.ERROR, failure=FAILURE)
 
-    assert stage.started_at is None
-    assert stage.finished_at is None
-    assert stage.approved_at is None
-    assert stage.error is None
-    assert stage.error_code is None
+    assert row.error == {"code": "generation_failed", "message": "boom"}
+    assert row.finished_at is not None
 
 
-async def test_entering_error_requires_error_code(service, stage, session):
-    stage.status = StageStatus.RUNNING
-    session.add(stage)
+async def test_entering_error_truncates_message(service, row, session):
+    row.status = StageStatus.RUNNING
     await session.flush()
 
-    with pytest.raises(ValueError):
-        await service.transition(stage, StageStatus.ERROR)
+    failure = StageFailure(code=StageErrorCode.GENERATION_FAILED, message="x" * (MAX_ERROR_MESSAGE_LENGTH + 100))
+    await service.transition(row, StageStatus.ERROR, failure=failure)
+
+    assert row.error is not None
+    assert len(row.error["message"]) == MAX_ERROR_MESSAGE_LENGTH
 
 
-async def test_entering_error_truncates_message(service, stage, session):
-    stage.status = StageStatus.RUNNING
-    session.add(stage)
+async def test_retry_count_untouched_by_default(service, row, session):
+    row.status = StageStatus.NEEDS_RETRY
+    row.retry_count = 3
     await session.flush()
 
-    long_message = "x" * (MAX_ERROR_MESSAGE_LENGTH + 100)
-    await service.transition(
-        stage, StageStatus.ERROR, error_code=StageErrorCode.GENERATION_FAILED, error=long_message
-    )
-
-    assert stage.error is not None
-    assert len(stage.error) == MAX_ERROR_MESSAGE_LENGTH
+    await service.transition(row, StageStatus.RUNNING)
+    assert row.retry_count == 3
 
 
-async def test_entering_error_without_error_message_leaves_error_none(service, stage, session):
-    stage.status = StageStatus.RUNNING
-    session.add(stage)
+async def test_retry_count_increment_is_explicit(service, row, session):
+    row.status = StageStatus.NEEDS_RETRY
+    row.retry_count = 3
+    row.error = FAILURE.model_dump(mode="json")
     await session.flush()
 
-    await service.transition(stage, StageStatus.ERROR, error_code=StageErrorCode.GENERATION_FAILED)
-
-    assert stage.error is None
-    assert stage.error_code == StageErrorCode.GENERATION_FAILED
-    assert stage.finished_at is not None
-
-
-async def test_entering_error_short_message_not_truncated(service, stage, session):
-    stage.status = StageStatus.RUNNING
-    session.add(stage)
-    await session.flush()
-
-    await service.transition(
-        stage, StageStatus.ERROR, error_code=StageErrorCode.GENERATION_FAILED, error="boom"
-    )
-
-    assert stage.error == "boom"
+    await service.transition(row, StageStatus.RUNNING, increment_retry=True)
+    assert row.retry_count == 4
+    assert row.started_at is not None
+    assert row.error is None
 
 
-async def test_retry_count_untouched_by_default(service, stage, session):
-    stage.status = StageStatus.NEEDS_RETRY
-    stage.retry_count = 3
-    session.add(stage)
-    await session.flush()
-
-    await service.transition(stage, StageStatus.RUNNING)
-    assert stage.retry_count == 3
-
-
-async def test_retry_count_increment_is_explicit(service, stage, session):
-    stage.status = StageStatus.NEEDS_RETRY
-    stage.retry_count = 3
-    stage.error = "stale"
-    stage.error_code = StageErrorCode.GENERATION_FAILED
-    session.add(stage)
-    await session.flush()
-
-    await service.transition(stage, StageStatus.RUNNING, increment_retry=True)
-    assert stage.retry_count == 4
-    assert stage.started_at is not None
-    assert stage.error is None
-    assert stage.error_code is None
-
-
-async def test_increment_retry_with_non_running_target_raises_value_error(service, stage, session):
-    stage.status = StageStatus.AWAITING_DECISION
-    session.add(stage)
+async def test_increment_retry_with_non_running_target_raises_value_error(service, row, session):
+    row.status = StageStatus.AWAITING_DECISION
     await session.flush()
 
     with pytest.raises(ValueError):
-        await service.transition(stage, StageStatus.DONE, increment_retry=True)
+        await service.transition(row, StageStatus.DONE, increment_retry=True)
 
 
-async def test_reset_retry_with_non_running_target_raises_value_error(service, stage, session):
-    stage.status = StageStatus.AWAITING_DECISION
-    session.add(stage)
+async def test_reset_retry_with_non_running_target_raises_value_error(service, row, session):
+    row.status = StageStatus.AWAITING_DECISION
     await session.flush()
 
     with pytest.raises(ValueError):
-        await service.transition(stage, StageStatus.DONE, reset_retry=True)
+        await service.transition(row, StageStatus.DONE, reset_retry=True)
 
 
-async def test_retry_count_reset_is_explicit(service, stage, session):
-    stage.status = StageStatus.NEEDS_RETRY
-    stage.retry_count = 3
-    session.add(stage)
+async def test_retry_count_reset_is_explicit(service, row, session):
+    row.status = StageStatus.NEEDS_RETRY
+    row.retry_count = 3
     await session.flush()
 
-    await service.transition(stage, StageStatus.RUNNING, reset_retry=True)
-    assert stage.retry_count == 0
+    await service.transition(row, StageStatus.RUNNING, reset_retry=True)
+    assert row.retry_count == 0
 
 
-async def test_increment_and_reset_together_rejected(service, stage, session):
-    stage.status = StageStatus.NEEDS_RETRY
-    session.add(stage)
+async def test_increment_and_reset_together_rejected(service, row, session):
+    row.status = StageStatus.NEEDS_RETRY
     await session.flush()
 
     with pytest.raises(ValueError):
-        await service.transition(stage, StageStatus.RUNNING, increment_retry=True, reset_retry=True)
+        await service.transition(row, StageStatus.RUNNING, increment_retry=True, reset_retry=True)
 
 
-async def test_transition_flushes_but_does_not_commit(service, stage, session, project):
-    stage.status = StageStatus.PENDING
-    session.add(stage)
-    await session.flush()
-    stage_type = stage.type
+async def test_transition_flushes_but_does_not_commit(service, row, session, project, session_factory):
     project_id = project.id
 
-    await service.transition(stage, StageStatus.RUNNING)
+    await service.transition(row, StageStatus.RUNNING)
 
     # Visible within the same session/transaction before any commit.
-    same_session_stage = await service.get_stage(project_id, stage_type)
-    assert same_session_stage.status == StageStatus.RUNNING
+    assert (await service.get_row(project_id, "r")).status == StageStatus.RUNNING
 
     # Not yet visible to a separate connection/transaction.
-    async with _SessionLocal() as other_session:
-        other_stage = await StageService(other_session).get_stage(project_id, stage_type)
-        assert other_stage.status == StageStatus.PENDING
+    async with session_factory() as other_session:
+        assert (await StageService(other_session).get_row(project_id, "r")).status == StageStatus.PENDING
 
     await session.rollback()
 
     # After rollback, nothing was persisted.
-    async with _SessionLocal() as other_session:
-        other_stage = await StageService(other_session).get_stage(project_id, stage_type)
-        assert other_stage.status == StageStatus.PENDING
+    async with session_factory() as other_session:
+        assert (await StageService(other_session).get_row(project_id, "r")).status == StageStatus.PENDING
 
 
-# --- reset_from ----------------------------------------------------------
+# --- record_result ----------------------------------------------------
 
 
-async def test_reset_from_puts_stage_and_dependents_back_to_pending(service, project, session):
-    await service.create_stages(project.id)
+def record(artifact_id: str) -> ArtifactRecord:
+    return ArtifactRecord(id=artifact_id, type=ArtifactType.BRIEF, data={"k": artifact_id})
+
+
+async def test_record_result_stores_artifacts_and_the_report(service, row, session):
+    report = ConsistencyReport(score=4)
+
+    await service.record_result(row, [record("a"), record("b")], report)
+
+    assert [a["id"] for a in row.artifacts] == ["a", "b"]
+    assert row.consistency["score"] == 4
+
+
+async def test_record_result_replaces_the_whole_artifact_set(service, row, session):
+    await service.record_result(row, [record("a"), record("b"), record("c")], ConsistencyReport(score=5))
+    await service.record_result(row, [record("a")], None)
+
+    assert [a["id"] for a in row.artifacts] == ["a"]
+    assert row.consistency is None
+
+
+async def test_record_result_does_not_change_the_status(service, row, session):
+    await service.record_result(row, [record("a")], None)
+    assert row.status == StageStatus.PENDING
+
+
+# --- reset_from -----------------------------------------------------------
+
+
+async def test_reset_from_puts_the_row_and_its_dependents_back_to_pending(service, project, session):
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
+    for row_id in ("brief", "em0", "cs0"):
+        await walk_to_done(service, project.id, row_id)
 
-    # Walk "brief" all the way to "running", then to "consistency_check",
-    # then to "done" so it's non-pending and eligible to reset.
-    brief = await service.get_stage(project.id, "brief")
-    await service.transition(brief, StageStatus.RUNNING)
-    await service.transition(brief, StageStatus.CONSISTENCY_CHECK)
-    await service.transition(brief, StageStatus.DONE)
+    reset = await service.reset_from(project.id, "em0")
 
-    empathy_map = await service.get_stage(project.id, "empathy_map")
-    await service.transition(empathy_map, StageStatus.RUNNING)
-    await service.transition(empathy_map, StageStatus.CONSISTENCY_CHECK)
-    await service.transition(empathy_map, StageStatus.DONE)
-
-    reset_stages = await service.reset_from(project.id, "brief")
-
-    # Only "brief" and "empathy_map" were moved out of pending above; every
-    # other dependent of "brief" is still pending and must be skipped.
-    reset_types = {s.type for s in reset_stages}
-    assert reset_types == {"brief", "empathy_map"}
-
-    all_stages = await service.get_stages(project.id)
-    for s in all_stages:
-        if s.type in reset_types:
-            assert s.status == StageStatus.PENDING
+    # em0 and its dependent cs0 were moved out of pending; id0 (also a dependent) was already pending and is skipped.
+    assert {r.id for r in reset} == {"em0", "cs0"}
+    assert all(r.status == StageStatus.PENDING for r in reset)
 
 
-async def test_reset_from_leaves_upstream_and_unrelated_stages_untouched(service, project, session):
-    await service.create_stages(project.id)
+async def test_reset_from_clears_artifacts_and_keeps_row_ids(service, project, session):
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
+    await walk_to_done(service, project.id, "brief")
+    brief = await service.get_row(project.id, "brief")
+    await service.record_result(brief, [record("a")], ConsistencyReport(score=5))
 
-    # "value_map" depends on "empathy_map", which depends on "brief".
-    # "environment_scan" depends on "brief"/"empathy_map" but is not a
-    # dependent of "value_map" — neither of these should be touched by
-    # reset_from("value_map").
-    for stage_id in ("brief", "empathy_map", "environment_scan", "value_map"):
-        s = await service.get_stage(project.id, stage_id)
-        await service.transition(s, StageStatus.RUNNING)
-        await service.transition(s, StageStatus.CONSISTENCY_CHECK)
-        await service.transition(s, StageStatus.DONE)
+    await service.reset_from(project.id, "brief")
 
-    reset_stages = await service.reset_from(project.id, "value_map")
-    reset_types = {s.type for s in reset_stages}
-    assert "brief" not in reset_types
-    assert "empathy_map" not in reset_types
-    assert "environment_scan" not in reset_types
+    assert brief.id == "brief"
+    assert brief.artifacts == [] and brief.consistency is None
 
-    brief = await service.get_stage(project.id, "brief")
-    empathy_map = await service.get_stage(project.id, "empathy_map")
-    environment_scan = await service.get_stage(project.id, "environment_scan")
-    assert brief.status == StageStatus.DONE
-    assert empathy_map.status == StageStatus.DONE
-    assert environment_scan.status == StageStatus.DONE
 
-    value_map = await service.get_stage(project.id, "value_map")
-    assert value_map.status == StageStatus.PENDING
+async def test_reset_from_leaves_upstream_siblings_and_unrelated_rows_untouched(service, project, session):
+    await service.create_rows(project.id, chain_specs())
+    await session.commit()
+    for row_id in ("brief", "em0", "em1", "scan", "cs0"):
+        await walk_to_done(service, project.id, row_id)
+
+    reset = await service.reset_from(project.id, "cs0")
+
+    assert {r.id for r in reset} == {"cs0"}
+    for untouched in ("brief", "em0", "em1", "scan"):
+        assert (await service.get_row(project.id, untouched)).status == StageStatus.DONE
 
 
 async def test_reset_from_does_not_touch_retry_count(service, project, session):
-    await service.create_stages(project.id)
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
-
-    brief = await service.get_stage(project.id, "brief")
-    await service.transition(brief, StageStatus.RUNNING)
-    await service.transition(brief, StageStatus.CONSISTENCY_CHECK)
-    await service.transition(brief, StageStatus.DONE)
+    await walk_to_done(service, project.id, "brief")
+    brief = await service.get_row(project.id, "brief")
     brief.retry_count = 7
     await session.flush()
 
-    reset_stages = await service.reset_from(project.id, "brief")
+    (reset_brief,) = await service.reset_from(project.id, "brief")
 
-    reset_brief = next(s for s in reset_stages if s.type == "brief")
     assert reset_brief.status == StageStatus.PENDING
     assert reset_brief.retry_count == 7
 
 
-async def test_reset_from_skips_stages_already_pending(service, project, session):
-    await service.create_stages(project.id)
+async def test_reset_from_skips_rows_already_pending(service, project, session):
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
 
-    reset_stages = await service.reset_from(project.id, "brief")
-
-    # Every dependent stage was already pending, so nothing to transition.
-    assert reset_stages == []
+    assert await service.reset_from(project.id, "brief") == []
 
 
 async def test_reset_from_processes_in_graph_order(service, project, session):
-    await service.create_stages(project.id)
+    await service.create_rows(project.id, chain_specs())
+    await session.commit()
+    for row_id in ("brief", "em0", "cs0", "id0"):
+        await walk_to_done(service, project.id, row_id)
+
+    reset = await service.reset_from(project.id, "brief")
+
+    order = {stage: i for i, stage in enumerate(STAGE_IDS)}
+    positions = [order[r.stage] for r in reset]
+    assert positions == sorted(positions)
+
+
+async def test_reset_from_unknown_row_raises_not_found(service, project, session):
+    await service.create_rows(project.id, chain_specs())
     await session.commit()
 
-    for stage_id in ("brief", "empathy_map", "value_map"):
-        s = await service.get_stage(project.id, stage_id)
-        await service.transition(s, StageStatus.RUNNING)
-        await service.transition(s, StageStatus.CONSISTENCY_CHECK)
-        await service.transition(s, StageStatus.DONE)
+    with pytest.raises(StageRowNotFound):
+        await service.reset_from(project.id, "nope")
 
-    reset_stages = await service.reset_from(project.id, "brief")
-    order = {stage_id: i for i, stage_id in enumerate(STAGE_IDS)}
-    reset_order = [order[s.type] for s in reset_stages]
-    assert reset_order == sorted(reset_order)
+
+async def test_reset_from_a_dependent_that_cannot_go_back_raises(service, project, session):
+    await service.create_rows(project.id, chain_specs())
+    await session.commit()
+    await walk_to_done(service, project.id, "brief")
+    em0 = await service.get_row(project.id, "em0")
+    em0.status = StageStatus.NEEDS_RETRY  # needs_retry has no edge to pending
+    await session.flush()
+
+    with pytest.raises(InvalidStageTransition):
+        await service.reset_from(project.id, "brief")
+
+
+# --- stale_running_rows ------------------------------------------------
+
+
+async def test_stale_running_rows_selects_only_old_running_rows(service, project, session):
+    await service.create_rows(project.id, chain_specs())
+    now = datetime.now(timezone.utc)
+    brief = await service.get_row(project.id, "brief")
+    em0 = await service.get_row(project.id, "em0")
+    em1 = await service.get_row(project.id, "em1")
+    for r, started in ((brief, now - timedelta(hours=2)), (em0, now - timedelta(seconds=5))):
+        r.status = StageStatus.RUNNING
+        r.started_at = started
+    em1.status = StageStatus.DONE
+    em1.started_at = now - timedelta(hours=3)
+    await session.commit()
+
+    stale = await service.stale_running_rows([project.id], now - timedelta(hours=1))
+
+    assert [r.id for r in stale] == ["brief"]
+
+
+# --- wire mapping ----------------------------------------------------------
+
+
+async def test_to_wire_row_flattens_the_stored_failure(service, project, session):
+    (r,) = await service.create_rows(project.id, [spec("r", S.BRIEF)])
+    await service.transition(r, StageStatus.RUNNING)
+    await service.transition(r, StageStatus.ERROR, failure=FAILURE)
+
+    wire = to_wire_row(r)
+
+    assert wire.error_code == StageErrorCode.GENERATION_FAILED
+    assert wire.error == "boom"
+    assert wire.stage == S.BRIEF and wire.status == StageStatus.ERROR
 
 
 # --- no commit ----------------------------------------------------------
 
 
-async def test_service_never_commits(project, session):
+async def test_service_never_commits(project, session, session_factory):
     project_id = project.id
     service = StageService(session)
-    await service.create_stages(project_id)
+    await service.create_rows(project_id, [spec("r", S.BRIEF)])
     # No commit here — roll back and check nothing landed in a fresh
     # session/transaction, proving the service itself never committed.
     await session.rollback()
 
-    async with _SessionLocal() as other_session:
-        other_service = StageService(other_session)
-        with pytest.raises(StageNotFound):
-            await other_service.get_stage(project_id, STAGE_IDS[0])
+    async with session_factory() as other_session:
+        with pytest.raises(StageRowNotFound):
+            await StageService(other_session).get_row(project_id, "r")

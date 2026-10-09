@@ -1,13 +1,19 @@
 from collections.abc import Sequence
 from uuid import UUID
 
+from typing import Literal
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from bizstruct_domain import Stage, project_status
+from bizstruct_domain import StageRow as WireRow
 
 from app.exceptions.auth import PermissionDeniedError
 from app.exceptions.base import EntityNotFoundError
 from app.models.project import Project
-from app.schemas.project import ProjectCreate, ProjectUpdate
+from app.models.stage_row import StageRow
+from app.schemas.project import GenerationRequest, ProjectUpdate
 
 
 class ProjectService:
@@ -54,21 +60,43 @@ class ProjectService:
         result = await self.session.execute(statement)
         return result.scalars().all()
 
-    async def create(self, user_id: UUID, data: ProjectCreate) -> Project:
+    async def create(self, user_id: UUID, data: GenerationRequest) -> Project:
         """
-            Creates a new project owned by the specified user.
+            Adds a new project owned by the specified user to the session.
+
+            Flushes but does not commit: the caller (the generation flow) creates
+            the project's first rows in the same transaction.
         """
         project = Project(
             user_id=user_id,
-            title=data.title,
+            title=data.resolved_title(),
             idea=data.idea,
             language=data.language,
-            mode=data.mode,
+            enabled_optional=[stage.value for stage in data.enabled_optional],
+            auto_approve=data.auto_approve,
         )
         self.session.add(project)
-        await self.session.commit()
-        await self.session.refresh(project)
+        await self.session.flush()
         return project
+
+    async def statuses(
+        self, projects: Sequence[Project]
+    ) -> dict[UUID, Literal["completed", "failed", "running"]]:
+        """
+            Derived status (`project_status`) of each project, from its rows.
+            Reads only stage and status of the rows, not their artifacts.
+        """
+        result = await self.session.execute(
+            select(StageRow.id, StageRow.project_id, StageRow.stage, StageRow.status)
+            .where(StageRow.project_id.in_([p.id for p in projects]))
+        )
+        rows_by_project: dict[UUID, list[WireRow]] = {p.id: [] for p in projects}
+        for row_id, project_id, stage, row_status in result.all():
+            rows_by_project[project_id].append(WireRow(id=row_id, stage=stage, status=row_status))
+        return {
+            p.id: project_status(rows_by_project[p.id], [Stage(v) for v in p.enabled_optional])
+            for p in projects
+        }
 
     async def update(
         self,

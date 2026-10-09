@@ -94,6 +94,10 @@ class Settings(BaseSettings):
     # Internal API key — used by ML service to authenticate internal endpoints
     internal_api_key: str = "change-me-in-production"
 
+    # A row RUNNING longer than this is moved to ERROR (stuck_timeout) the next
+    # time its project is read. There is no background worker.
+    stuck_timeout_seconds: int = 1800
+
     # Azure Service Bus — enqueues ML generation tasks
     service_bus_connection_string: str | None = None
     service_bus_queue_name: str = "generation-tasks"

@@ -1,8 +1,10 @@
-import json
+import asyncio
 import logging
 from typing import Any
 
-from app.config import settings
+from bizstruct_domain import StageEvent
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -49,48 +51,24 @@ def get_negotiate_url(project_id: str) -> str:
     return url.replace("wss://", "https://", 1).replace("ws://", "http://", 1)
 
 
-def send_block_ready(project_id: str, block: str, status: str) -> None:
-    if not settings.azure_web_pubsub_connection_string:
-        return
-    try:
-        _get_client().send_to_group(
-            group=project_id,
-            message=json.dumps({"type": "block_ready", "block": block, "status": status}),
-            content_type="application/json",
-        )
-    except Exception:
-        logger.exception("Failed to send block_ready for project %s block %s", project_id, block)
+class WebPubSubEvents:
+    """
+        EventPort over Azure Web PubSub: sends the domain StageEvent to the
+        project's group. A no-op while no connection string is configured, and
+        a failed send is logged, never raised.
+    """
 
-
-def send_validate_result(project_id: str, model_id: str, result: dict) -> None:
-    if not settings.azure_web_pubsub_connection_string:
-        return
-    try:
-        _get_client().send_to_group(
-            group=project_id,
-            message=json.dumps({
-                "type": "validate_model_result",
-                "model_id": model_id,
-                "result": result,
-            }),
-            content_type="application/json",
-        )
-    except Exception:
-        logger.exception("Failed to send validate_result for project %s model %s", project_id, model_id)
-
-
-def send_generation_complete(project_id: str, final_status: str) -> None:
-    if not settings.azure_web_pubsub_connection_string:
-        return
-    try:
-        _get_client().send_to_group(
-            group=project_id,
-            message=json.dumps({
-                "type": "generation_complete",
-                "project_id": project_id,
-                "status": final_status,
-            }),
-            content_type="application/json",
-        )
-    except Exception:
-        logger.exception("Failed to send generation_complete for project %s", project_id)
+    async def publish(self, event: StageEvent) -> None:
+        if not settings.azure_web_pubsub_connection_string:
+            return
+        try:
+            await asyncio.to_thread(
+                _get_client().send_to_group,
+                group=event.project_id,
+                message=event.model_dump_json(),
+                content_type="application/json",
+            )
+        except Exception:
+            logger.exception(
+                "Failed to send stage event for project %s row %s", event.project_id, event.stage_row_id
+            )
