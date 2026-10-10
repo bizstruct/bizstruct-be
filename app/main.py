@@ -1,40 +1,29 @@
-import uuid
 
-from fastapi import FastAPI, HTTPException, Query, status
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.pubsub import get_negotiate_url
-from app.routers import blocks, generation, internal, models, projects
+from app.core.config import settings
+from app.core.lifespan import lifespan
+from app.core.error_handlers import register_exception_handlers
+from app.routers.api import api_router
 
 app = FastAPI(
-    title="BizStruct API",
-    description="AI-driven business modeling SaaS backend",
-    version="1.0.0",
+    title=settings.app.title,
+    description=settings.app.description,
+    version=settings.app.version,
+    lifespan=lifespan,
 )
+
+register_exception_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors.allowed_origins,
+    allow_credentials=settings.cors.allow_credentials,
+    allow_methods=settings.cors.allow_methods,
+    allow_headers=settings.cors.allow_headers,
 )
 
-app.include_router(projects.router)
-app.include_router(blocks.router)
-app.include_router(generation.router)
-app.include_router(internal.router)
-app.include_router(models.router)
+app.include_router(api_router)
 
-
-@app.get("/health", tags=["system"])
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.get("/api/negotiate", tags=["pubsub"])
-async def negotiate(project_id: uuid.UUID = Query(...)) -> dict[str, str]:
-    if not settings.azure_web_pubsub_connection_string:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="PubSub not configured")
-    return {"url": get_negotiate_url(str(project_id))}
