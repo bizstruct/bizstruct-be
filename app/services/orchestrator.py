@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bizstruct_domain import (
+    ArtifactType,
     QueueMessage,
     RowTarget,
     Stage,
@@ -29,6 +30,7 @@ from app.models.project import Project
 from app.models.stage_row import StageRow
 from app.ports.events import EventPort
 from app.ports.queue import QueuePort
+from app.schemas.project import is_default_title
 from app.services.orchestration import (
     IdFactory,
     default_row_id,
@@ -156,6 +158,7 @@ class GenerationOrchestrator:
             return ApplyOutcome("invalid", problems)
 
         await self.stage_service.record_result(row, result.artifacts, result.consistency)
+        self._name_project_from_brief(project, row, result)
         for target in success_path(result.consistency, project.auto_approve):
             await self._move(work, row, target, approved=target == StageStatus.DONE and row.status == StageStatus.AWAITING_DECISION)
         await self._grow_and_advance(work, project)
@@ -286,6 +289,21 @@ class GenerationOrchestrator:
             await self._commit_and_dispatch(work, project)
 
     # ------------------------------------------------------------------ internals
+
+    @staticmethod
+    def _name_project_from_brief(project: Project, row: StageRow, result: StageResult) -> None:
+        """
+            Replaces the default project name with the one the brief proposes. A name the
+            user chose (at creation or by renaming) is never touched, so regenerating the
+            brief does not undo a rename.
+        """
+        if row.stage != Stage.BRIEF or not is_default_title(project.title):
+            return
+        for artifact in result.artifacts:
+            title = str(artifact.data.get("project_title") or "").strip()
+            if artifact.type == ArtifactType.BRIEF and title:
+                project.title = title
+                return
 
     @staticmethod
     def _enabled(project: Project) -> list[Stage]:
