@@ -286,6 +286,43 @@ async def test_a_successful_brief_result_is_stored_and_the_row_becomes_done(orch
     assert brief.finished_at is not None
 
 
+def with_project_title(result, title):
+    for artifact in result.artifacts:
+        if artifact.type == "brief":
+            artifact.data["project_title"] = title
+    return result
+
+
+async def test_a_default_project_name_is_replaced_by_the_brief_title(orchestrator, stage_service, project, session):
+    project.title = "New project"
+    brief, result = await brief_result(orchestrator, stage_service, project)
+
+    await orchestrator.apply_result(project.id, with_project_title(result, "  Reminders for auto repair shops  "))
+
+    await session.refresh(project)
+    assert project.title == "Reminders for auto repair shops"
+
+
+async def test_a_name_the_user_chose_is_kept(orchestrator, stage_service, project, session):
+    assert project.title == "Test"  # not a default name
+    brief, result = await brief_result(orchestrator, stage_service, project)
+
+    await orchestrator.apply_result(project.id, with_project_title(result, "Reminders for auto repair shops"))
+
+    await session.refresh(project)
+    assert project.title == "Test"
+
+
+async def test_a_brief_without_a_title_leaves_the_default_name(orchestrator, stage_service, project, session):
+    project.title = "Новий проєкт"
+    brief, result = await brief_result(orchestrator, stage_service, project)
+
+    await orchestrator.apply_result(project.id, result)
+
+    await session.refresh(project)
+    assert project.title == "Новий проєкт"
+
+
 async def test_the_consistency_check_step_is_applied_in_order(orchestrator, stage_service, project, fake_events):
     brief, result = await brief_result(orchestrator, stage_service, project)
     fake_events.events.clear()

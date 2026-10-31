@@ -41,6 +41,11 @@ _DEFAULT_TITLES = {
 }
 
 
+def is_default_title(title: str) -> bool:
+    """True for the name a project gets when its creator gave none, in any language."""
+    return title in _DEFAULT_TITLES.values()
+
+
 class GenerationRequest(CamelModel):
     """
         Schema for creating a project and starting its generation.
